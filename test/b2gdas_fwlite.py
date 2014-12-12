@@ -249,7 +249,7 @@ for ifile in files :
 
 
         # Veto on dilepton events
-        if goodmuons.size() + goodelectrons.size() > 1 :
+        if goodmuons.size() + goodelectrons.size() != 1 :
             continue
         elif goodmuons.size() > 0 :
             theLepton = ROOT.TLorentzVector( goodmuons[0].px(),
