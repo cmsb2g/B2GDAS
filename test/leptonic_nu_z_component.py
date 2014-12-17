@@ -1,7 +1,7 @@
 import math
 import ROOT
 
-def solve_nu_tmass(bjet, lepton, vnu, nuz1, nuz2, tmass=175.0) : 
+def solve_nu_tmass(bjet, lepton, vnu, tmass=175.0) : 
 
     #
     # Purpose: Solve for the neutrino longitudinal z-momentum that makes
@@ -24,6 +24,8 @@ def solve_nu_tmass(bjet, lepton, vnu, nuz1, nuz2, tmass=175.0) :
 
     discrim_flag = True
 
+    nuz1 = 0.0
+    nuz2 = 0.0
 
     cprime = lepton + bjet
     alpha1 = tmass*tmass - cprime.M2()
@@ -43,11 +45,11 @@ def solve_nu_tmass(bjet, lepton, vnu, nuz1, nuz2, tmass=175.0) :
     if abs (nuz1) > abs (nuz2) :
         nuz1,nuz2 = nuz2,nuz1
 
-    return discrim_flag
+    return discrim_flag, nuz1, nuz2
 
 
 
-def solve_nu(vlep, vnu, nuz1, nuz2, wmass=80.4) : 
+def solve_nu(vlep, vnu, wmass=80.4) : 
     #
     # Purpose: Solve for the neutrino longitudinal z-momentum that makes
     #          the leptonic W have mass WMASS.
@@ -71,6 +73,8 @@ def solve_nu(vlep, vnu, nuz1, nuz2, wmass=80.4) :
     
     discrim_flag = True
 
+    nuz1 = 0.0
+    nuz2 = 0.0
 
     x = vlep.Px()*vnu.Px() + vlep.Py()*vnu.Py() + wmass*wmass/2.
     a = vlep.Pz()*vlep.Pz() - vlep.E()*vlep.E()
@@ -88,4 +92,4 @@ def solve_nu(vlep, vnu, nuz1, nuz2, wmass=80.4) :
     if abs (nuz1) > abs (nuz2) :
         nuz1, nuz2 = nuz2, nuz1
 
-    return discrim_flag
+    return discrim_flag, nuz1, nuz2

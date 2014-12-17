@@ -36,10 +36,37 @@ parser.add_option('--maxjets', type='int', action='store',
                   help='Number of jets to plot. To plot all jets, set to a big number like 999')
 
 
+parser.add_option('--bdisc', type='string', action='store',
+                  default='combinedInclusiveSecondaryVertexV2BJetTags',
+                  dest='bdisc',
+                  help='Name of output file')
+
+
 parser.add_option('--bDiscMin', type='float', action='store',
-                  default=0.200,
+                  default=0.679,
                   dest='bDiscMin',
                   help='Minimum b discriminator')
+
+parser.add_option('--minMuonPt', type='float', action='store',
+                  default=30.,
+                  dest='minMuonPt',
+                  help='Minimum PT for muons')
+
+parser.add_option('--maxMuonEta', type='float', action='store',
+                  default=2.1,
+                  dest='maxMuonEta',
+                  help='Maximum muon pseudorapidity')
+
+parser.add_option('--minElectronPt', type='float', action='store',
+                  default=30.,
+                  dest='minElectronPt',
+                  help='Minimum PT for electrons')
+
+parser.add_option('--maxElectronEta', type='float', action='store',
+                  default=2.5,
+                  dest='maxElectronEta',
+                  help='Maximum electron pseudorapidity')
+
 
 parser.add_option('--minAK4Pt', type='float', action='store',
                   default=30.,
@@ -77,6 +104,7 @@ import sys
 from DataFormats.FWLite import Events, Handle
 ROOT.gROOT.Macro("rootlogon.C")
 from leptonic_nu_z_component import solve_nu_tmass, solve_nu
+import copy
 
 muons, muonLabel = Handle("std::vector<pat::Muon>"), "slimmedMuons"
 electrons, electronLabel = Handle("std::vector<pat::Electron>"), "slimmedElectrons"
@@ -86,7 +114,7 @@ jets, jetLabel = Handle("std::vector<pat::Jet>"), "slimmedJets"
 ak8jets, ak8jetLabel = Handle("std::vector<pat::Jet>"), "slimmedJetsAK8"
 mets, metLabel = Handle("std::vector<pat::MET>"), "slimmedMETs"
 vertices, vertexLabel = Handle("std::vector<reco::Vertex>"), "offlineSlimmedPrimaryVertices"
-
+rhos, rhoLabel = Handle("double"), "fixedGridRhoAll"
 
 ##   ___ ___ .__          __                                             
 ##  /   |   \|__| _______/  |_  ____   ________________    _____   ______
@@ -101,6 +129,20 @@ f.cd()
 
 h_mttbar = ROOT.TH1F("h_mttbar", ";m_{t#bar{t}} (GeV)", 600, 0, 6000)
 
+h_ptLep = ROOT.TH1F("h_ptLep", "Lepton p_{T};p_{T} (GeV)", 100, 0, 1000)
+h_etaLep = ROOT.TH1F("h_etaLep", "Lepton #eta;p_{T} (GeV)#eta", 100, 0, ROOT.TMath.TwoPi() )
+h_met = ROOT.TH1F("h_met", "Missing p_{T};p_{T} (GeV)", 100, 0, 1000)
+h_ptRel = ROOT.TH1F("h_ptRel", "p_{T}^{REL};p_{T}^{REL} (GeV)", 100, 0, 100)
+h_dRMin = ROOT.TH1F("h_dRMin", "#Delta R_{MIN};#Delta R_{MIN}", 100, 0, 5.0)
+h_2DCut = ROOT.TH2F("h_2DCut", "2D Cut;p_{T}^{REL};#Delta R", 20, 0, 100, 20, 0, 5.0 )
+
+h_ptAK4 = ROOT.TH1F("h_ptAK4", "AK4 Jet p_{T};p_{T} (GeV)", 300, 0, 3000)
+h_etaAK4 = ROOT.TH1F("h_etaAK4", "AK4 Jet #eta;#eta", 120, -6, 6)
+h_yAK4 = ROOT.TH1F("h_yAK4", "AK4 Jet Rapidity;y", 120, -6, 6)
+h_phiAK4 = ROOT.TH1F("h_phiAK4", "AK4 Jet #phi;#phi (radians)",100,-ROOT.Math.Pi(),ROOT.Math.Pi())
+h_mAK4 = ROOT.TH1F("h_mAK4", "AK4 Jet Mass;Mass (GeV)", 100, 0, 1000)
+h_bdiscAK4 = ROOT.TH1F("h_bdiscAK4", "AK4 b discriminator;b discriminator", 100, -1.0, 4.0)
+
 h_ptAK8 = ROOT.TH1F("h_ptAK8", "AK8 Jet p_{T};p_{T} (GeV)", 300, 0, 3000)
 h_etaAK8 = ROOT.TH1F("h_etaAK8", "AK8 Jet #eta;#eta", 120, -6, 6)
 h_yAK8 = ROOT.TH1F("h_yAK8", "AK8 Jet Rapidity;y", 120, -6, 6)
@@ -114,6 +156,57 @@ h_nsjAK8 = ROOT.TH1F("h_nsjAK8", "AK8 CMS Top Tagger N_{subjets};N_{subjets}", 5
 h_tau21AK8 = ROOT.TH1F("h_tau21AK8", "AK8 Jet #tau_{2} / #tau_{1};Mass#tau_{21}", 100, 0, 1.0)
 h_tau32AK8 = ROOT.TH1F("h_tau32AK8", "AK8 Jet #tau_{3} / #tau_{2};Mass#tau_{32}", 100, 0, 1.0)
 
+
+
+##      ____.       __    _________                                     __  .__                      
+##     |    | _____/  |_  \_   ___ \  __________________   ____   _____/  |_|__| ____   ____   ______
+##     |    |/ __ \   __\ /    \  \/ /  _ \_  __ \_  __ \_/ __ \_/ ___\   __\  |/  _ \ /    \ /  ___/
+## /\__|    \  ___/|  |   \     \___(  <_> )  | \/|  | \/\  ___/\  \___|  | |  (  <_> )   |  \\___ \ 
+## \________|\___  >__|    \______  /\____/|__|   |__|    \___  >\___  >__| |__|\____/|___|  /____  >
+##               \/               \/                          \/     \/                    \/     \/ 
+ROOT.gSystem.Load('libCondFormatsJetMETObjects')
+#jecParStrAK4 = ROOT.std.string('JECs/PHYS14_25_V2_AK4PFchs.txt')
+#jecUncAK4 = ROOT.JetCorrectionUncertainty( jecParStrAK4 )
+#jecParStrAK8 = ROOT.std.string('JECs/PHYS14_25_V2_AK8PFchs.txt')
+#jecUncAK8 = ROOT.JetCorrectionUncertainty( jecParStrAK8 )
+
+print 'Getting L3 for AK4'
+L3JetParAK4  = ROOT.JetCorrectorParameters("JECs/PHYS14_25_V2_L3Absolute_AK4PFchs.txt");
+print 'Getting L2 for AK4'
+L2JetParAK4  = ROOT.JetCorrectorParameters("JECs/PHYS14_25_V2_L2Relative_AK4PFchs.txt");
+print 'Getting L1 for AK4'
+L1JetParAK4  = ROOT.JetCorrectorParameters("JECs/PHYS14_25_V2_L1FastJet_AK4PFchs.txt");
+# for data only :
+#ResJetParAK4 = ROOT.JetCorrectorParameters("JECs/PHYS14_25_V2_L2L3Residual_AK4PFchs.txt");
+
+print 'Getting L3 for AK8'
+L3JetParAK8  = ROOT.JetCorrectorParameters("JECs/PHYS14_25_V2_L3Absolute_AK8PFchs.txt");
+print 'Getting L2 for AK8'
+L2JetParAK8  = ROOT.JetCorrectorParameters("JECs/PHYS14_25_V2_L2Relative_AK8PFchs.txt");
+print 'Getting L1 for AK8'
+L1JetParAK8  = ROOT.JetCorrectorParameters("JECs/PHYS14_25_V2_L1FastJet_AK8PFchs.txt");
+# for data only :
+#ResJetParAK8 = ROOT.JetCorrectorParameters("JECs/PHYS14_25_V2_L2L3Residual_AK8PFchs.txt"); 
+
+
+#  Load the JetCorrectorParameter objects into a vector, IMPORTANT: THE ORDER MATTERS HERE !!!! 
+vParJecAK4 = ROOT.vector('JetCorrectorParameters')()
+vParJecAK4.push_back(L1JetParAK4)
+vParJecAK4.push_back(L2JetParAK4)
+vParJecAK4.push_back(L3JetParAK4)
+# for data only :
+#vParJecAK4.push_back(ResJetPar)
+
+ak4JetCorrector = ROOT.FactorizedJetCorrector(vParJecAK4)
+
+vParJecAK8 = ROOT.vector('JetCorrectorParameters')()
+vParJecAK8.push_back(L1JetParAK8)
+vParJecAK8.push_back(L2JetParAK8)
+vParJecAK8.push_back(L3JetParAK8)
+# for data only :
+#vParJecAK8.push_back(ResJetPar)
+
+ak8JetCorrector = ROOT.FactorizedJetCorrector(vParJecAK8)
 
 ## ___________                    __    .____                         
 ## \_   _____/__  __ ____   _____/  |_  |    |    ____   ____ ______  
@@ -152,8 +245,11 @@ for ifile in files :
         i += 1
         nevents += 1
 
-        if i % 1000 == 0 :
-            print '    ---> Event ' + str(i)
+        if nevents % 1000 == 0 : 
+            print '    ---> Event ' + str(nevents)
+        if options.verbose :
+            print '==============================================='
+            print '    ---> Event ' + str(nevents)
 
 
         ## ____   ____             __                    _________      .__                 __  .__               
@@ -165,18 +261,34 @@ for ifile in files :
 
 
         event.getByLabel(vertexLabel, vertices)
-
         # Vertices
         if len(vertices.product()) == 0 or vertices.product()[0].ndof() < 4:
-            print "Event has no good primary vertex."
+            if options.verbose : 
+                print "Event has no good primary vertex."
             continue
         else:
             PV = vertices.product()[0]
             if options.verbose : 
                 print "PV at x,y,z = %+5.3f, %+5.3f, %+6.3f (ndof %.1f)" % (PV.x(), PV.y(), PV.z(), PV.ndof())
 
-            
-            
+
+        ## __________.__             ____   ____      .__                 
+        ## \______   \  |__   ____   \   \ /   /____  |  |  __ __   ____  
+        ##  |       _/  |  \ /  _ \   \   Y   /\__  \ |  | |  |  \_/ __ \ 
+        ##  |    |   \   Y  (  <_> )   \     /  / __ \|  |_|  |  /\  ___/ 
+        ##  |____|_  /___|  /\____/     \___/  (____  /____/____/  \___  >
+        ##         \/     \/                        \/                 \/ 
+        event.getByLabel(rhoLabel, rhos)
+        # Rhos
+        if len(rhos.product()) == 0 :
+            print "Event has no rho values."
+            continue
+        else:
+            rho = rhos.product()[0]
+            if options.verbose : 
+                print 'rho = {0:6.2f}'.format( rho )
+
+                            
         ## .____                  __                    _________      .__                 __  .__               
         ## |    |    ____ _______/  |_  ____   ____    /   _____/ ____ |  |   ____   _____/  |_|__| ____   ____  
         ## |    |  _/ __ \\____ \   __\/  _ \ /    \   \_____  \_/ __ \|  | _/ __ \_/ ___\   __\  |/  _ \ /    \ 
@@ -196,18 +308,18 @@ for ifile in files :
         goodmuons = []
         if len(muons.product()) > 0 :
             for i,muon in enumerate( muons.product() ) :
-                if muon.pt() > 45.0 and abs(muon.eta()) < 2.1 and muon.muonBestTrack().dz(PV.position()) < 5.0 and muon.isTightMuon(PV) :
+                if muon.pt() > options.minMuonPt and abs(muon.eta()) < options.maxMuonEta and muon.muonBestTrack().dz(PV.position()) < 5.0 and muon.isTightMuon(PV) :
                     goodmuons.append( muon )
-                if options.verbose :
-                    print "muon %2d: pt %4.1f, dz(PV) %+5.3f, POG loose id %d, tight id %d." % (
-                        i, muon.pt(), muon.muonBestTrack().dz(PV.position()), muon.isLooseMuon(), muon.isTightMuon(PV))
+                    if options.verbose :
+                        print "muon %2d: pt %4.1f, eta %+5.3f phi %+5.3f dz(PV) %+5.3f, POG loose id %d, tight id %d." % (
+                            i, muon.pt(), muon.eta(), muon.phi(), muon.muonBestTrack().dz(PV.position()), muon.isLooseMuon(), muon.isTightMuon(PV))
 
         # Select tight good electrons
         goodelectrons = []
         if len(electrons.product()) > 0 :
             for i,electron in enumerate( electrons.product() ) :
 
-                if electron.pt() < 45.0 :
+                if electron.pt() < electron.pt() and abs(electron.eta()) < options.maxElectronEta :
                     continue
 
                 dEtaIn = electron.deltaEtaSuperClusterTrackAtVtx()
@@ -256,13 +368,17 @@ for ifile in files :
                 
                 if goodElectron == True :
                     goodelectrons.append( electron )
-                if options.verbose :
-                    print "elec %2d: pt %4.1f, supercluster eta %+5.3f, sigmaIetaIeta %.3f (%.3f with full5x5 shower shapes), lost hits %d, pass conv veto %d" % (
-                        i, electron.pt(), electron.superCluster().eta(), electron.sigmaIetaIeta(), electron.full5x5_sigmaIetaIeta(), electron.gsfTrack().trackerExpectedHitsInner().numberOfLostHits(), electron.passConversionVeto())
+                    if options.verbose :
+                        print "elec %2d: pt %4.1f, supercluster eta %+5.3f, phi %+5.3f sigmaIetaIeta %.3f (%.3f with full5x5 shower shapes), pass conv veto %d" % (
+                            i, electron.pt(), electron.superCluster().eta(), electron.phi(), electron.sigmaIetaIeta(), electron.full5x5_sigmaIetaIeta(), electron.passConversionVeto())
         
 
 
         # Veto on dilepton events
+        # Also keep track of the PF index of the lepton
+        # for lepton-jet cleaning (see below)
+        theLeptonObjKey = -1
+        
         if len(goodmuons) + len(goodelectrons) != 1 :
             continue
         elif len(goodmuons) > 0 :
@@ -270,13 +386,13 @@ for ifile in files :
                                              goodmuons[0].py(),
                                              goodmuons[0].pz(),
                                              goodmuons[0].energy() )
+            theLeptonObjKey = goodmuons[0].originalObjectRef().key()
         else :
             theLepton = ROOT.TLorentzVector( goodelectrons[0].px(),
                                              goodelectrons[0].py(),
                                              goodelectrons[0].pz(),
                                              goodelectrons[0].energy() )
-
-
+            theLeptonObjKey = goodelectrons[0].originalObjectRef().key()
 
         ##      ____.       __      _________      .__                 __  .__               
         ##     |    | _____/  |_   /   _____/ ____ |  |   ____   _____/  |_|__| ____   ____  
@@ -296,6 +412,11 @@ for ifile in files :
         # need to adjust.
         #
         #
+        # In addition, we must perform "lepton-jet" cleaning.
+        # This is because the PF leptons are actually counted in the
+        # list of particles sent to the jet clustering.
+        # Therefore, we need to loop over the jet constituents and
+        # remove the lepton. 
         
         # use getByLabel, just like in cmsRun
         event.getByLabel (jetLabel, jets)          # For b-tagging
@@ -307,28 +428,32 @@ for ifile in files :
         # These will hold all of the jets we need for the selection
         ak4JetsGood = []
         ak8JetsGood = []
+        ak4JetsGoodP4 = []
+        ak8JetsGoodP4 = []
 
+        
         # For selecting leptons, look at 2-d cut of dRMin, ptRel of
         # lepton and nearest jet that has pt > 30 GeV
         dRMin = 9999.0
         inearestJet = -1    # Index of nearest jet
         nearestJet = None   # Nearest jet
+ 
 
         ############################################
-        # First get the AK4 jet nearest the lepton :
+        # Get the AK4 jet nearest the lepton :
         ############################################ 
         for i,jet in enumerate(jets.product()) :
-
-            if jet.pt() < options.minAK4Pt or abs(jet.rapidity()) > options.maxAK4Rapidity :
-                continue
-            # perform jet ID with UNCORRECTED jet energy
-            jetP4 = ROOT.TLorentzVector( jet.px(), jet.py(), jet.pz(), jet.energy() )
-            p4Raw = jetP4 * jet.jecFactor(0)
-
-            nhf = jet.neutralHadronEnergy() / p4Raw.E()
-            nef = jet.neutralEmEnergy() / p4Raw.E()
-            chf = jet.chargedHadronEnergy() / p4Raw.E()
-            cef = jet.chargedEmEnergy() / p4Raw.E()
+            # Get the jet p4
+            jetP4Raw = ROOT.TLorentzVector( jet.px(), jet.py(), jet.pz(), jet.energy() )
+            # Get the correction that was applied at RECO level for MINIADO
+            jetJECFromMiniAOD = jet.jecFactor(0)
+            # Remove the old JEC's to get raw energy
+            jetP4Raw *= jetJECFromMiniAOD
+            # Apply jet ID
+            nhf = jet.neutralHadronEnergy() / jetP4Raw.E()
+            nef = jet.neutralEmEnergy() / jetP4Raw.E()
+            chf = jet.chargedHadronEnergy() / jetP4Raw.E()
+            cef = jet.chargedEmEnergy() / jetP4Raw.E()
             nconstituents = jet.numberOfDaughters()
             nch = jet.chargedMultiplicity()
             goodJet = \
@@ -339,39 +464,108 @@ for ifile in files :
               nconstituents > 1 and \
               nch > 0
 
-            if goodJet:
-                dR = jetP4.DeltaR(theLepton )
-                ak4JetsGood.append(jet)
-                if dR < dRMin :
-                    inearestJet = ijet
-                    nearestJet = jet
-                    dRMin = dR
+            if not goodJet :
+                if options.verbose : 
+                    print 'bad jet pt = {0:6.2f}, y = {1:6.2f}, phi = {2:6.2f}, m = {3:6.2f}, bdisc = {4:6.2f}'.format (
+                        jetP4Raw.Perp(), jetP4Raw.Rapidity(), jetP4Raw.Phi(), jetP4Raw.M(), jet.bDiscriminator( options.bdisc )
+                        )
+                continue
+                
+
+
+            if options.verbose :
+                print 'raw jet pt = {0:6.2f}, y = {1:6.2f}, phi = {2:6.2f}, m = {3:6.2f}, bdisc = {4:6.2f}'.format (
+                    jetP4Raw.Perp(), jetP4Raw.Rapidity(), jetP4Raw.Phi(), jetP4Raw.M(), jet.bDiscriminator( options.bdisc )
+                    )
+
+            
+            # Remove the lepton from the list of constituents for lepton/jet cleaning
+            # Speed up computation, only do this for DR < 0.4
+            cleaned = False
+            if theLepton.DeltaR(jetP4Raw) < 0.4:
+                # Check all daughters of jets close to the lepton
+                pfcands = jet.daughterPtrVector()
+                for ipf,pf in enumerate( pfcands ) :
                     
+                    # If any of the jet daughters matches the good lepton, remove the lepton p4 from the jet p4
+                    if pf.key() == theLeptonObjKey:
+                        if options.verbose :
+                            print 'REMOVING LEPTON, pt/eta/phi = {0:6.2f},{1:6.2f},{2:6.2f}'.format(
+                                theLepton.Perp(), theLepton.Eta(), theLepton.Phi()
+                                )
+                        jetP4Raw -= theLepton
+                        cleaned = True
+                        break
+
+
                     
+            # Apply new JEC's
+            ak4JetCorrector.setJetEta( jetP4Raw.Eta() )
+            ak4JetCorrector.setJetPt( jetP4Raw.Perp() )
+            ak4JetCorrector.setJetA( jet.jetArea() )
+            ak4JetCorrector.setRho( rho )
+            newJEC = ak4JetCorrector.getCorrection()
+            jetP4 = jetP4Raw * newJEC
+            # Now perform jet kinematic cuts
+            if jetP4.Perp() < options.minAK4Pt or abs(jetP4.Rapidity()) > options.maxAK4Rapidity :
+                continue
+
+            # Get the jet nearest the lepton
+            dR = jetP4.DeltaR(theLepton )
+            ak4JetsGood.append(jet)
+            ak4JetsGoodP4.append( jetP4 )
+            if options.verbose :
+                print 'corrjet pt = {0:6.2f}, y = {1:6.2f}, phi = {2:6.2f}, m = {3:6.2f}, bdisc = {4:6.2f}'.format (
+                    jetP4.Perp(), jetP4.Rapidity(), jetP4.Phi(), jetP4.M(), jet.bDiscriminator( options.bdisc )
+                    )
+
+            if dR < dRMin :
+                inearestJet = ijet
+                nearestJet = jet
+                nearestJetP4 = jetP4
+                dRMin = dR
+                    
+
+        ############################################
         # Require at least one leptonic-side jet, and 2d isolation cut
+        ############################################ 
         if nearestJet == None :
             continue
-        theLepJet = ROOT.TLorentzVector( nearestJet.px(), nearestJet.py(), nearestJet.pz(), nearestJet.energy() )
+        theLepJet = nearestJetP4
+        theLepJetBDisc = nearestJet.bDiscriminator( options.bdisc )
+
+        # Fill some plots related to the jets
+        h_ptAK4.Fill( theLepJet.Perp() )
+        h_etaAK4.Fill( theLepJet.Eta() )
+        h_yAK4.Fill( theLepJet.Rapidity() )
+        h_mAK4.Fill( theLepJet.M() )
+        h_bdiscAK4.Fill( theLepJetBDisc )
+        # Fill some plots related to the lepton and the 2-d cut
         ptRel = theLepJet.Perp( theLepton.Vect() )
-        pass2D = ptRel > 20.0 or dRMin > 0.5
+        h_ptRel.Fill( ptRel )
+        h_dRMin.Fill( dRMin )
+        h_2DCut.Fill( ptRel, dRMin )
+        pass2D = ptRel > 20.0 or dRMin > 0.4
+        if options.verbose : 
+            print '2d cut : dRMin = {0:6.2f}, ptRel = {1:6.2}'.format( dRMin, ptRel )
         if pass2D == False :
             continue
 
         ############################################
-        # Second, get the AK8 jet away from the lepton
+        # Get the AK8 jet away from the lepton
         ############################################
         for i,jet in enumerate(ak8jets.product()) :
 
-            if jet.pt() < options.minAK8Pt or abs(jet.rapidity()) > options.maxAK8Rapidity :
-                continue
+
             # perform jet ID with UNCORRECTED jet energy
             jetP4 = ROOT.TLorentzVector( jet.px(), jet.py(), jet.pz(), jet.energy() )
-            p4Raw = jetP4 * jet.jecFactor(0)
+            jetP4Raw = copy.copy(jetP4)
+            jetP4Raw *= jet.jecFactor(0)
 
-            nhf = jet.neutralHadronEnergy() / p4Raw.E()
-            nef = jet.neutralEmEnergy() / p4Raw.E()
-            chf = jet.chargedHadronEnergy() / p4Raw.E()
-            cef = jet.chargedEmEnergy() / p4Raw.E()
+            nhf = jet.neutralHadronEnergy() / jetP4Raw.E()
+            nef = jet.neutralEmEnergy() / jetP4Raw.E()
+            chf = jet.chargedHadronEnergy() / jetP4Raw.E()
+            cef = jet.chargedEmEnergy() / jetP4Raw.E()
             nconstituents = jet.numberOfDaughters()
             nch = jet.chargedMultiplicity()
             goodJet = \
@@ -382,28 +576,42 @@ for ifile in files :
               nconstituents > 1 and \
               nch > 0
 
-            if goodJet:
-                dR = jetP4.DeltaR(theLepton )
-                if dR > ROOT.TMath.Pi()/2.0 :
-                    ak8JetsGood.append(jet)
-        
+            if not goodJet :
+                continue
 
+
+            # Apply new JEC's
+            ak8JetCorrector.setJetEta( jetP4Raw.Eta() )
+            ak8JetCorrector.setJetPt( jetP4Raw.Perp() )
+            ak8JetCorrector.setJetA( jet.jetArea() )
+            ak8JetCorrector.setRho( rho )
+            newJEC = ak8JetCorrector.getCorrection()
+            jetP4 = jetP4Raw * newJEC
+            # Now perform jet kinematic cuts
+            if jetP4.Perp() < options.minAK8Pt or abs(jetP4.Rapidity()) > options.maxAK8Rapidity :
+                continue
+
+            # Only keep AK8 jets "away" from the lepton, so we do not need
+            # lepton-jet cleaning here. There's no double counting. 
+            dR = jetP4.DeltaR(theLepton )
+            if dR > ROOT.TMath.Pi()/2.0 :
+                ak8JetsGood.append(jet)
+                ak8JetsGoodP4.append( jetP4 )
+        
+        ## ___________                     .__                
+        ## \__    ___/____     ____   ____ |__| ____    ____  
+        ##   |    |  \__  \   / ___\ / ___\|  |/    \  / ___\ 
+        ##   |    |   / __ \_/ /_/  > /_/  >  |   |  \/ /_/  >
+        ##   |____|  (____  /\___  /\___  /|__|___|  /\___  / 
+        ##                \//_____//_____/         \//_____/  
 
         ############################################
         # Investigate the b-tagging and t-tagging
         ############################################
-        if len(ak4JetsGood) < 1 or len(ak8JetsGood) < 1 :
+        if len(ak4JetsGoodP4) < 1 or len(ak8JetsGoodP4) < 1 :
             continue
 
-        nbtags = 0
-        bJetIndices = []
-        for ijet,jet in enumerate(ak4JetsGood) :
-            bdisc = jet.bDiscriminator('')
-            if bdisc > options.bDiscMin :
-                nbtags += 1
-                bJetIndices.append( ijet )
             
-
         nttags = 0
         tJets = []
         for ijet,jet in enumerate(ak8JetsGood) : 
@@ -436,22 +644,45 @@ for ifile in files :
             else :
                 h_tau32AK8.Fill( -1.0 )
 
+
+            h_ptAK8.Fill( jet.pt() )
+            h_etaAK8.Fill( jet.eta() )
+            h_yAK8.Fill( jet.rapidity() )
+            h_mAK8.Fill( jet.mass() )
+            h_mprunedAK8.Fill( mAK8Pruned )
+            h_mfilteredAK8.Fill( mAK8Filtered )
+            h_mtrimmedAK8.Fill( mAK8Trimmed )
+            h_minmassAK8.Fill( minMass )
+            h_nsjAK8.Fill( nsubjets )
+
             # Perform CMS top tagging with trimmed jet mass
-            print 'minMass = {0:6.2f}, trimmed mass = {1:6.2f}, tau32 = {2:6.2f}'.format(
-                minMass, mAK8Trimmed, tau32
-                ), 
-            if minMass > 50.0 and mAK8Trimmed > 100. and mAK8Trimmed < 250. and tau32 > 0.4 :
+            if options.verbose : 
+                print 'minMass = {0:6.2f}, trimmed mass = {1:6.2f}, tau32 = {2:6.2f}'.format(
+                    minMass, mAK8Trimmed, tau32
+                    ), 
+            if minMass > 50.0 and mAK8Trimmed > 100. and tau32 > 0.4 :
                 nttags += 1
                 tJets.append( jet )
-                print ' --->Tagged jet!'
+                if options.verbose : 
+                    print ' --->Tagged jet!'
             else :
-                print ''
+                if options.verbose : 
+                    print ''
 
 
+        ##  ____  __.__                              __  .__         __________                     
+        ## |    |/ _|__| ____   ____   _____ _____ _/  |_|__| ____   \______   \ ____   ____  ____  
+        ## |      < |  |/    \_/ __ \ /     \\__  \\   __\  |/ ___\   |       _// __ \_/ ___\/  _ \ 
+        ## |    |  \|  |   |  \  ___/|  Y Y  \/ __ \|  | |  \  \___   |    |   \  ___/\  \__(  <_> )
+        ## |____|__ \__|___|  /\___  >__|_|  (____  /__| |__|\___  >  |____|_  /\___  >\___  >____/ 
+        ##         \/       \/     \/      \/     \/             \/          \/     \/     \/       
+        
         # Now we do our kinematic calculation based on the categories of the
         # number of top and bottom tags
-
-        if nttags > 0 :
+        if nttags == 0 :
+            if options.verbose : 
+                print 'No top tags'
+        else :
             # Finally get the METs
             event.getByLabel( metLabel, mets )
             met = mets.product()[0]
@@ -460,37 +691,33 @@ for ifile in files :
             lepTopCandP4 = None
             
             # Check if the nearest jet to the lepton is b-tagged
-            if inearestJet not in bJetIndices :
-                print 'closest jet not tagged'
+            if theLepJetBDisc < options.bDiscMin :
+                if options.verbose : 
+                    print 'closest jet to lepton is not b-tagged'
             else  :
 
-
+                if options.verbose :
+                    print 'Event is fully tagged.'
                 # Get the z-component of the lepton from the W mass constraint
-                bJetCandP4 = ROOT.TLorentzVector( ak4JetsGood[inearestJet].px(),
-                                                  ak4JetsGood[inearestJet].py(),
-                                                  ak4JetsGood[inearestJet].pz(),
-                                                  ak4JetsGood[inearestJet].energy())
+                bJetCandP4 = ak4JetsGoodP4[inearestJet]
                 nuCandP4 = ROOT.TLorentzVector( met.px(), met.py(), 0, met.energy() )
 
-                nuz1 = None
-                nuz2 = None
-                solution = solve_nu( vlep=theLepton,
-                                     vnu=nuCandP4,
-                                     nuz1=nuz1,
-                                     nuz2=nuz2
-                                     )
+
+                solution, nuz1, nuz2 = solve_nu( vlep=theLepton, vnu=nuCandP4 )
                 # If there is at least one real solution, pick it up
                 if solution :
-                    print '--- Have a solution --- '
+                    if options.verbose : 
+                        print '--- Have a solution --- '
                     nuCandP4.SetPz( nuz1 )
-                    lepTopCandP4 = nuCandP4 + theLepton + bJetCandP4
-
-                    ttbarCand = hadTopCandP4 + lepTopCandP4
-                    h_mttbar.Fill( ttbarCand.M() )
                 else :
-                    print '--- No solution for neutrino z ---'            
-                    
+                    if options.verbose : 
+                        print '--- No solution for neutrino z ---'
+                    nuCandP4.SetPz( nuz1.real )
 
+                lepTopCandP4 = nuCandP4 + theLepton + bJetCandP4
+
+                ttbarCand = hadTopCandP4 + lepTopCandP4
+                h_mttbar.Fill( ttbarCand.M() )                    
         
 
 ## _________ .__                                     
