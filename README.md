@@ -9,13 +9,21 @@ To run :
 
 
 `
-cmsrel CMSSW\_7\_3\_0
-cd CMSSW\_7\_3\_0/src
+cmsrel CMSSW_7_3_0
+
+cd CMSSW_7_3_0/src
+
 mkdir Analysis
+
 cd Analysis
+
 git clone https://github.com/cmsb2g/B2GDAS.git
+
 scram b -j 10
+
 cd test
-voms-proxy-init (to get a grid proxy for xrootd)
-python b2gdas\_fwlite.py --files=rsgluon\_ttbar\_3TeV.txt --outname=rsgluon\_ttbar\_3TeV.root
+
+voms-proxy-init
+
+python b2gdas_fwlite.py --files=rsgluon_ttbar_3TeV.txt --outname=rsgluon_ttbar_3TeV.root
 `
