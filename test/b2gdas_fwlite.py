@@ -127,21 +127,21 @@ f = ROOT.TFile(options.outname, "RECREATE")
 f.cd()
 
 
-h_mttbar = ROOT.TH1F("h_mttbar", ";m_{t#bar{t}} (GeV)", 600, 0, 6000)
+h_mttbar = ROOT.TH1F("h_mttbar", ";m_{t#bar{t}} (GeV)", 200, 0, 6000)
 
 h_ptLep = ROOT.TH1F("h_ptLep", "Lepton p_{T};p_{T} (GeV)", 100, 0, 1000)
 h_etaLep = ROOT.TH1F("h_etaLep", "Lepton #eta;p_{T} (GeV)#eta", 100, 0, ROOT.TMath.TwoPi() )
 h_met = ROOT.TH1F("h_met", "Missing p_{T};p_{T} (GeV)", 100, 0, 1000)
 h_ptRel = ROOT.TH1F("h_ptRel", "p_{T}^{REL};p_{T}^{REL} (GeV)", 100, 0, 100)
 h_dRMin = ROOT.TH1F("h_dRMin", "#Delta R_{MIN};#Delta R_{MIN}", 100, 0, 5.0)
-h_2DCut = ROOT.TH2F("h_2DCut", "2D Cut;p_{T}^{REL};#Delta R", 20, 0, 100, 20, 0, 5.0 )
+h_2DCut = ROOT.TH2F("h_2DCut", "2D Cut;#Delta R;p_{T}^{REL}", 20, 0, 5.0, 20, 0, 100 )
 
 h_ptAK4 = ROOT.TH1F("h_ptAK4", "AK4 Jet p_{T};p_{T} (GeV)", 300, 0, 3000)
 h_etaAK4 = ROOT.TH1F("h_etaAK4", "AK4 Jet #eta;#eta", 120, -6, 6)
 h_yAK4 = ROOT.TH1F("h_yAK4", "AK4 Jet Rapidity;y", 120, -6, 6)
 h_phiAK4 = ROOT.TH1F("h_phiAK4", "AK4 Jet #phi;#phi (radians)",100,-ROOT.Math.Pi(),ROOT.Math.Pi())
 h_mAK4 = ROOT.TH1F("h_mAK4", "AK4 Jet Mass;Mass (GeV)", 100, 0, 1000)
-h_bdiscAK4 = ROOT.TH1F("h_bdiscAK4", "AK4 b discriminator;b discriminator", 100, -1.0, 4.0)
+h_bdiscAK4 = ROOT.TH1F("h_bdiscAK4", "AK4 b discriminator;b discriminator", 100, 0, 1.0)
 
 h_ptAK8 = ROOT.TH1F("h_ptAK8", "AK8 Jet p_{T};p_{T} (GeV)", 300, 0, 3000)
 h_etaAK8 = ROOT.TH1F("h_etaAK8", "AK8 Jet #eta;#eta", 120, -6, 6)
@@ -531,6 +531,11 @@ for ifile in files :
         ############################################ 
         if nearestJet == None :
             continue
+
+        # Finally get the METs
+        event.getByLabel( metLabel, mets )
+        met = mets.product()[0]
+            
         theLepJet = nearestJetP4
         theLepJetBDisc = nearestJet.bDiscriminator( options.bdisc )
 
@@ -540,11 +545,14 @@ for ifile in files :
         h_yAK4.Fill( theLepJet.Rapidity() )
         h_mAK4.Fill( theLepJet.M() )
         h_bdiscAK4.Fill( theLepJetBDisc )
-        # Fill some plots related to the lepton and the 2-d cut
+        # Fill some plots related to the lepton, the MET, and the 2-d cut
         ptRel = theLepJet.Perp( theLepton.Vect() )
+        h_ptLep.Fill(theLepton.Perp())
+        h_etaLep.Fill(theLepton.Eta())
+        h_met.Fill(met.pt())
         h_ptRel.Fill( ptRel )
         h_dRMin.Fill( dRMin )
-        h_2DCut.Fill( ptRel, dRMin )
+        h_2DCut.Fill( dRMin, ptRel )
         pass2D = ptRel > 20.0 or dRMin > 0.4
         if options.verbose : 
             print '2d cut : dRMin = {0:6.2f}, ptRel = {1:6.2}'.format( dRMin, ptRel )
@@ -683,9 +691,7 @@ for ifile in files :
             if options.verbose : 
                 print 'No top tags'
         else :
-            # Finally get the METs
-            event.getByLabel( metLabel, mets )
-            met = mets.product()[0]
+
             
             hadTopCandP4 = ROOT.TLorentzVector( tJets[0].px(), tJets[0].py(), tJets[0].pz(), tJets[0].energy() )
             lepTopCandP4 = None
