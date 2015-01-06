@@ -115,7 +115,7 @@ ak8jets, ak8jetLabel = Handle("std::vector<pat::Jet>"), "slimmedJetsAK8"
 mets, metLabel = Handle("std::vector<pat::MET>"), "slimmedMETs"
 vertices, vertexLabel = Handle("std::vector<reco::Vertex>"), "offlineSlimmedPrimaryVertices"
 rhos, rhoLabel = Handle("double"), "fixedGridRhoAll"
-gens, genLabel = Handle("std::vector<pat::PackedGenParticle>"), "packedGenParticles"
+gens, genLabel = Handle("std::vector<reco::GenParticle>"), "prunedGenParticles"
 
 ##   ___ ___ .__          __                                             
 ##  /   |   \|__| _______/  |_  ____   ________________    _____   ______
@@ -254,8 +254,13 @@ for ifile in files :
             print '    ---> Event ' + str(nevents)
 
 
-
-
+        ##   ________                __________.__          __          
+        ##  /  _____/  ____   ____   \______   \  |   _____/  |_  ______
+        ## /   \  ____/ __ \ /    \   |     ___/  |  /  _ \   __\/  ___/
+        ## \    \_\  \  ___/|   |  \  |    |   |  |_(  <_> )  |  \___ \ 
+        ##  \______  /\___  >___|  /  |____|   |____/\____/|__| /____  >
+        ##         \/     \/     \/                                  \/ 
+        haveGenSolution = False
         isGenPresent = event.getByLabel( genLabel, gens )
         if isGenPresent : 
             topQuark = None
@@ -268,9 +273,13 @@ for ifile in files :
                 elif gen.pdgId() == -6 :
                     antitopQuark = gen
 
-
-            ttbarCandP4 = topQuark.p4() + antitopQuark.p4()
-            h_mttbar_true.Fill( ttbarCandP4.mass() )
+            if topQuark != None and antitopQuark != None : 
+                ttbarCandP4 = topQuark.p4() + antitopQuark.p4()
+                h_mttbar_true.Fill( ttbarCandP4.mass() )
+                haveGenSolution = True
+            else :
+                if options.verbose :
+                    print 'No top quarks, not filling mttbar'
         ## ____   ____             __                    _________      .__                 __  .__               
         ## \   \ /   /____________/  |_  ____ ___  ___  /   _____/ ____ |  |   ____   _____/  |_|__| ____   ____  
         ##  \   Y   // __ \_  __ \   __\/ __ \\  \/  /  \_____  \_/ __ \|  | _/ __ \_/ ___\   __\  |/  _ \ /    \ 
@@ -742,7 +751,9 @@ for ifile in files :
                 lepTopCandP4 = nuCandP4 + theLepton + bJetCandP4
 
                 ttbarCand = hadTopCandP4 + lepTopCandP4
-                h_mttbar.Fill( ttbarCand.M() )                    
+                h_mttbar.Fill( ttbarCand.M() )
+                if haveGenSolution == False :
+                    print 'Very strange. No gen solution, but it is a perfectly good event. mttbar = ' + str(ttbarCand.M() )
         
 
 ## _________ .__                                     
