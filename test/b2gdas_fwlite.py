@@ -115,6 +115,7 @@ ak8jets, ak8jetLabel = Handle("std::vector<pat::Jet>"), "slimmedJetsAK8"
 mets, metLabel = Handle("std::vector<pat::MET>"), "slimmedMETs"
 vertices, vertexLabel = Handle("std::vector<reco::Vertex>"), "offlineSlimmedPrimaryVertices"
 rhos, rhoLabel = Handle("double"), "fixedGridRhoAll"
+gens, genLabel = Handle("std::vector<pat::PackedGenParticle>"), "packedGenParticles"
 
 ##   ___ ___ .__          __                                             
 ##  /   |   \|__| _______/  |_  ____   ________________    _____   ______
@@ -128,6 +129,7 @@ f.cd()
 
 
 h_mttbar = ROOT.TH1F("h_mttbar", ";m_{t#bar{t}} (GeV)", 200, 0, 6000)
+h_mttbar_true = ROOT.TH1F("h_mttbar_true", "True m_{t#bar{t}};m_{t#bar{t}} (GeV)", 200, 0, 6000)
 
 h_ptLep = ROOT.TH1F("h_ptLep", "Lepton p_{T};p_{T} (GeV)", 100, 0, 1000)
 h_etaLep = ROOT.TH1F("h_etaLep", "Lepton #eta;p_{T} (GeV)#eta", 100, 0, ROOT.TMath.TwoPi() )
@@ -252,6 +254,21 @@ for ifile in files :
             print '    ---> Event ' + str(nevents)
 
 
+
+
+        isGenPresent = event.getByLabel( genLabel, gens )
+        if isGenPresent : 
+            topQuark = None
+            antitopQuark = None
+            for igen,gen in enumerate( gens.product() ) :
+                if gen.pdgId() == 6 :
+                    topQuark = gen
+                elif gen.pdgId() == -6 :
+                    antitopQuark = gen
+
+
+            ttbarCandP4 = topQuark.p4() + antitopQuark.p4()
+            h_mttbar_true.Fill( ttbarCandP4.mass() )
         ## ____   ____             __                    _________      .__                 __  .__               
         ## \   \ /   /____________/  |_  ____ ___  ___  /   _____/ ____ |  |   ____   _____/  |_|__| ____   ____  
         ##  \   Y   // __ \_  __ \   __\/ __ \\  \/  /  \_____  \_/ __ \|  | _/ __ \_/ ___\   __\  |/  _ \ /    \ 
