@@ -261,6 +261,8 @@ for ifile in files :
             topQuark = None
             antitopQuark = None
             for igen,gen in enumerate( gens.product() ) :
+                if options.verbose :
+                    print 'GEN id=%.1f, pt=%+5.3f' % ( gen.pdgId(), gen.pt() )
                 if gen.pdgId() == 6 :
                     topQuark = gen
                 elif gen.pdgId() == -6 :
