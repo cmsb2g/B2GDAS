@@ -391,7 +391,7 @@ for ifile in files :
                       abs(d0) < 0.0163 and \
                       abs(dz) < 0.5999 and \
                       abs( ooEmooP ) < 0.1126 and \
-                      relIso < 0.2075 and \
+                      #relIso < 0.2075 and \
                       passConversionVeto
                 
                 if goodElectron == True :
