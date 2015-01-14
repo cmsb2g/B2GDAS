@@ -379,7 +379,7 @@ for ifile in files :
                       abs(d0) < 0.0126 and \
                       abs(dz) < 0.0116 and \
                       abs( ooEmooP ) < 0.0609 and \
-                      relIso < 0.1649 and \
+                      #relIso < 0.1649 and \
                       passConversionVeto
                 # Endcap ECAL cuts
                 elif abs(electron.superCluster().eta()) < 2.5 and abs(electron.superCluster().eta()) > 1.479 :
