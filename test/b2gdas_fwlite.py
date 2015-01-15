@@ -527,9 +527,9 @@ for ifile in files :
 
                     
             # Apply new JEC's
-            ak4JetCorrector.setJetEta( uncorrJet.eta() )
-            ak4JetCorrector.setJetPt ( uncorrJet.pt() )
-            ak4JetCorrector.setJetE  ( uncorrJet.energy() )
+            ak4JetCorrector.setJetEta( jetP4Raw.Eta() )
+            ak4JetCorrector.setJetPt ( jetP4Raw.Perp() )
+            ak4JetCorrector.setJetE  ( jetP4Raw.E() )
             ak4JetCorrector.setJetA  ( jet.jetArea() )
             ak4JetCorrector.setRho   ( rho )
             ak4JetCorrector.setNPV   ( NPV )            
@@ -618,9 +618,9 @@ for ifile in files :
 
 
             # Apply new JEC's
-            ak8JetCorrector.setJetEta( uncorrJet.eta() )
-            ak8JetCorrector.setJetPt ( uncorrJet.pt() )
-            ak8JetCorrector.setJetE  ( uncorrJet.energy() )
+            ak8JetCorrector.setJetEta( jetP4Raw.Eta() )
+            ak8JetCorrector.setJetPt ( jetP4Raw.Perp() )
+            ak8JetCorrector.setJetE  ( jetP4Raw.E() )
             ak8JetCorrector.setJetA  ( jet.jetArea() )
             ak8JetCorrector.setRho   ( rho )
             ak8JetCorrector.setNPV   ( NPV )            
