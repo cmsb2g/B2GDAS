@@ -290,6 +290,7 @@ for ifile in files :
 
         event.getByLabel(vertexLabel, vertices)
         # Vertices
+        NPV = len(vertices.product())
         if len(vertices.product()) == 0 or vertices.product()[0].ndof() < 4:
             if options.verbose : 
                 print "Event has no good primary vertex."
@@ -526,10 +527,12 @@ for ifile in files :
 
                     
             # Apply new JEC's
-            ak4JetCorrector.setJetEta( jetP4Raw.Eta() )
-            ak4JetCorrector.setJetPt( jetP4Raw.Perp() )
-            ak4JetCorrector.setJetA( jet.jetArea() )
-            ak4JetCorrector.setRho( rho )
+            ak4JetCorrector.setJetEta( uncorrJet.eta() )
+            ak4JetCorrector.setJetPt ( uncorrJet.pt() )
+            ak4JetCorrector.setJetE  ( uncorrJet.energy() )
+            ak4JetCorrector.setJetA  ( jet.jetArea() )
+            ak4JetCorrector.setRho   ( rho )
+            ak4JetCorrector.setNPV   ( NPV )            
             newJEC = ak4JetCorrector.getCorrection()
             jetP4 = jetP4Raw * newJEC
             # Now perform jet kinematic cuts
@@ -615,10 +618,12 @@ for ifile in files :
 
 
             # Apply new JEC's
-            ak8JetCorrector.setJetEta( jetP4Raw.Eta() )
-            ak8JetCorrector.setJetPt( jetP4Raw.Perp() )
-            ak8JetCorrector.setJetA( jet.jetArea() )
-            ak8JetCorrector.setRho( rho )
+            ak8JetCorrector.setJetEta( uncorrJet.eta() )
+            ak8JetCorrector.setJetPt ( uncorrJet.pt() )
+            ak8JetCorrector.setJetE  ( uncorrJet.energy() )
+            ak8JetCorrector.setJetA  ( jet.jetArea() )
+            ak8JetCorrector.setRho   ( rho )
+            ak8JetCorrector.setNPV   ( NPV )            
             newJEC = ak8JetCorrector.getCorrection()
             jetP4 = jetP4Raw * newJEC
             # Now perform jet kinematic cuts
