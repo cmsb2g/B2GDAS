@@ -699,7 +699,7 @@ for ifile in files :
                 print 'minMass = {0:6.2f}, trimmed mass = {1:6.2f}, tau32 = {2:6.2f}'.format(
                     minMass, mAK8Trimmed, tau32
                     ), 
-            if minMass > 50.0 and mAK8Trimmed > 100. and tau32 > 0.4 :
+            if minMass > 50.0 and mAK8Trimmed > 100. and tau32 < 0.4 :
                 nttags += 1
                 tJets.append( jet )
                 if options.verbose : 
