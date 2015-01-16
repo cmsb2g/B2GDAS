@@ -102,17 +102,6 @@ parser.add_option('--maxAK8Rapidity', type='float', action='store',
                   default=2.4,
                   dest='maxAK8Rapidity',
                   help='Maximum AK8 rapidity')
-		  
-parser.add_option('--correctJets', action='store_true',
-                  default=False,
-                  dest='correctJets',
-                  help='Apply latest jet corrections.')
-
-parser.add_option('--smearJets', action='store_true',
-                  default=False,
-                  dest='smearJets',
-                  help='Smear jet energy.')
-		  
 
 
 (options, args) = parser.parse_args()
@@ -163,53 +152,6 @@ f = ROOT.TFile(options.outname, "RECREATE")
 f.cd()
 
 ## Fabiola y Geno
-
-h_ptAK4 = ROOT.TH1F("h_ptAK4", "AK4 Jet p_{T};p_{T} (GeV)", 300, 0, 3000)
-h_ptUpAK4 = ROOT.TH1F("h_ptUpAK4", "JEC Up AK4 Jet p_{T};p_{T} (GeV)", 300, 0, 3000)
-h_ptDownAK4 = ROOT.TH1F("h_ptDownAK4", "JEC Down AK4 Jet p_{T};p_{T} (GeV)", 300, 0, 3000)
-h_ptUncorrAK4 = ROOT.TH1F("h_ptUncorrAK4", "UnCorrected AK4 Jet p_{T};p_{T} (GeV)", 300, 0, 3000)
-h_JECValueAK4 = ROOT.TH1F("h_JECValueAK4", "Value of JEC for AK4 Jet", 100, 0.8, 1.1)
-h_etaAK4 = ROOT.TH1F("h_etaAK4", "AK4 Jet #eta;#eta", 120, -6, 6)
-h_yAK4 = ROOT.TH1F("h_yAK4", "AK4 Jet Rapidity;y", 120, -6, 6)
-h_phiAK4 = ROOT.TH1F("h_phiAK4", "AK4 Jet #phi;#phi (radians)",100,-ROOT.Math.Pi(),ROOT.Math.Pi())
-h_mAK4 = ROOT.TH1F("h_mAK4", "AK4 Jet Mass;Mass (GeV)", 100, 0, 1000)
-h_areaAK4 = ROOT.TH1F("h_areaAK4", "AK4 Jet Area;Area", 250, 0, 5.0)
-
-h_ptAK4Gen = ROOT.TH1F("h_ptAK4Gen", "AK4Gen Jet p_{T};p_{T} (GeV)", 300, 0, 3000)
-h_etaAK4Gen = ROOT.TH1F("h_etaAK4Gen", "AK4Gen Jet #eta;#eta", 120, -6, 6)
-h_yAK4Gen = ROOT.TH1F("h_yAK4Gen", "AK4Gen Jet Rapidity;y", 120, -6, 6)
-h_phiAK4Gen = ROOT.TH1F("h_phiAK4Gen", "AK4Gen Jet #phi;#phi (radians)",100,-ROOT.Math.Pi(),ROOT.Math.Pi())
-h_mAK4Gen = ROOT.TH1F("h_mAK4Gen", "AK4Gen Jet Mass;Mass (GeV)", 100, 0, 1000)
-h_areaAK4Gen = ROOT.TH1F("h_areaAK4Gen", "AK4Gen Jet Area;Area", 250, 0, 5.0)
-
-
-h_ptAK8 = ROOT.TH1F("h_ptAK8", "AK8 Jet p_{T};p_{T} (GeV)", 300, 0, 3000)
-h_ptUpAK8 = ROOT.TH1F("h_ptUpAK8", "JEC Up AK8 Jet p_{T};p_{T} (GeV)", 300, 0, 3000)
-h_ptDownAK8 = ROOT.TH1F("h_ptDownAK8", "JEC Down AK8 Jet p_{T};p_{T} (GeV)", 300, 0, 3000)
-h_ptUncorrAK8 = ROOT.TH1F("h_ptUncorrAK8", "UnCorrected AK8 Jet p_{T};p_{T} (GeV)", 300, 0, 3000)
-h_JECValueAK8 = ROOT.TH1F("h_JECValueAK8", "Value of JEC for AK8 Jet", 100, 0.8, 1.1)
-h_etaAK8 = ROOT.TH1F("h_etaAK8", "AK8 Jet #eta;#eta", 120, -6, 6)
-h_yAK8 = ROOT.TH1F("h_yAK8", "AK8 Jet Rapidity;y", 120, -6, 6)
-h_phiAK8 = ROOT.TH1F("h_phiAK8", "AK8 Jet #phi;#phi (radians)",100,-ROOT.Math.Pi(),ROOT.Math.Pi())
-h_mAK8 = ROOT.TH1F("h_mAK8", "AK8 Jet Mass;Mass (GeV)", 100, 0, 1000)
-h_areaAK8 = ROOT.TH1F("h_areaAK8", "AK8 Jet Area;Area", 250, 0, 5.0)
-h_mprunedAK8 = ROOT.TH1F("h_mprunedAK8", "AK8 Pruned Jet Mass;Mass (GeV)", 100, 0, 1000)
-h_mfilteredAK8 = ROOT.TH1F("h_mfilteredAK8", "AK8 Filtered Jet Mass;Mass (GeV)", 100, 0, 1000)
-h_mtrimmedAK8 = ROOT.TH1F("h_mtrimmedAK8", "AK8 Trimmed Jet Mass;Mass (GeV)", 100, 0, 1000)
-h_minmassAK8 = ROOT.TH1F("h_minmassAK8", "AK8 CMS Top Tagger Min Mass Paring;m_{min} (GeV)", 100, 0, 1000)
-h_nsjAK8 = ROOT.TH1F("h_nsjAK8", "AK8 CMS Top Tagger N_{subjets};N_{subjets}", 5, 0, 5)
-h_tau21AK8 = ROOT.TH1F("h_tau21AK8", "AK8 Jet #tau_{2} / #tau_{1};Mass#tau_{21}", 100, 0, 1.0)
-h_tau32AK8 = ROOT.TH1F("h_tau32AK8", "AK8 Jet #tau_{3} / #tau_{2};Mass#tau_{32}", 100, 0, 1.0)
-
-h_ptAK8Gen = ROOT.TH1F("h_ptAK8Gen", "AK8Gen Jet p_{T};p_{T} (GeV)", 300, 0, 3000)
-h_etaAK8Gen = ROOT.TH1F("h_etaAK8Gen", "AK8Gen Jet #eta;#eta", 120, -6, 6)
-h_yAK8Gen = ROOT.TH1F("h_yAK8Gen", "AK8Gen Jet Rapidity;y", 120, -6, 6)
-h_phiAK8Gen = ROOT.TH1F("h_phiAK8Gen", "AK8Gen Jet #phi;#phi (radians)",100,-ROOT.Math.Pi(),ROOT.Math.Pi())
-h_mAK8Gen = ROOT.TH1F("h_mAK8Gen", "AK8Gen Jet Mass;Mass (GeV)", 100, 0, 1000)
-h_areaAK8Gen = ROOT.TH1F("h_areaAK8Gen", "AK8Gen Jet Area;Area", 250, 0, 5.0)
-
-
-
 
 
 h_mttbar = ROOT.TH1F("h_mttbar", ";m_{t#bar{t}} (GeV)", 200, 0, 6000)
@@ -444,300 +386,7 @@ for ifile in files :
 
         #FABIOLA Y GENO
 
-        """
-        ##    _____   ____  __.  _____        ____.       __    __________.__          __          
-        ##   /  _  \ |    |/ _| /  |  |      |    | _____/  |_  \______   \  |   _____/  |_  ______
-        ##  /  /_\  \|      <  /   |  |_     |    |/ __ \   __\  |     ___/  |  /  _ \   __\/  ___/
-        ## /    |    \    |  \/    ^   / /\__|    \  ___/|  |    |    |   |  |_(  <_> )  |  \___ \ 
-        ## \____|__  /____|__ \____   |  \________|\___  >__|    |____|   |____/\____/|__| /____  >
-        ##         \/        \/    |__|                \/                                       \/ 
 
-
-	# get rho and vertices for JEC
-	event.getByLabel (rhoLabel, rhoHandle)
-	event.getByLabel (pvLabel, pvHandle)
-
-	rhoValue = rhoHandle.product()
-	pvs = pvHandle.product()
-	#print rhoValue[0]
-
-
-        # use getByLabel, just like in cmsRun
-        event.getByLabel (jetLabel, jets)
-        # loop over jets and fill hists
-        ijet = 0
-	correctedJetsAK4 = []
-	correctedP4AK4 = []
-	correctedJetsAK8 = [] 
-	correctedP4AK8 = []
-        for jet in jets.product() :
-            if ijet >= options.maxjets :
-                break
-            if jet.pt() > options.minAK4Pt and abs(jet.rapidity()) < options.maxAK4Rapidity :
-                
-                if options.verbose : 
-                    print 'jet pt = ' + str(jet.pt())
-                
-                #FInd the jet correction
-                #uncorrJet = copy.copy( jet.correctedP4(0) ) # For some reason, in python this is interfering with jet.genJet() in strange ways without the copy.copy
-
-                jetJECFromMiniAOD = jet.jecFactor(0)
-                uncorrJet = ROOT.TLorentzVector( jet.px(), jet.py(), jet.pz(), jet.energy())
-                uncorrJet *= jetJECFromMiniAOD
-           
-                if options.verbose : 
-                    print 'jet E from uncorrJet = ' + str(uncorrJet.E())
-                # Apply jet ID to uncorrected jet
-                nhf = jet.neutralHadronEnergy() / uncorrJet.E()
-                nef = jet.neutralEmEnergy() / uncorrJet.E()
-                chf = jet.chargedHadronEnergy() / uncorrJet.E()
-                cef = jet.chargedEmEnergy() / uncorrJet.E()
-                nconstituents = jet.numberOfDaughters()
-                nch = jet.chargedMultiplicity()
-                goodJet = \
-                  nhf < 0.99 and \
-                  nef < 0.99 and \
-                  chf > 0.00 and \
-                  cef < 0.99 and \
-                  nconstituents > 1 and \
-                  nch > 0
-
-
-                if not goodJet :
-                    continue
-
-
-                # Corrections and smears for jet energy will be stored here.
-                corr = 1.0
-                corrUp = 1.0
-                corrDn = 1.0
-
-                # Get the smeared jets for jet resolution
-                if options.smearJets  :
-                    genJet = jet.genJet()
-                    if genJet != None : 
-                        smear = getJER(jet.eta(), 0) #JER nominal=0, up=+1, down=-1
-                        smearUp = getJER(jet.eta(), 1) #JER nominal=0, up=+1, down=-1
-                        smearDn = getJER(jet.eta(), -1) #JER nominal=0, up=+1, down=-1
-                        recopt = jet.pt()
-                        genpt = genJet.pt()
-                        deltapt = (recopt-genpt)*(smear-1.0)
-                        deltaptUp = (recopt-genpt)*(smearUp-1.0)
-                        deltaptDn = (recopt-genpt)*(smearDn-1.0)
-                        ptsmear = max(0.0, (recopt+deltapt)/recopt)
-                        ptsmearUp = max(0.0, (recopt+deltaptUp)/recopt)
-                        ptsmearDn = max(0.0, (recopt+deltaptDn)/recopt)
-                        corr *= ptsmear
-                        corrUp *= ptsmearUp
-                        corrDn *= ptsmearDn
-
-                # Get the latest, greatest jet corrections
-                if options.correctJets : 
-                    jec.setJetEta( uncorrJet.eta() )
-                    jec.setJetPt ( uncorrJet.pt() )
-                    jec.setJetE  ( uncorrJet.energy() )
-                    jec.setJetA  ( jet.jetArea() )
-                    jec.setRho   ( rhoValue[0] )
-                    jec.setNPV   ( len(pvs) )
-                    icorr = jec.getCorrection()
-                    corr *= icorr
-                    corrUp *= icorr
-                    corrDn *= icorr
-
-
-                    #JEC Uncertainty
-                    jecUncAK4.setJetEta( uncorrJet.eta() )
-                    jecUncAK4.setJetPt( corr * uncorrJet.pt() )
-                    corrUp += jecUnc.getUncertainty(1)
-                    jecUncAK4.setJetEta( uncorrJet.eta() )
-                    jecUncAK4.setJetPt( corr * uncorrJet.pt() )
-                    corrDn -= jecUnc.getUncertainty(0)
-		toCopy = copy.copy( uncorrJet)
-		toCopy *= corr
-		correctedP4AK4.append( corr * uncorrJet )
-		
-                h_ptAK4.Fill( corr * uncorrJet.Perp() )
-                h_JECValueAK4.Fill( corr )
-                h_ptUncorrAK4.Fill( uncorrJet.Perp() )
-                h_ptDownAK4.Fill( corrDn * uncorrJet.Perp() )
-                h_ptUpAK4.Fill( corrUp * uncorrJet.Perp() )
-
-                h_etaAK4.Fill( jet.eta() )
-                h_yAK4.Fill( jet.y() )
-                h_phiAK4.Fill( jet.phi() )
-                h_mAK4.Fill( jet.mass() )
-                h_areaAK4.Fill( jet.jetArea() )
-                genJet = jet.genJet()
-                if genJet != None :
-                    h_ptAK4Gen.Fill( genJet.pt() )
-                    h_etaAK4Gen.Fill( genJet.eta() )
-                    h_yAK4Gen.Fill( genJet.y() )
-                    h_phiAK4Gen.Fill( genJet.phi() )
-                    h_mAK4Gen.Fill( genJet.mass() )
-                    h_areaAK4Gen.Fill( genJet.jetArea() )
-                if options.verbose == True : 
-                    print ("Jet {0:4.0f}, orig pt = {1:10.2f}, eta = {2:6.2f}, phi = {3:6.2f}, m = {4:6.2f}, " +
-                           "nda = {5:3.0f}, vtxmass = {6:6.2f}, area = {7:6.2f}, corr = {8:6.3f} +{9:6.3f} -{10:6.3f} ").format(
-                        ijet, jet.pt(), jet.eta(), jet.phi(), jet.mass(), jet.numberOfDaughters(), jet.userFloat('secvtxMass'),
-                        jet.jetArea(), corr, abs(corrUp - corr), abs(corr - corrDn)
-                        ),
-                    if genJet != None :
-                        print (", gen pt = {0:6.2f}").format( genJet.pt() )
-                    else :
-                        print ''
-            ijet += 1
-
-
-        ##    _____   ____  __. ______        ____.       __    __________.__          __          
-        ##   /  _  \ |    |/ _|/  __  \      |    | _____/  |_  \______   \  |   _____/  |_  ______
-        ##  /  /_\  \|      <  >      <      |    |/ __ \   __\  |     ___/  |  /  _ \   __\/  ___/
-        ## /    |    \    |  \/   --   \ /\__|    \  ___/|  |    |    |   |  |_(  <_> )  |  \___ \ 
-        ## \____|__  /____|__ \______  / \________|\___  >__|    |____|   |____/\____/|__| /____  >
-        ##         \/        \/      \/                \/                                       \/ 
-
-        # use getByLabel, just like in cmsRun
-        event.getByLabel (ak8jetLabel, ak8jets)
-        # loop over jets and fill hists
-        ijet = 0
-        for jet in ak8jets.product() :
-            if ijet >= options.maxjets :
-                break
-            if jet.pt() > options.minAK8Pt and abs(jet.rapidity()) < options.maxAK8Rapidity :
-                
-                #FInd the jet correction
-                #uncorrJet = copy.copy( jet.correctedP4(0) ) # For some reason, in python this is interfering with jet.genJet() in strange ways without the copy.copy
-		jetJECFromMiniAOD = jet.jecFactor(0)
-                uncorrJet = ROOT.TLorentzVector( jet.px(), jet.py(), jet.pz(), jet.energy())
-                uncorrJet *= jetJECFromMiniAOD
-
-                # Apply jet ID to uncorrected jet
-                nhf = jet.neutralHadronEnergy() / uncorrJet.E()
-                nef = jet.neutralEmEnergy() / uncorrJet.E()
-                chf = jet.chargedHadronEnergy() / uncorrJet.E()
-                cef = jet.chargedEmEnergy() / uncorrJet.E()
-                nconstituents = jet.numberOfDaughters()
-                nch = jet.chargedMultiplicity()
-                goodJet = \
-                  nhf < 0.99 and \
-                  nef < 0.99 and \
-                  chf > 0.00 and \
-                  cef < 0.99 and \
-                  nconstituents > 1 and \
-                  nch > 0
-
-
-                if not goodJet :
-                    continue
-
-                # Corrections and smears for jet energy will be stored here.
-                corr = 1.0
-                corrUp = 1.0
-                corrDn = 1.0
-
-                # Get the smeared jets for jet resolution
-                if options.smearJets  :
-                    genJet = jet.genJet()
-                    if genJet != None : 
-                        smear = getJER(jet.eta(), 0) #JER nominal=0, up=+1, down=-1
-                        smearUp = getJER(jet.eta(), 1) #JER nominal=0, up=+1, down=-1
-                        smearDn = getJER(jet.eta(), -1) #JER nominal=0, up=+1, down=-1
-                        recopt = jet.pt()
-                        genpt = genJet.pt()
-                        deltapt = (recopt-genpt)*(smear-1.0)
-                        deltaptUp = (recopt-genpt)*(smearUp-1.0)
-                        deltaptDn = (recopt-genpt)*(smearDn-1.0)
-                        ptsmear = max(0.0, (recopt+deltapt)/recopt)
-                        ptsmearUp = max(0.0, (recopt+deltaptUp)/recopt)
-                        ptsmearDn = max(0.0, (recopt+deltaptDn)/recopt)
-                        corr *= ptsmear
-                        corrUp *= ptsmearUp
-                        corrDn *= ptsmearDn
-                    
-
-                # Get the latest, greatest jet corrections
-                if options.correctJets : 
-                    jecAK8.setJetEta( uncorrJet.eta() )
-                    jecAK8.setJetPt ( uncorrJet.pt() )
-                    jecAK8.setJetE  ( uncorrJet.energy() )
-                    jecAK8.setJetA  ( jet.jetArea() )
-                    jecAK8.setRho   ( rhoValue[0] )
-                    jecAK8.setNPV   ( len(pvs) )
-                    icorr = jecAK8.getCorrection()
-                    corr *= icorr
-                    corrUp *= icorr
-                    corrDn *= icorr
-
-                    #JEC Uncertainty
-                    jecUncAK8.setJetEta( uncorrJet.eta() )
-                    jecUncAK8.setJetPt( corr * uncorrJet.pt() )
-                    corrUp += jecUncAK8.getUncertainty(1)
-                    jecUncAK8.setJetEta( uncorrJet.eta() )
-                    jecUncAK8.setJetPt( corr * uncorrJet.pt() )
-                    corrDn -= jecUncAK8.getUncertainty(0)
-
-		correctedP4AK8.append( corr * uncorrJet )
-                h_ptAK8.Fill( corr * uncorrJet.Perp() )
-                h_JECValueAK8.Fill( corr )
-                h_ptUncorrAK8.Fill( uncorrJet.Perp() )
-                h_ptDownAK8.Fill( corrDn * uncorrJet.Perp() )
-                h_ptUpAK8.Fill( corrUp * uncorrJet.Perp() )
-                h_etaAK8.Fill( jet.eta() )
-                h_yAK8.Fill( jet.y() )
-                h_phiAK8.Fill( jet.phi() )
-                h_mAK8.Fill( jet.mass() )
-                h_areaAK8.Fill( jet.jetArea() )
-                h_mprunedAK8.Fill( jet.userFloat('ak8PFJetsCHSPrunedLinks') )
-                h_mtrimmedAK8.Fill( jet.userFloat('ak8PFJetsCHSTrimmedLinks') )
-                h_mfilteredAK8.Fill( jet.userFloat('ak8PFJetsCHSFilteredLinks') )
-                # Make sure there are top tags if we want to plot them 
-                tagInfoLabels = jet.tagInfoLabels()
-                hasTopTagInfo = 'caTop' in tagInfoLabels 
-                if hasTopTagInfo : 
-                    h_minmassAK8.Fill( jet.tagInfo('caTop').properties().minMass )
-                    h_nsjAK8.Fill( jet.tagInfo('caTop').properties().nSubJets )
-                else :
-                    h_minmassAK8.Fill( -1.0 )
-                    h_nsjAK8.Fill( -1 )
-                # Get n-subjettiness "tau" variables
-                tau1 = jet.userFloat('NjettinessAK8:tau1')
-                tau2 = jet.userFloat('NjettinessAK8:tau2')
-                tau3 = jet.userFloat('NjettinessAK8:tau3')
-                if tau1 > 0.0001 :
-                    tau21 = tau2 / tau1
-                    h_tau21AK8.Fill( tau21 )
-                else :
-                    h_tau21AK8.Fill( -1.0 )
-                if tau2 > 0.0001 :
-                    tau32 = tau3 / tau2
-                    h_tau32AK8.Fill( tau32 )
-                else :
-                    h_tau32AK8.Fill( -1.0 )
-
-                genJet = jet.genJet()
-                if genJet != None :
-                    h_ptAK8Gen.Fill( genJet.pt() )
-                    h_etaAK8Gen.Fill( genJet.eta() )
-                    h_yAK8Gen.Fill( genJet.y() )
-                    h_phiAK8Gen.Fill( genJet.phi() )
-                    h_mAK8Gen.Fill( genJet.mass() )
-                    h_areaAK8Gen.Fill( genJet.jetArea() )                    
-                if options.verbose == True :
-                    if hasTopTagInfo : 
-                        print 'Jet {0:4.0f}, pt = {1:10.2f}, eta = {2:6.2f}, phi = {3:6.2f}, m = {4:6.2f}, nda = {5:3.0f}, pruned m = {6:6.2f}, trimmed m = {7:6.2f}, filtered m = {8:6.2f}, topmass = {9:6.2f}, minmass = {10:6.2f}'.format(
-                            ijet, jet.pt(), jet.eta(), jet.phi(), jet.mass(), jet.numberOfDaughters(), 
-                            jet.userFloat('ak8PFJetsCHSPrunedLinks'), jet.userFloat('ak8PFJetsCHSTrimmedLinks'), jet.userFloat('ak8PFJetsCHSFilteredLinks'),
-                            jet.tagInfo('caTop').properties().topMass, jet.tagInfo('caTop').properties().minMass
-                            )
-                    else :
-                        print 'Jet {0:4.0f}, pt = {1:10.2f}, eta = {2:6.2f}, phi = {3:6.2f}, m = {4:6.2f}, nda = {5:3.0f}, pruned m = {6:6.2f}, trimmed m = {7:6.2f}, filtered m = {8:6.2f}, topmass = {9:6.2f}, minmass = {10:6.2f}'.format(
-                            ijet, jet.pt(), jet.eta(), jet.phi(), jet.mass(), jet.numberOfDaughters(), 
-                            jet.userFloat('ak8PFJetsCHSPrunedLinks'), jet.userFloat('ak8PFJetsCHSTrimmedLinks'), jet.userFloat('ak8PFJetsCHSFilteredLinks'), -1.0, -1.0
-                            )
-            ijet += 1
-
-
-
-        """
         ##   ________                __________.__          __          
         ##  /  _____/  ____   ____   \______   \  |   _____/  |_  ______
         ## /   \  ____/ __ \ /    \   |     ___/  |  /  _ \   __\/  ___/
@@ -774,7 +423,7 @@ for ifile in files :
 
         event.getByLabel(vertexLabel, vertices)
         # Vertices
-	NPV = len(vertices.product())
+        NPV = len(vertices.product())
         if len(vertices.product()) == 0 or vertices.product()[0].ndof() < 4:
             if options.verbose : 
                 print "Event has no good primary vertex."
@@ -1015,30 +664,30 @@ for ifile in files :
             ak4JetCorrector.setJetPt( jetP4Raw.Perp() )
             ak4JetCorrector.setJetA( jet.jetArea() )
             ak4JetCorrector.setRho( rho )
-	    ak4JetCorrector.setNPV( NPV )
-	    ak4JetCorrector.setJetE( jetP4Raw.Energy() )
+            ak4JetCorrector.setNPV( NPV )
+            ak4JetCorrector.setJetE( jetP4Raw.Energy() )
 	    
-	    corr = 1.0
-	    newJEC = 1.0
-	    newJER = 1.0
+            corr = 1.0
+            newJEC = 1.0
+            newJER = 1.0
             # Choosing Systematics
-	    newJEC = ak4JetCorrector.getCorrection()
-	    if options.systematicsJER == 0 :
-	    	newJER = getJER(jet.eta(), 0)
+            newJEC = ak4JetCorrector.getCorrection()
+            if options.systematicsJER == 0 :
+                newJER = getJER(jet.eta(), 0)
 		
-	    jecUncAK4.setJetEta( jetP4Raw.Eta() )
+            jecUncAK4.setJetEta( jetP4Raw.Eta() )
             jecUncAK4.setJetPt( newJEC * jetP4Raw.Perp() )
-				    
-	    if  options.systematicsJER ==1:    
-		    corr = getJER(jet.eta(), 1)
 
-	    if options.systematicsJER == -1:
-		    corr = getJER(jet.eta(), -1)
+            if  options.systematicsJER ==1:    
+                corr = getJER(jet.eta(), 1)
+
+            if options.systematicsJER == -1:
+                corr = getJER(jet.eta(), -1)
 		   
-	    recopt = jet.pt()
-	    genJet = jet.genJet()
-	    if genJet == None : 
-	        continue
+            recopt = jet.pt()
+            genJet = jet.genJet()
+            if genJet == None : 
+                continue
             genpt = genJet.pt()
             deltapt = (recopt-genpt)*(corr-1.0)
             ptsmear = max(0.0, (recopt+deltapt)/recopt)
@@ -1046,12 +695,17 @@ for ifile in files :
 	   
             jetP4 = jetP4Raw * newJER
 	    
-	    if options.systematicsJEC == -1:
-                 newJEC -= jecUncAK4.getUncertainty(0)
-	    if options.systematicsJEC ==1:
-                 newJEC += jecUncAK4.getUncertainty(1)
-	    jetP4 *= newJEC
-		 
+            if options.systematicsJEC == -1:
+                 newJEC -= abs(jecUncAK4.getUncertainty(False))
+            if options.systematicsJEC ==1:
+                 newJEC += abs(jecUncAK4.getUncertainty(True))
+            jetP4 *= newJEC
+
+            if options.verbose == True :
+                print 'oldjet pt  = {0:6.2f}, y = {1:6.2f}, phi = {2:6.2f}, m = {3:6.2f}, bdisc = {4:6.2f}'.format (
+                    jet.pt(), jet.rapidity(), jet.phi(), jet.mass(), jet.bDiscriminator( options.bdisc )
+                )
+        
             # Now perform jet kinematic cuts
             if jetP4.Perp() < options.minAK4Pt or abs(jetP4.Rapidity()) > options.maxAK4Rapidity :
                 continue
@@ -1142,31 +796,31 @@ for ifile in files :
             ak8JetCorrector.setJetPt( jetP4Raw.Perp() )
             ak8JetCorrector.setJetA( jet.jetArea() )
             ak8JetCorrector.setRho( rho )
-	    ak8JetCorrector.setNPV( NPV )
-	    ak8JetCorrector.setJetE( jetP4Raw.Energy() )
+            ak8JetCorrector.setNPV( NPV )
+            ak8JetCorrector.setJetE( jetP4Raw.Energy() )
 	    
 	    
-	    corr = 1.0
-	    newJEC = 1.0
-	    newJER = 1.0
+            corr = 1.0
+            newJEC = 1.0
+            newJER = 1.0
             # Choosing Systematics
-	    newJEC = ak8JetCorrector.getCorrection()
-	    if options.systematicsJER == 0 :
-	    	newJER = getJER(jet.eta(), 0)
+            newJEC = ak8JetCorrector.getCorrection()
+            if options.systematicsJER == 0 :
+                newJER = getJER(jet.eta(), 0)
 		
-	    jecUncAK8.setJetEta( jetP4Raw.Eta() )
+            jecUncAK8.setJetEta( jetP4Raw.Eta() )
             jecUncAK8.setJetPt( newJEC * jetP4Raw.Perp() )
-				    
-	    if  options.systematicsJER ==1:    
-		    corr = getJER(jet.eta(), 1)
 
-	    if options.systematicsJER == -1:
-		    corr = getJER(jet.eta(), -1)
+            if  options.systematicsJER ==1:    
+                corr = getJER(jet.eta(), 1)
+
+            if options.systematicsJER == -1:
+                corr = getJER(jet.eta(), -1)
 		   
-	    recopt = jet.pt()
-	    genJet = jet.genJet()
-	    if genJet == None : 
-	        continue
+            recopt = jet.pt()
+            genJet = jet.genJet()
+            if genJet == None : 
+                continue
             genpt = genJet.pt()
             deltapt = (recopt-genpt)*(corr-1.0)
             ptsmear = max(0.0, (recopt+deltapt)/recopt)
@@ -1174,11 +828,11 @@ for ifile in files :
 	   
             jetP4 = jetP4Raw * newJER
 	    
-	    if options.systematicsJEC == -1:
-                 newJEC -= jecUncAK8.getUncertainty(0)
-	    if options.systematicsJEC ==1:
-                 newJEC += jecUncAK8.getUncertainty(1)
-	    jetP4 *= newJEC
+            if options.systematicsJEC == -1:
+                newJEC -= abs(jecUncAK8.getUncertainty(False))
+            if options.systematicsJEC ==1:
+                 newJEC += abs(jecUncAK8.getUncertainty(True))
+            jetP4 *= newJEC
 		 
 	    
             # Now perform jet kinematic cuts
