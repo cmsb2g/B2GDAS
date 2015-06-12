@@ -8,15 +8,13 @@ Beyond Two Generations Physics Analysis Group (B2G PAG)
 To run :
 
 
-`cmsrel CMSSW_7_3_0`
+`cmsrel CMSSW_7_4_4`
 
-`cd CMSSW_7_3_0/src`
+`cd CMSSW_7_4_4/src`
 
-`mkdir Analysis`
+`git clone https://github.com/cmsb2g/B2GDAS.git Analysis/B2GDAS`
 
-`cd Analysis`
-
-`git clone https://github.com/cmsb2g/B2GDAS.git`
+`cd Analysis/B2GDAS`
 
 `scram b -j 10`
 
