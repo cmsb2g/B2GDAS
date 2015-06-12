@@ -37,7 +37,7 @@ parser.add_option('--maxjets', type='int', action='store',
 
 
 parser.add_option('--bdisc', type='string', action='store',
-                  default='combinedInclusiveSecondaryVertexV2BJetTags',
+                  default='pfCombinedInclusiveSecondaryVertexV2BJetTags',
                   dest='bdisc',
                   help='Name of output file')
 
@@ -150,6 +150,7 @@ h_etaAK8 = ROOT.TH1F("h_etaAK8", "AK8 Jet #eta;#eta", 120, -6, 6)
 h_yAK8 = ROOT.TH1F("h_yAK8", "AK8 Jet Rapidity;y", 120, -6, 6)
 h_phiAK8 = ROOT.TH1F("h_phiAK8", "AK8 Jet #phi;#phi (radians)",100,-ROOT.Math.Pi(),ROOT.Math.Pi())
 h_mAK8 = ROOT.TH1F("h_mAK8", "AK8 Jet Mass;Mass (GeV)", 100, 0, 1000)
+h_msoftdropAK8 = ROOT.TH1F("h_msoftdropAK8", "AK8 Softdrop Jet Mass;Mass (GeV)", 100, 0, 1000)
 h_mprunedAK8 = ROOT.TH1F("h_mprunedAK8", "AK8 Pruned Jet Mass;Mass (GeV)", 100, 0, 1000)
 h_mfilteredAK8 = ROOT.TH1F("h_mfilteredAK8", "AK8 Filtered Jet Mass;Mass (GeV)", 100, 0, 1000)
 h_mtrimmedAK8 = ROOT.TH1F("h_mtrimmedAK8", "AK8 Trimmed Jet Mass;Mass (GeV)", 100, 0, 1000)
@@ -657,9 +658,10 @@ for ifile in files :
             if jet.pt() < options.minAK8Pt :
                 continue
 
-            mAK8Pruned = jet.userFloat('ak8PFJetsCHSPrunedLinks')
-            mAK8Filtered = jet.userFloat('ak8PFJetsCHSFilteredLinks')
-            mAK8Trimmed = jet.userFloat('ak8PFJetsCHSTrimmedLinks')
+            mAK8Softdrop = jet.userFloat('ak8PFJetsCHSSoftDropMass')
+            mAK8Pruned = jet.userFloat('ak8PFJetsCHSPrunedMass')
+            mAK8Filtered = jet.userFloat('ak8PFJetsCHSFilteredMass')
+            mAK8Trimmed = jet.userFloat('ak8PFJetsCHSTrimmedMass')
             # Make sure there are top tags if we want to plot them
             minMass = -1.0
             nsubjets = -1                
@@ -688,6 +690,7 @@ for ifile in files :
             h_etaAK8.Fill( jet.eta() )
             h_yAK8.Fill( jet.rapidity() )
             h_mAK8.Fill( jet.mass() )
+            h_msoftdropAK8.Fill( mAK8Softdrop )
             h_mprunedAK8.Fill( mAK8Pruned )
             h_mfilteredAK8.Fill( mAK8Filtered )
             h_mtrimmedAK8.Fill( mAK8Trimmed )
@@ -696,10 +699,10 @@ for ifile in files :
 
             # Perform CMS top tagging with trimmed jet mass
             if options.verbose : 
-                print 'minMass = {0:6.2f}, trimmed mass = {1:6.2f}, tau32 = {2:6.2f}'.format(
-                    minMass, mAK8Trimmed, tau32
+                print 'minMass = {0:6.2f}, soft drop mass = {1:6.2f}, tau32 = {2:6.2f}'.format(
+                    minMass, mAK8Softdrop, tau32
                     ), 
-            if minMass > 50.0 and mAK8Trimmed > 100. and tau32 < 0.4 :
+            if minMass > 50.0 and mAK8Softdrop > 100. and tau32 < 0.7 :
                 nttags += 1
                 tJets.append( jet )
                 if options.verbose : 
