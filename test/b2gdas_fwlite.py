@@ -49,6 +49,24 @@ def getJER(jetEta, sysType) :
     return float(jerSF)
 
 
+
+def hbheNoiseFilter(summary, minHPDHits=17, minHPDNoOtherHits=10, minZeros=99999, IgnoreTS4TS5ifJetInLowBVRegion=False):
+  failCommon = (summary.maxHPDHits() >= minHPDHits  or
+                summary.maxHPDNoOtherHits() >= minHPDNoOtherHits or
+                summary.maxZeros() >= minZeros)
+  goodJetFoundInLowBVRegion = False
+  if IgnoreTS4TS5ifJetInLowBVRegion: goodJetFoundInLowBVRegion = summary.goodJetFoundInLowBVRegion();
+  failRun2Loose = failCommon or (summary.HasBadRBXRechitR45Loose() and not goodJetFoundInLowBVRegion)
+  return not failRun2Loose
+
+def hbheIsoNoiseFilter(summary):
+   failIso = True
+   if(summary.numIsolatedNoiseChannels() >=10): failIso=False
+   if(summary.isolatedNoiseSumE() >=50) : failIso=False
+   if(summary.isolatedNoiseSumEt() >=25): failIso=False
+   return failIso
+
+
 ## _________                _____.__                            __  .__               
 ## \_   ___ \  ____   _____/ ____\__| ____  __ ______________ _/  |_|__| ____   ____  
 ## /    \  \/ /  _ \ /    \   __\|  |/ ___\|  |  \_  __ \__  \\   __\  |/  _ \ /    \ 
@@ -204,7 +222,24 @@ def b2gdas_fwlite(argv) :
     vertices, vertexLabel = Handle("std::vector<reco::Vertex>"), "offlineSlimmedPrimaryVertices"
     rhos, rhoLabel = Handle("double"), "fixedGridRhoAll"
     gens, genLabel = Handle("std::vector<reco::GenParticle>"), "prunedGenParticles"
+    triggerBits, triggerBitLabel = Handle("edm::TriggerResults"), ("TriggerResults","","HLT")
+    metfiltBits, metfiltBitLabel = Handle("edm::TriggerResults"), ("TriggerResults","","PAT")
+    hcalnoise,hcalnoiseLabel = Handle("HcalNoiseSummary"), "hcalnoise"
 
+
+
+    trigsToRun = [
+        "HLT_IsoMu24_eta2p1",
+        "HLT_Mu45_eta2p1",
+        "HLT_Mu50_",
+        "HLT_Mu40_eta2p1_PFJet200_PFJet50",
+        "HLT_IsoMu24_eta2p1",
+        "HLT_Ele32_eta2p1_WPLoose_Gsf",
+        "HLT_Ele45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50",
+        "HLT_Ele105_CaloIdVT_GsfTrkIdT",
+        "HLT_Ele115_CaloIdVT_GsfTrkIdT"
+        ]
+    
     ##   ___ ___ .__          __                                             
     ##  /   |   \|__| _______/  |_  ____   ________________    _____   ______
     ## /    ~    \  |/  ___/\   __\/  _ \ / ___\_  __ \__  \  /     \ /  ___/
@@ -464,7 +499,7 @@ def b2gdas_fwlite(argv) :
 
         # loop over events in this file
         i = 0
-        for event in events:
+        for iev,event in enumerate(events):
             evWeight = 1.0
             
             if options.maxevents > 0 and nevents > options.maxevents :
@@ -478,6 +513,69 @@ def b2gdas_fwlite(argv) :
                 print '==============================================='
                 print '    ---> Event ' + str(nevents)
 
+
+
+            ##   ___ ___ .____  ___________                    .___ ___________.__.__   __                       
+            ##  /   |   \|    | \__    ___/ _____    ____    __| _/ \_   _____/|__|  |_/  |_  ___________  ______
+            ## /    ~    \    |   |    |    \__  \  /    \  / __ |   |    __)  |  |  |\   __\/ __ \_  __ \/  ___/
+            ## \    Y    /    |___|    |     / __ \|   |  \/ /_/ |   |     \   |  |  |_|  | \  ___/|  | \/\___ \ 
+            ##  \___|_  /|_______ \____|    (____  /___|  /\____ |   \___  /   |__|____/__|  \___  >__|  /____  >
+            ##        \/         \/              \/     \/      \/       \/                      \/           \/ 
+            SemiLeptTrig[0] = -1
+            passTrig = False
+                
+            if options.isData :
+                # Require HCAL noise filter
+                event.getByLabel(hcalnoiseLabel, hcalnoise)
+                if not hbheIsoNoiseFilter(hcalnoise.product()):
+                    continue
+
+                # Perform trigger selection
+                event.getByLabel(triggerBitLabel, triggerBits)
+                event.getByLabel(metfiltBitLabel, metfiltBits)
+
+                if options.verbose : 
+                    print "\nEvent %d: run %6d, lumi %4d, event %12d" % (iev,event.eventAuxiliary().run(), event.eventAuxiliary().luminosityBlock(),event.eventAuxiliary().event())
+                    print "\n === TRIGGER PATHS ==="
+
+                # Check the names of the triggers to see if any of "our" trigger fired
+                names = event.object().triggerNames(triggerBits.product())
+                # Get list of triggers that fired
+                firedTrigs = []
+                for itrig in xrange(triggerBits.product().size()):
+                    if triggerBits.product().accept(itrig) : 
+                        firedTrigs.append( itrig )
+
+                for trig in firedTrigs :
+                    trigName = names.triggerName(trig)
+                    for itrigToRun in xrange(0,len(trigsToRun)) :
+                        if trigsToRun[itrigToRun] in trigName :
+                            if options.verbose : 
+                                print "Trigger ", trigName,  " PASSED "
+                            passTrig = True
+                            SemiLeptTrig[0] = itrigToRun
+                            break
+                    if passTrig :
+                        break                
+
+                if options.verbose :
+                    print "\n === MET FILTER PATHS ==="
+                names2 = event.object().triggerNames(metfiltBits.product())
+                passFilters = True
+                for itrig in xrange(metfiltBits.product().size()):
+                    if names2.triggerName(itrig) == "Flag_CSCTightHaloFilter" and not metfiltBits.product().accept(itrig) :
+                        passFilters = False
+                    if names2.triggerName(itrig) == "Flag_goodVertices" and not metfiltBits.product().accept(itrig) :
+                        passFilters = False
+                    if names2.triggerName(itrig) == "Flag_eeBadScFilter" and not metfiltBits.product().accept(itrig) :
+                        passFilters = False 
+                    if options.verbose : 
+                        print "MET Filter ", names2.triggerName(itrig),  ": ", ("PASS" if metfiltBits.product().accept(itrig) else "fail (or not run)") 
+
+                if not passTrig :
+                    continue
+
+                                      
 
             ##   ________                __________.__          __          
             ##  /  _____/  ____   ____   \______   \  |   _____/  |_  ______
@@ -1061,7 +1159,6 @@ def b2gdas_fwlite(argv) :
                     continue 
                 
                 
-                SemiLeptTrig        [0] = 0
                 SemiLeptWeight      [0] = evWeight
                 FatJetPt            [0] = ak8JetsGoodP4[candToPlot].Perp()
                 FatJetEta           [0] = ak8JetsGoodP4[candToPlot].Eta()
