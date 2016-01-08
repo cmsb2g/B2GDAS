@@ -17,7 +17,6 @@ config.Data.unitsPerJob = 1
 config.Site.storageSite = 'T3_US_FNALLPC'
 
 config.JobType.scriptExe = 'execute_for_crab.sh'
-config.JobType.scriptArgs = ['maxevents=1000']
 
 config.JobType.outputFiles = ['outplots.root']
 config.JobType.inputFiles = ['FrameworkJobReport.xml', 'execute_for_crab.py', 'b2gdas_fwlite.py', 'leptonic_nu_z_component.py', 'JECs' ]

@@ -95,8 +95,16 @@ def b2gdas_fwlite(argv) :
                       dest='verbose',
                       help='Print debugging info')
 
+
+
+    parser.add_option('--purw', action='store_true',
+                      default=True,
+                      dest='purw',
+                      help='Reweight pileup distribution?')
+
+    
     parser.add_option('--writeTree', action='store_true',
-                      default=False,
+                      default=True,
                       dest='writeTree',
                       help='Write TTree?')    
 
@@ -115,11 +123,6 @@ def b2gdas_fwlite(argv) :
                       dest='maxjets',
                       help='Number of jets to plot. To plot all jets, set to a big number like 999')
 
-    parser.add_option('--syst', type='string', action='store',
-                      default='NOM',
-                      dest='syst',
-                      help='Jet systematic to run, options are NOM,JECUP,JECDN,JERUP,JERDN')
-
     
     parser.add_option('--bdisc', type='string', action='store',
                       default='pfCombinedInclusiveSecondaryVertexV2BJetTags',
@@ -133,7 +136,7 @@ def b2gdas_fwlite(argv) :
                       help='Minimum b discriminator')
 
     parser.add_option('--minMuonPt', type='float', action='store',
-                      default=30.,
+                      default=45.,
                       dest='minMuonPt',
                       help='Minimum PT for muons')
 
@@ -143,7 +146,7 @@ def b2gdas_fwlite(argv) :
                       help='Maximum muon pseudorapidity')
 
     parser.add_option('--minElectronPt', type='float', action='store',
-                      default=30.,
+                      default=45.,
                       dest='minElectronPt',
                       help='Minimum PT for electrons')
 
@@ -176,27 +179,10 @@ def b2gdas_fwlite(argv) :
     (options, args) = parser.parse_args(argv)
     argv = []
 
+    print '===== Command line options ====='
+    print options
+    print '================================'
 
-
-    # Keep a quick dictionary for systematics
-    NOM = 0
-    JECUP = 1
-    JECDN = 2
-    JERUP = 3
-    JERDN = 4
-
-    systematics = {
-        'NOM':NOM,
-        'JECUP':JECUP,
-        'JECDN':JECDN,
-        'JERUP':JERUP,
-        'JERDN':JERDN        
-        }
-
-    try : 
-        syst = systematics[options.syst]
-    except :
-        print 'Invalid systematic option.'
     
     ## _____________      __.____    .__  __             _________ __          _____  _____ 
     ## \_   _____/  \    /  \    |   |__|/  |_  ____    /   _____//  |_ __ ___/ ____\/ ____\
@@ -209,7 +195,6 @@ def b2gdas_fwlite(argv) :
     import sys
     from DataFormats.FWLite import Events, Handle
     ROOT.gROOT.Macro("rootlogon.C")
-    from leptonic_nu_z_component import solve_nu_tmass, solve_nu
     import copy
 
     muons, muonLabel = Handle("std::vector<pat::Muon>"), "slimmedMuons"
@@ -222,6 +207,9 @@ def b2gdas_fwlite(argv) :
     vertices, vertexLabel = Handle("std::vector<reco::Vertex>"), "offlineSlimmedPrimaryVertices"
     rhos, rhoLabel = Handle("double"), "fixedGridRhoAll"
     gens, genLabel = Handle("std::vector<reco::GenParticle>"), "prunedGenParticles"
+    genInfo, genInfoLabel = Handle("GenEventInfoProduct"), "generator"
+    # Enterprising students could figure out the LHE weighting for theoretical uncertainties
+    #lheInfo, lheInfoLabel = Handle("LHEEventProduct"), "externalLHEProducer"
     triggerBits, triggerBitLabel = Handle("edm::TriggerResults"), ("TriggerResults","","HLT")
     metfiltBits, metfiltBitLabel = Handle("edm::TriggerResults"), ("TriggerResults","","PAT")
     hcalnoise,hcalnoiseLabel = Handle("HcalNoiseSummary"), "hcalnoise"
@@ -255,6 +243,8 @@ def b2gdas_fwlite(argv) :
         TreeSemiLept = ROOT.TTree("TreeSemiLept", "TreeSemiLept")
         SemiLeptTrig        = array('i', [0]  )
         SemiLeptWeight      = array('f', [0.] )
+        PUWeight            = array('f', [0.] )
+        GenWeight           = array('f', [0.] )
         FatJetPt            = array('f', [-1.])
         FatJetEta           = array('f', [-1.])
         FatJetPhi           = array('f', [-1.])
@@ -271,6 +261,10 @@ def b2gdas_fwlite(argv) :
         FatJetSDsubjetWmass = array('f', [-1.])
         FatJetSDsubjetBpt   = array('f', [-1.])
         FatJetSDsubjetBmass = array('f', [-1.])
+        FatJetJECUpSys      = array('f', [-1.])
+        FatJetJECDnSys      = array('f', [-1.])
+        FatJetJERUpSys      = array('f', [-1.])
+        FatJetJERDnSys      = array('f', [-1.])
         LeptonType          = array('i', [-1])
         LeptonPt            = array('f', [-1.])
         LeptonEta           = array('f', [-1.])
@@ -282,20 +276,25 @@ def b2gdas_fwlite(argv) :
         SemiLepMETpt        = array('f', [-1.])
         SemiLepMETphi       = array('f', [-1.])
         SemiLepNvtx         = array('f', [-1.])
-        SemiLepTTmass       = array('f', [-1.])
         DeltaPhiLepFat      = array('f', [-1.]) 
         AK4bDisc            = array('f', [-1.])
         NearestAK4JetPt     = array('f', [-1.])
         NearestAK4JetEta    = array('f', [-1.])
         NearestAK4JetPhi    = array('f', [-1.])
         NearestAK4JetMass   = array('f', [-1.])
+        NearestAK4JetJECUpSys = array('f', [-1.])
+        NearestAK4JetJECDnSys = array('f', [-1.])
+        NearestAK4JetJERUpSys = array('f', [-1.])
+        NearestAK4JetJERDnSys = array('f', [-1.])
         SemiLeptRunNum        = array('f', [-1.])   
         SemiLeptLumiBlock     = array('f', [-1.])   
         SemiLeptEventNum      = array('f', [-1.])   
 
 
         TreeSemiLept.Branch('SemiLeptTrig'        , SemiLeptTrig        ,  'SemiLeptTrig/I'        )
-        TreeSemiLept.Branch('SemiLeptWeight'      , SemiLeptWeight      ,  'SemiLeptWeight/F'      )    
+        TreeSemiLept.Branch('SemiLeptWeight'      , SemiLeptWeight      ,  'SemiLeptWeight/F'      )
+        TreeSemiLept.Branch('PUWeight'            , PUWeight            ,  'PUWeight/F'            )
+        TreeSemiLept.Branch('GenWeight'           , GenWeight           ,  'GenWeight/F'           )    
         TreeSemiLept.Branch('FatJetPt'            , FatJetPt            ,  'FatJetPt/F'            )
         TreeSemiLept.Branch('FatJetEta'           , FatJetEta           ,  'FatJetEta/F'           )
         TreeSemiLept.Branch('FatJetPhi'           , FatJetPhi           ,  'FatJetPhi/F'           )
@@ -312,6 +311,10 @@ def b2gdas_fwlite(argv) :
         TreeSemiLept.Branch('FatJetSDsubjetWmass' , FatJetSDsubjetWmass ,  'FatJetSDsubjetWmass/F' )
         TreeSemiLept.Branch('FatJetSDsubjetBpt'   , FatJetSDsubjetBpt   ,  'FatJetSDsubjetBpt/F'   )
         TreeSemiLept.Branch('FatJetSDsubjetBmass' , FatJetSDsubjetBmass ,  'FatJetSDsubjetBmass/F' )
+        TreeSemiLept.Branch('FatJetJECUpSys'      , FatJetJECUpSys      ,  'FatJetJECUpSys/F'      )
+        TreeSemiLept.Branch('FatJetJECDnSys'      , FatJetJECDnSys      ,  'FatJetJECDnSys/F'      )
+        TreeSemiLept.Branch('FatJetJERUpSys'      , FatJetJERUpSys      ,  'FatJetJERUpSys/F'      )
+        TreeSemiLept.Branch('FatJetJERDnSys'      , FatJetJERDnSys      ,  'FatJetJERDnSys/F'      )
         TreeSemiLept.Branch('LeptonType'          , LeptonType          ,  'LeptonType/I'          )
         TreeSemiLept.Branch('LeptonPt'            , LeptonPt            ,  'LeptonPt/F'            )
         TreeSemiLept.Branch('LeptonEta'           , LeptonEta           ,  'LeptonEta/F'           )
@@ -323,13 +326,16 @@ def b2gdas_fwlite(argv) :
         TreeSemiLept.Branch('SemiLepMETpt'        , SemiLepMETpt        ,  'SemiLepMETpt/F'        )
         TreeSemiLept.Branch('SemiLepMETphi'       , SemiLepMETphi       ,  'SemiLepMETphi/F'       )
         TreeSemiLept.Branch('SemiLepNvtx'         , SemiLepNvtx         ,  'SemiLepNvtx/F'         )
-        TreeSemiLept.Branch('SemiLepTTmass'       , SemiLepTTmass       ,  'SemiLepTTmass/F'      )
         TreeSemiLept.Branch('DeltaPhiLepFat'      , DeltaPhiLepFat      ,  'DeltaPhiLepFat/F'      )
         TreeSemiLept.Branch('AK4bDisc'            ,AK4bDisc             ,  'AK4bDisc/F'            )
         TreeSemiLept.Branch('NearestAK4JetPt'     ,NearestAK4JetPt      ,  'NearestAK4JetPt/F'     )
         TreeSemiLept.Branch('NearestAK4JetEta'    ,NearestAK4JetEta     ,  'NearestAK4JetEta/F'    )
         TreeSemiLept.Branch('NearestAK4JetPhi'    ,NearestAK4JetPhi     ,  'NearestAK4JetPhi/F'    )
         TreeSemiLept.Branch('NearestAK4JetMass'   ,NearestAK4JetMass    ,  'NearestAK4JetMass/F'   )
+        TreeSemiLept.Branch('NearestAK4JetJECUpSys'      , NearestAK4JetJECUpSys      ,  'NearestAK4JetJECUpSys/F'      )
+        TreeSemiLept.Branch('NearestAK4JetJECDnSys'      , NearestAK4JetJECDnSys      ,  'NearestAK4JetJECDnSys/F'      )
+        TreeSemiLept.Branch('NearestAK4JetJERUpSys'      , NearestAK4JetJERUpSys      ,  'NearestAK4JetJERUpSys/F'      )
+        TreeSemiLept.Branch('NearestAK4JetJERDnSys'      , NearestAK4JetJERDnSys      ,  'NearestAK4JetJERDnSys/F'      )
         TreeSemiLept.Branch('SemiLeptRunNum'         ,  SemiLeptRunNum       ,  'SemiLeptRunNum/F'          )
         TreeSemiLept.Branch('SemiLeptLumiBlock'      ,  SemiLeptLumiBlock    ,  'SemiLeptLumiBlock/F'       )
         TreeSemiLept.Branch('SemiLeptEventNum'       ,  SemiLeptEventNum     ,  'SemiLeptEventNum/F'        )
@@ -468,6 +474,32 @@ def b2gdas_fwlite(argv) :
         jecParUncStrAK8 = ROOT.std.string('JECs/74X_mcRun2_asymptotic_v4_Uncertainty_AK8PFchs.txt')
         jecUncAK8 = ROOT.JetCorrectionUncertainty( jecParUncStrAK8 )    
 
+
+    ## __________.__.__                        __________                     .__       .__     __  .__                
+    ## \______   \__|  |   ____  __ ________   \______   \ ______  _  __ ____ |__| ____ |  |___/  |_|__| ____    ____  
+    ##  |     ___/  |  | _/ __ \|  |  \____ \   |       _// __ \ \/ \/ // __ \|  |/ ___\|  |  \   __\  |/    \  / ___\ 
+    ##  |    |   |  |  |_\  ___/|  |  /  |_> >  |    |   \  ___/\     /\  ___/|  / /_/  >   Y  \  | |  |   |  \/ /_/  >
+    ##  |____|   |__|____/\___  >____/|   __/   |____|_  /\___  >\/\_/  \___  >__\___  /|___|  /__| |__|___|  /\___  / 
+    ##                        \/      |__|             \/     \/            \/  /_____/      \/             \//_____/  
+    # Obtained on lxplus using this recipe :
+    # https://twiki.cern.ch/twiki/bin/view/CMS/PileupJSONFileforData#2015_Pileup_JSON_Files
+    # cmsrel (bla bla bla)
+    # cp /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/PileUp/pileup_latest.txt .
+    # cp /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_Silver_v2.txt .
+    # pileupCalc.py -i Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_Silver_v2.txt \
+    #       --inputLumiJSON pileup_latest.txt --calcMode true --minBiasXsec 69000 --maxPileupBin 50 \
+    #       --numPileupBins 50 MyDataPileupHistogram.root
+    #
+    # Then we compute our pileup distribution in MC ourselves, and divide data/MC, with these commands : 
+    # python makepu_fwlite.py --files inputfiles/ttjets.txt --maxevents 100000 
+    # python makepuhist.py --file_data MyDataPileupHistogram.root --file_mc pumc.root --file_out purw.root
+    #
+    
+    if not options.isData and options.purw : 
+        pileupReweightFile = ROOT.TFile('purw.root', 'READ')
+        purw = pileupReweightFile.Get('pileup')
+
+        
     ## ___________                    __    .____                         
     ## \_   _____/__  __ ____   _____/  |_  |    |    ____   ____ ______  
     ##  |    __)_\  \/ // __ \ /    \   __\ |    |   /  _ \ /  _ \\____ \ 
@@ -501,6 +533,8 @@ def b2gdas_fwlite(argv) :
         i = 0
         for iev,event in enumerate(events):
             evWeight = 1.0
+            puWeight = 1.0
+            genWeight = 1.0
             
             if options.maxevents > 0 and nevents > options.maxevents :
                 break
@@ -520,8 +554,9 @@ def b2gdas_fwlite(argv) :
             ## /    ~    \    |   |    |    \__  \  /    \  / __ |   |    __)  |  |  |\   __\/ __ \_  __ \/  ___/
             ## \    Y    /    |___|    |     / __ \|   |  \/ /_/ |   |     \   |  |  |_|  | \  ___/|  | \/\___ \ 
             ##  \___|_  /|_______ \____|    (____  /___|  /\____ |   \___  /   |__|____/__|  \___  >__|  /____  >
-            ##        \/         \/              \/     \/      \/       \/                      \/           \/ 
-            SemiLeptTrig[0] = -1
+            ##        \/         \/              \/     \/      \/       \/                      \/           \/
+            if options.writeTree : 
+                SemiLeptTrig[0] = -1
             passTrig = False
                 
             if options.isData :
@@ -604,6 +639,10 @@ def b2gdas_fwlite(argv) :
                     else :
                         if options.verbose :
                             print 'No top quarks, not filling mttbar'
+                event.getByLabel( genInfoLabel, genInfo )
+                genWeight = genInfo.product().weight()
+                evWeight *= genWeight
+                
             ## ____   ____             __                    _________      .__                 __  .__               
             ## \   \ /   /____________/  |_  ____ ___  ___  /   _____/ ____ |  |   ____   _____/  |_|__| ____   ____  
             ##  \   Y   // __ \_  __ \   __\/ __ \\  \/  /  \_____  \_/ __ \|  | _/ __ \_/ ___\   __\  |/  _ \ /    \ 
@@ -624,6 +663,9 @@ def b2gdas_fwlite(argv) :
                 if options.verbose : 
                     print "PV at x,y,z = %+5.3f, %+5.3f, %+6.3f (ndof %.1f)" % (PV.x(), PV.y(), PV.z(), PV.ndof())
 
+            if not options.isData and options.purw :
+                puWeight = purw.GetBinContent( purw.GetXaxis().FindBin( NPV ) )
+                evWeight *= puWeight
 
             ## __________.__             ____   ____      .__                 
             ## \______   \  |__   ____   \   \ /   /____  |  |  __ __   ____  
@@ -642,6 +684,9 @@ def b2gdas_fwlite(argv) :
                     print 'rho = {0:6.2f}'.format( rho )
 
 
+
+
+                    
             ## .____                  __                    _________      .__                 __  .__               
             ## |    |    ____ _______/  |_  ____   ____    /   _____/ ____ |  |   ____   _____/  |_|__| ____   ____  
             ## |    |  _/ __ \\____ \   __\/  _ \ /    \   \_____  \_/ __ \|  | _/ __ \_/ ___\   __\  |/  _ \ /    \ 
@@ -748,7 +793,8 @@ def b2gdas_fwlite(argv) :
             ak8JetsGood = []
             ak4JetsGoodP4 = []
             ak8JetsGoodP4 = []
-
+            ak4JetsGoodSysts = []
+            ak8JetsGoodSysts = []
 
             # For selecting leptons, look at 2-d cut of dRMin, ptRel of
             # lepton and nearest jet that has pt > 30 GeV
@@ -852,33 +898,21 @@ def b2gdas_fwlite(argv) :
                     # JER
                     # ---------------------------------------
                     
-                    smear     = getJER( AK8P4Corr.Eta(),  0) 
-                    smearUp   = getJER( AK8P4Corr.Eta(),  1) 
-                    smearDn   = getJER( AK8P4Corr.Eta(), -1) 
+                    smear     = getJER( jetP4Raw.Eta(),  0) 
+                    smearUp   = getJER( jetP4Raw.Eta(),  1) 
+                    smearDn   = getJER( jetP4Raw.Eta(), -1) 
                     recopt    = jetP4Raw.Perp() * newJEC
-                    genpt     = jet.genJet().pt()
-                    deltapt   = (recopt-genpt)*(smear-1.0)
-                    deltaptUp = (recopt-genpt)*(smearUp-1.0)
-                    deltaptDn = (recopt-genpt)*(smearDn-1.0)
-                    ptsmear   = max(0.0, (recopt+deltapt)/recopt)
-                    ptsmearUp = max(0.0, (recopt+deltaptUp)/recopt)
-                    ptsmearDn = max(0.0, (recopt+deltaptDn)/recopt)
+                    if jet.genJet() != None : 
+                        genpt     = jet.genJet().pt()
+                        deltapt   = (recopt-genpt)*(smear-1.0)
+                        deltaptUp = (recopt-genpt)*(smearUp-1.0)
+                        deltaptDn = (recopt-genpt)*(smearDn-1.0)
+                        ptsmear   = max(0.0, (recopt+deltapt)/recopt)
+                        ptsmearUp = max(0.0, (recopt+deltaptUp)/recopt)
+                        ptsmearDn = max(0.0, (recopt+deltaptDn)/recopt)
 
 
-
-                if syst == NOM :
-                    jetP4 = jetP4Raw * newJEC * ptsmear   # Nominal JEC, nominal JER
-                elif syst == JECUP :
-                    jetP4 = jetP4Raw * corrUp * ptsmear   # JEC up, nominal JER
-                elif syst == JECDN :
-                    jetP4 = jetP4Raw * corrDn * ptsmear   # JEC dn, nominal JER
-                elif syst == JERUP :
-                    jetP4 = jetP4Raw * newJEC * ptsmearUp # Nominal JEC, JER up
-                elif syst == JERDN :
-                    jetP4 = jetP4Raw * newJEC * ptsmearDn # Nominal JEC, JER dn
-                else :
-                    print "Invalid systematic option, using nominal. You should reconfigure or else I will talk a lot."
-                    jetP4 = jetP4Raw * newJEC * ptsmear   # Nominal JEC, nominal JER
+                jetP4 = jetP4Raw * newJEC * ptsmear
                     
                 # Now perform jet kinematic cuts
                 if jetP4.Perp() < options.minAK4Pt or abs(jetP4.Rapidity()) > options.maxAK4Rapidity :
@@ -888,6 +922,7 @@ def b2gdas_fwlite(argv) :
                 dR = jetP4.DeltaR(theLepton )
                 ak4JetsGood.append(jet)
                 ak4JetsGoodP4.append( jetP4 )
+                ak4JetsGoodSysts.append( [1+corrUp/jetP4.Perp(), 1-corrDn/jetP4.Perp(), 1+ptsmearUp/jetP4.Perp(), 1-ptsmearDn/jetP4.Perp()] )
                 if options.verbose :
                     print 'corrjet pt = {0:6.2f}, y = {1:6.2f}, phi = {2:6.2f}, m = {3:6.2f}, bdisc = {4:6.2f}'.format (
                         jetP4.Perp(), jetP4.Rapidity(), jetP4.Phi(), jetP4.M(), jet.bDiscriminator( options.bdisc )
@@ -992,34 +1027,22 @@ def b2gdas_fwlite(argv) :
                     # JER
                     # ---------------------------------------
                     
-                    smear     = getJER( AK8P4Corr.Eta(),  0) 
-                    smearUp   = getJER( AK8P4Corr.Eta(),  1) 
-                    smearDn   = getJER( AK8P4Corr.Eta(), -1) 
+                    smear     = getJER( jetP4Raw.Eta(),  0) 
+                    smearUp   = getJER( jetP4Raw.Eta(),  1) 
+                    smearDn   = getJER( jetP4Raw.Eta(), -1) 
                     recopt    = jetP4Raw.Perp() * newJEC
-                    genpt     = jet.genJet().pt()
-                    deltapt   = (recopt-genpt)*(smear-1.0)
-                    deltaptUp = (recopt-genpt)*(smearUp-1.0)
-                    deltaptDn = (recopt-genpt)*(smearDn-1.0)
-                    ptsmear   = max(0.0, (recopt+deltapt)/recopt)
-                    ptsmearUp = max(0.0, (recopt+deltaptUp)/recopt)
-                    ptsmearDn = max(0.0, (recopt+deltaptDn)/recopt)
+                    if jet.genJet() != None : 
+                        genpt     = jet.genJet().pt()
+                        deltapt   = (recopt-genpt)*(smear-1.0)
+                        deltaptUp = (recopt-genpt)*(smearUp-1.0)
+                        deltaptDn = (recopt-genpt)*(smearDn-1.0)
+                        ptsmear   = max(0.0, (recopt+deltapt)/recopt)
+                        ptsmearUp = max(0.0, (recopt+deltaptUp)/recopt)
+                        ptsmearDn = max(0.0, (recopt+deltaptDn)/recopt)
 
 
 
-                if syst == NOM :
-                    jetP4 = jetP4Raw * newJEC * ptsmear   # Nominal JEC, nominal JER
-                elif syst == JECUP :
-                    jetP4 = jetP4Raw * corrUp * ptsmear   # JEC up, nominal JER
-                elif syst == JECDN :
-                    jetP4 = jetP4Raw * corrDn * ptsmear   # JEC dn, nominal JER
-                elif syst == JERUP :
-                    jetP4 = jetP4Raw * newJEC * ptsmearUp # Nominal JEC, JER up
-                elif syst == JERDN :
-                    jetP4 = jetP4Raw * newJEC * ptsmearDn # Nominal JEC, JER dn
-                else :
-                    print "Invalid systematic option, using nominal. You should reconfigure or else I will talk a lot."
-                    jetP4 = jetP4Raw * newJEC * ptsmear   # Nominal JEC, nominal JER
-
+                jetP4 = jetP4Raw * newJEC * ptsmear   # Nominal JEC, nominal JER
                 
                 # Now perform jet kinematic cuts
                 if jetP4.Perp() < options.minAK8Pt or abs(jetP4.Rapidity()) > options.maxAK8Rapidity :
@@ -1031,6 +1054,7 @@ def b2gdas_fwlite(argv) :
                 if dR > ROOT.TMath.Pi()/2.0 :
                     ak8JetsGood.append(jet)
                     ak8JetsGoodP4.append( jetP4 )
+                    ak8JetsGoodSysts.append( [1+corrUp/jetP4.Perp(), 1-corrDn/jetP4.Perp(), 1+ptsmearUp/jetP4.Perp(), 1-ptsmearDn/jetP4.Perp()] )
 
             ## ___________                     .__                
             ## \__    ___/____     ____   ____ |__| ____    ____  
@@ -1069,50 +1093,6 @@ def b2gdas_fwlite(argv) :
 
 
                 tJets.append( jet )
-
-
-
-            ##  ____  __.__                              __  .__         __________                     
-            ## |    |/ _|__| ____   ____   _____ _____ _/  |_|__| ____   \______   \ ____   ____  ____  
-            ## |      < |  |/    \_/ __ \ /     \\__  \\   __\  |/ ___\   |       _// __ \_/ ___\/  _ \ 
-            ## |    |  \|  |   |  \  ___/|  Y Y  \/ __ \|  | |  \  \___   |    |   \  ___/\  \__(  <_> )
-            ## |____|__ \__|___|  /\___  >__|_|  (____  /__| |__|\___  >  |____|_  /\___  >\___  >____/ 
-            ##         \/       \/     \/      \/     \/             \/          \/     \/     \/       
-
-            # Now we do our kinematic calculation based on the categories of the
-            # number of top and bottom tags
-            mttbar = -1.0
-            if len(tJets) == 0 :
-                if options.verbose : 
-                    print 'No top tags'
-            else :
-
-
-                hadTopCandP4 = ROOT.TLorentzVector( tJets[0].px(), tJets[0].py(), tJets[0].pz(), tJets[0].energy() )
-                lepTopCandP4 = None
-                # Get the z-component of the lepton from the W mass constraint
-                bJetCandP4 = ak4JetsGoodP4[inearestJet]
-                nuCandP4 = ROOT.TLorentzVector( met.px(), met.py(), 0, met.energy() )
-
-
-                solution, nuz1, nuz2 = solve_nu( vlep=theLepton, vnu=nuCandP4 )
-                # If there is at least one real solution, pick it up
-                if solution :
-                    if options.verbose : 
-                        print '--- Have a solution --- '
-                    nuCandP4.SetPz( nuz1 )
-                else :
-                    if options.verbose : 
-                        print '--- No solution for neutrino z ---'
-                    nuCandP4.SetPz( nuz1.real )
-
-                lepTopCandP4 = nuCandP4 + theLepton + bJetCandP4
-
-                ttbarCand = hadTopCandP4 + lepTopCandP4
-                mttbar = ttbarCand.M()
-                h_mttbar.Fill( mttbar )
-                if not options.isData and  haveGenSolution == False :
-                    print 'Very strange. No gen solution, but it is a perfectly good event. mttbar = ' + str(ttbarCand.M() )
 
 
             ## ___________.__.__  .__    ___________                      
@@ -1160,6 +1140,8 @@ def b2gdas_fwlite(argv) :
                 
                 
                 SemiLeptWeight      [0] = evWeight
+                PUWeight            [0] = puWeight
+                GenWeight           [0] = genWeight
                 FatJetPt            [0] = ak8JetsGoodP4[candToPlot].Perp()
                 FatJetEta           [0] = ak8JetsGoodP4[candToPlot].Eta()
                 FatJetPhi           [0] = ak8JetsGoodP4[candToPlot].Phi()
@@ -1170,6 +1152,10 @@ def b2gdas_fwlite(argv) :
                 FatJetMassSoftDrop  [0] = ak8JetsGood[candToPlot].userFloat('ak8PFJetsCHSSoftDropMass')
                 FatJetTau32         [0] = tau32
                 FatJetTau21         [0] = tau21
+                FatJetJECUpSys      [0] = ak8JetsGoodSysts[candToPlot][0]
+                FatJetJECDnSys      [0] = ak8JetsGoodSysts[candToPlot][1]
+                FatJetJERUpSys      [0] = ak8JetsGoodSysts[candToPlot][2]
+                FatJetJERDnSys      [0] = ak8JetsGoodSysts[candToPlot][3]
                 if subjetW != None : 
                     FatJetSDbdiscW      [0] = subjetW.bDiscriminator(options.bdisc)
                     FatJetSDbdiscB      [0] = subjetB.bDiscriminator(options.bdisc)
@@ -1187,13 +1173,16 @@ def b2gdas_fwlite(argv) :
                 SemiLepMETpt        [0] = met.pt()
                 SemiLepMETphi       [0] = met.phi()   
                 SemiLepNvtx         [0] = NPV
-                SemiLepTTmass       [0] = mttbar
                 DeltaPhiLepFat      [0] = ak8JetsGoodP4[candToPlot].DeltaR(theLepton)
                 AK4bDisc            [0] = nearestJet.bDiscriminator(options.bdisc)
                 NearestAK4JetPt     [0] = nearestJetP4.Perp()
                 NearestAK4JetEta    [0] = nearestJetP4.Eta()
                 NearestAK4JetPhi    [0] = nearestJetP4.Phi()
                 NearestAK4JetMass   [0] = nearestJetP4.M()
+                NearestAK4JetJECUpSys      [0] = ak4JetsGoodSysts[candToPlot][0]
+                NearestAK4JetJECDnSys      [0] = ak4JetsGoodSysts[candToPlot][1]
+                NearestAK4JetJERUpSys      [0] = ak4JetsGoodSysts[candToPlot][2]
+                NearestAK4JetJERDnSys      [0] = ak4JetsGoodSysts[candToPlot][3]
                 SemiLeptRunNum      [0] = event.object().id().run()
                 SemiLeptLumiBlock   [0] = event.object().luminosityBlock()
                 SemiLeptEventNum    [0] = event.object().id().event()
