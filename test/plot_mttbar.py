@@ -36,6 +36,7 @@ def plot_mttbar(argv) :
 
     fout= ROOT.TFile(options.file_out, "RECREATE")
     h_mttbar = ROOT.TH1F("h_mttbar", ";m_{t#bar{t}} (GeV);Number", 100, 0, 5000)
+    h_mtopHad = ROOT.TH1F("h_mtopHad", ";m_{jet} (GeV);Number", 100, 0, 400)
 
     fin = ROOT.TFile(options.file_in)
 
@@ -148,6 +149,7 @@ def plot_mttbar(argv) :
 
 
         t.SetBranchStatus ('*', 0)
+        t.SetBranchStatus ('PUWeight', 1)
         t.SetBranchStatus ('FatJetPt', 1)
         t.SetBranchStatus ('FatJetEta', 1)
         t.SetBranchStatus ('FatJetPhi', 1)
@@ -184,6 +186,9 @@ def plot_mttbar(argv) :
             if ientry < 0:
                 break
 
+            if SemiLeptTrig[0] < 2 or SemiLeptTrig[0] > 3 :
+                continue
+            
             hadTopCandP4 = ROOT.TLorentzVector()
             hadTopCandP4.SetPtEtaPhiM( FatJetPt[0], FatJetEta[0], FatJetPhi[0], FatJetMass[0])
             bJetCandP4 = ROOT.TLorentzVector()
@@ -198,11 +203,12 @@ def plot_mttbar(argv) :
             mass_sd = FatJetMassSoftDrop[0]
             bdisc = AK4bDisc[0]
 
-            passTopTag = tau32 < 0.6 and mass_sd > 110. and mass_sd < 250.
+            passKin = hadTopCandP4.Perp() > 400.
+            passTopTag = tau32 < 0.6 #and mass_sd > 110. and mass_sd < 250.
             pass2DCut = LeptonPtRel[0] > 55. or LeptonDRMin[0] > 0.4
 
 
-            if not passTopTag and pass2DCut :
+            if not passTopTag or not pass2DCut :
                 continue
 
             ##  ____  __.__                              __  .__         __________                     
@@ -230,8 +236,8 @@ def plot_mttbar(argv) :
 
             ttbarCand = hadTopCandP4 + lepTopCandP4
             mttbar = ttbarCand.M()
-            h_mttbar.Fill( mttbar )
-            
+            h_mttbar.Fill( mttbar, PUWeight[0] )
+            h_mtopHad.Fill( hadTopCandP4.M(), PUWeight[0] )
 
     fout.cd()
     fout.Write()
