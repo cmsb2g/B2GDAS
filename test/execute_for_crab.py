@@ -13,7 +13,7 @@ sys.argv.append('filesToProcess.txt')
 
 print sys.argv
 
-from b2gdas_fwlite import b2gdas_fwlite
+from b2gdas_fwlite import *
 
 b2gdas_fwlite(sys.argv)
 
