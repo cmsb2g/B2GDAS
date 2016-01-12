@@ -1,5 +1,8 @@
 #! /usr/bin/env python
 
+# Use the VID framework for the electron ID. Tight ID without the PF isolation cut. 
+from RecoEgamma.ElectronIdentification.VIDElectronSelector import VIDElectronSelector
+from RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_25ns_V1_cff import cutBasedElectronID_Spring15_25ns_V1_standalone_tight
 
 
 ##   ___ ___         .__                        ___________                   __  .__                      
@@ -65,7 +68,6 @@ def hbheIsoNoiseFilter(summary):
    if(summary.isolatedNoiseSumE() >=50) : failIso=False
    if(summary.isolatedNoiseSumEt() >=25): failIso=False
    return failIso
-
 
 ## _________                _____.__                            __  .__               
 ## \_   ___ \  ____   _____/ ____\__| ____  __ ______________ _/  |_|__| ____   ____  
@@ -194,6 +196,8 @@ def b2gdas_fwlite(argv) :
     import ROOT
     import sys
     from DataFormats.FWLite import Events, Handle
+
+    
     ROOT.gROOT.Macro("rootlogon.C")
     import copy
 
@@ -475,6 +479,10 @@ def b2gdas_fwlite(argv) :
         jecUncAK8 = ROOT.JetCorrectionUncertainty( jecParUncStrAK8 )    
 
 
+    selectElectron = VIDElectronSelector(cutBasedElectronID_Spring15_25ns_V1_standalone_tight)
+    selectElectron._VIDSelectorBase__instance.ignoreCut('GsfEleEffAreaPFIsoCut_0')
+
+
     ## __________.__.__                        __________                     .__       .__     __  .__                
     ## \______   \__|  |   ____  __ ________   \______   \ ______  _  __ ____ |__| ____ |  |___/  |_|__| ____    ____  
     ##  |     ___/  |  | _/ __ \|  |  \____ \   |       _// __ \ \/ \/ // __ \|  |/ ___\|  |  \   __\  |/    \  / ___\ 
@@ -716,12 +724,13 @@ def b2gdas_fwlite(argv) :
             goodelectrons = []
             if len(electrons.product()) > 0 :
                 for i,electron in enumerate( electrons.product() ) :
-
-                    if electron.pt() < electron.pt() and abs(electron.eta()) < options.maxElectronEta and electron.electronID("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-tight") == 5 :
+                    passTight = selectElectron( electron, event )
+                    if electron.pt() > options.minElectronPt and abs(electron.eta()) < options.maxElectronEta \
+                        and passTight :
                         goodelectrons.append( electron )
                         if options.verbose :
                             print "elec %2d: pt %4.1f, supercluster eta %+5.3f, phi %+5.3f sigmaIetaIeta %.3f (%.3f with full5x5 shower shapes), pass conv veto %d" % \
-                            ( i, electron.pt(), electron.superCluster().eta(), electron.phi(), electron.sigmaIetaIeta(), electron.full5x5_sigmaIetaIeta(), electron.passConversionVeto())
+                                ( i, electron.pt(), electron.superCluster().eta(), electron.phi(), electron.sigmaIetaIeta(), electron.full5x5_sigmaIetaIeta(), electron.passConversionVeto())
 
 
 
@@ -861,7 +870,7 @@ def b2gdas_fwlite(argv) :
                                 jetP4Raw -= theLepton
                             else :
                                 jetP4Raw -= theLepton
-                                jetP4Raw.SetEnergy(0.0)
+                                jetP4Raw.SetE(0.0)
                             cleaned = True
                             break
 
