@@ -23,6 +23,11 @@ def plot_mttbar(argv) :
                       dest='file_out',
                       help='Output file')
     
+    parser.add_option('--isData', action='store_true',
+                      dest='isData',
+                      default = False,
+                      help='Is this Data?')
+        
     (options, args) = parser.parse_args(argv)
     argv = []
 
@@ -47,7 +52,8 @@ def plot_mttbar(argv) :
     
     for itree,t in enumerate(trees) :
 
-        SemiLeptTrig        = array.array('i', [0]  )
+        if options.isData : 
+            SemiLeptTrig        = array.array('i', [0]  )
         SemiLeptWeight      = array.array('f', [0.] )
         PUWeight            = array.array('f', [0.] )
         GenWeight           = array.array('f', [0.] )
@@ -98,7 +104,8 @@ def plot_mttbar(argv) :
 
 
 
-        t.SetBranchAddress('SemiLeptTrig'        , SemiLeptTrig        )
+        if options.isData : 
+            t.SetBranchAddress('SemiLeptTrig'        , SemiLeptTrig        )
         t.SetBranchAddress('SemiLeptWeight'      , SemiLeptWeight      )
         t.SetBranchAddress('PUWeight'            , PUWeight            )
         t.SetBranchAddress('GenWeight'           , GenWeight               )
@@ -164,6 +171,7 @@ def plot_mttbar(argv) :
         t.SetBranchStatus ('NearestAK4JetMass' ,1 )
         t.SetBranchStatus ('SemiLepMETpt' , 1 )
         t.SetBranchStatus ('SemiLepMETphi' , 1 )
+        t.SetBranchStatus ('LeptonType'          , 1 )
         t.SetBranchStatus ('LeptonPt'            , 1)
         t.SetBranchStatus ('LeptonEta'           , 1)
         t.SetBranchStatus ('LeptonPhi'           , 1)
@@ -186,9 +194,14 @@ def plot_mttbar(argv) :
             if ientry < 0:
                 break
 
-            if SemiLeptTrig[0] < 2 or SemiLeptTrig[0] > 3 :
+            # Muons only for now
+            if LeptonType[0] != 13 :
                 continue
-            
+
+            # Muon triggers only for now
+            if options.isData and ( SemiLeptTrig[0] < 2 or SemiLeptTrig[0] > 3 ) :
+                continue
+
             hadTopCandP4 = ROOT.TLorentzVector()
             hadTopCandP4.SetPtEtaPhiM( FatJetPt[0], FatJetEta[0], FatJetPhi[0], FatJetMass[0])
             bJetCandP4 = ROOT.TLorentzVector()
@@ -204,12 +217,13 @@ def plot_mttbar(argv) :
             bdisc = AK4bDisc[0]
 
             passKin = hadTopCandP4.Perp() > 400.
-            passTopTag = tau32 < 0.6 #and mass_sd > 110. and mass_sd < 250.
+            passTopTag = tau32 < 0.6 and mass_sd > 110. and mass_sd < 250.
             pass2DCut = LeptonPtRel[0] > 55. or LeptonDRMin[0] > 0.4
+            passBtag = bdisc > 0.7
 
-
-            if not passTopTag or not pass2DCut :
+            if not passKin or not pass2DCut or not passBtag :
                 continue
+
 
             ##  ____  __.__                              __  .__         __________                     
             ## |    |/ _|__| ____   ____   _____ _____ _/  |_|__| ____   \______   \ ____   ____  ____  
