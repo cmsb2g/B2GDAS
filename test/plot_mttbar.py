@@ -70,7 +70,7 @@ def plot_mttbar(argv) :
     h_NearestAK4JetPhi=ROOT.TH1F('h_NearestAK4JePhi',"; NearAK4Jet Phi ;Number",100,-4,4)
     h_NearestAK4JetMass=ROOT.TH1F('h_NearestAK4JetMass',"; NearAK4Jet Mass (GeV);Number",100,0,400)
     h_AK4bDisc=ROOT.TH1F('h_AK4bDisc',"AK4Jet bDisc;Number",100,0,1)
-    fin = ROOT.TFile(options.file_in)
+    fin = ROOT.TFile.Open(options.file_in)
     Npre = 0.
     Nnum = 0.
 
@@ -310,7 +310,8 @@ def plot_mttbar(argv) :
             ttbarCandDownRES = hadTopCandP4CorrectedDownRES + lepTopCandP4
             mttbar = ttbarCand.M()
 
-            weight = PUWeight[0]
+            weight = PUWeight[0]* btag_sf_func.Eval(NearestAK4JetPt[0])
+       
 
 
             mttbarUp = ttbarCandUp.M()
@@ -318,11 +319,11 @@ def plot_mttbar(argv) :
             mttbarUpRES = ttbarCandUpRES.M()
             mttbarDownRES = ttbarCandDown.M()
           
-            h_mttbarCorrectedUp.Fill( mttbarUp, PUWeight[0] )
-            h_mttbarCorrectedDown.Fill( mttbarDown, PUWeight[0] )
+            h_mttbarCorrectedUp.Fill( mttbarUp, weight )
+            h_mttbarCorrectedDown.Fill( mttbarDown, weight )
 
-            h_mttbarCorrectedUpRES.Fill( mttbarUpRES , PUWeight[0] )
-            h_mttbarCorrectedDownRES.Fill( mttbarDownRES , PUWeight[0] )
+            h_mttbarCorrectedUpRES.Fill( mttbarUpRES , weight )
+            h_mttbarCorrectedDownRES.Fill( mttbarDownRES , weight )
 
 
              
