@@ -42,6 +42,13 @@ def plot_mttbar(argv) :
     fout= ROOT.TFile(options.file_out, "RECREATE")
     h_mttbar = ROOT.TH1F("h_mttbar", ";m_{t#bar{t}} (GeV);Number", 100, 0, 5000)
     h_mtopHad = ROOT.TH1F("h_mtopHad", ";m_{jet} (GeV);Number", 100, 0, 400)
+    h_mtopHadGroomed = ROOT.TH1F("h_mtopHadGroomed", ";Groomed m_{jet} (GeV);Number", 100, 0, 400)
+    h_mttbarCorrectedUp = ROOT.TH1F("h_mtopHadCorrectedUp", ";mtopHad Corrected Up;Number", 100, 0, 5000)
+    h_mttbarCorrectedDown = ROOT.TH1F("h_mtopHadCorrectedDown", ";mtopHad Corrected Down;Number", 100, 0, 5000)
+    h_mttbarCorrectedUpRES = ROOT.TH1F("h_mtopHadCorrectedUpRES", ";mtopHad Corrected Up Res;Number", 100, 0, 5000)
+    h_mttbarCorrectedDownRES = ROOT.TH1F("h_mtopHadCorrectedDownRES", ";mtopHad Corrected Down Res;Number", 100, 0, 5000)
+
+
 
     fin = ROOT.TFile(options.file_in)
 
@@ -179,6 +186,10 @@ def plot_mttbar(argv) :
         t.SetBranchStatus ('LeptonIso'           , 1)
         t.SetBranchStatus ('LeptonPtRel'         , 1)
         t.SetBranchStatus ('LeptonDRMin'         , 1)
+        t.SetBranchStatus ('FatJetJECUpSys'         , 1)
+        t.SetBranchStatus ('FatJetJECDnSys'         , 1)
+        t.SetBranchStatus ('FatJetJERUpSys'         , 1)
+        t.SetBranchStatus ('FatJetJERDnSys'         , 1)
 
 
         entries = t.GetEntriesFast()
@@ -199,10 +210,11 @@ def plot_mttbar(argv) :
                 continue
 
             # Muon triggers only for now
-            if options.isData and ( SemiLeptTrig[0] < 2 or SemiLeptTrig[0] > 3 ) :
+            if options.isData and SemiLeptTrig[0] != 3  :
                 continue
 
             hadTopCandP4 = ROOT.TLorentzVector()
+            hadTopCandP4Corrected = ROOT.TLorentzVector()
             hadTopCandP4.SetPtEtaPhiM( FatJetPt[0], FatJetEta[0], FatJetPhi[0], FatJetMass[0])
             bJetCandP4 = ROOT.TLorentzVector()
             bJetCandP4.SetPtEtaPhiM( NearestAK4JetPt[0], NearestAK4JetEta[0], NearestAK4JetPhi[0], NearestAK4JetMass[0])
@@ -211,7 +223,15 @@ def plot_mttbar(argv) :
             theLepton = ROOT.TLorentzVector()
             theLepton.SetPtEtaPhiE( LeptonPt[0], LeptonEta[0], LeptonPhi[0], LeptonEnergy[0] ) # Assume massless
             
-            
+            # JEC and JER
+            hadTopCandP4CorrectedUp = hadTopCandP4 * FatJetJECUpSys[0]
+            hadTopCandP4CorrectedDown = hadTopCandP4 * FatJetJECDnSys[0]
+            hadTopCandP4CorrectedUpRES = hadTopCandP4 * FatJetJERUpSys[0]
+            hadTopCandP4CorrectedDownRES = hadTopCandP4 * FatJetJERDnSys[0]
+
+            #print FatJetJECUpSys[0] , '/////' , FatJetJERUpSys[0]
+
+            #print hadTopCandP4Corrected[1]
             tau32 = FatJetTau32[0]
             mass_sd = FatJetMassSoftDrop[0]
             bdisc = AK4bDisc[0]
@@ -221,8 +241,9 @@ def plot_mttbar(argv) :
             pass2DCut = LeptonPtRel[0] > 55. or LeptonDRMin[0] > 0.4
             passBtag = bdisc > 0.7
 
-            if not passKin or not pass2DCut or not passBtag :
+            if not passKin or not pass2DCut or not passBtag or passTopTag :
                 continue
+            
 
 
             ##  ____  __.__                              __  .__         __________                     
@@ -249,9 +270,30 @@ def plot_mttbar(argv) :
             lepTopCandP4 = nuCandP4 + theLepton + bJetCandP4
 
             ttbarCand = hadTopCandP4 + lepTopCandP4
+            ttbarCandUp = hadTopCandP4CorrectedUp + lepTopCandP4
+            ttbarCandDown = hadTopCandP4CorrectedDown + lepTopCandP4
+            ttbarCandUpRES = hadTopCandP4CorrectedUpRES + lepTopCandP4
+            ttbarCandDownRES = hadTopCandP4CorrectedDownRES + lepTopCandP4
             mttbar = ttbarCand.M()
+            mttbarUp = ttbarCandUp.M()
+            mttbarDown = ttbarCandDownRES.M()
+            mttbarUpRES = ttbarCandUpRES.M()
+            mttbarDownRES = ttbarCandDown.M()
             h_mttbar.Fill( mttbar, PUWeight[0] )
             h_mtopHad.Fill( hadTopCandP4.M(), PUWeight[0] )
+          
+            h_mttbarCorrectedUp.Fill( mttbarUp, PUWeight[0] )
+            h_mttbarCorrectedDown.Fill( mttbarDown, PUWeight[0] )
+
+            h_mttbarCorrectedUpRES.Fill( mttbarUpRES , PUWeight[0] )
+            h_mttbarCorrectedDownRES.Fill( mttbarDownRES , PUWeight[0] )
+
+
+             
+            
+
+
+
 
     fout.cd()
     fout.Write()
