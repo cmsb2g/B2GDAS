@@ -11,6 +11,7 @@ import sys
 import math
 import array as array
 from optparse import OptionParser
+from math import sqrt
 
 
 def plot_mttbar(argv) : 
@@ -357,7 +358,20 @@ def plot_mttbar(argv) :
 
             
             
+        xnbins = h_mtopHad.GetXaxis().GetNbins()
+        for ibin in xrange( xnbins ):
+            val =  h_mttbar.GetBinContent(ibin)
+            valup = h_mttbarCorrectedUp.GetBinContent(ibin)
+            valdown = h_mttbarCorrectedDown.GetBinContent(ibin)
+            jesup = abs(valup - val)
+            jesdown = abs(valdown - val)
+            jesun = 0.5 * ( jesup + jesdown)
+            if val!= 0 :
+                uncibin = h_mttbar.GetBinContent(ibin)/val
+            unc = sqrt(pow(jesun,2)+pow(uncibin,2))
+            h_mttbar.SetBinError(ibin, unc*val)
             
+        
                 
             
     Eff = Nnum/Npre
