@@ -38,9 +38,11 @@ def plot_mttbar(argv) :
 
     import ROOT
 
+    btag_sf_func = ROOT.TF1("btag_sf", "-(0.0443172)+(0.00496634*(log(x+1267.85)*(log(x+1267.85)*(3-(-(0.110428*log(x+1267.85)))))))")
+
     from leptonic_nu_z_component import solve_nu_tmass, solve_nu
 
-    fout= ROOT.TFile(options.file_out, "RECREATE")
+    fout= ROOT.TFile.Open(options.file_out, "RECREATE")
     h_mttbar = ROOT.TH1F("h_mttbar", ";m_{t#bar{t}} (GeV);Number", 100, 0, 5000)
     h_mtopHad = ROOT.TH1F("h_mtopHad", ";m_{jet} (GeV);Number", 100, 0, 400)
     h_mtopHadGroomed = ROOT.TH1F("h_mtopHadGroomed", ";Groomed m_{jet} (GeV);Number", 100, 0, 400)
