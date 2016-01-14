@@ -38,6 +38,8 @@ def plot_mttbar(argv) :
 
     import ROOT
 
+    btag_sf_func = ROOT.TF1("btag_sf", "-(0.0443172)+(0.00496634*(log(x+1267.85)*(log(x+1267.85)*(3-(-(0.110428*log(x+1267.85)))))))")
+
     from leptonic_nu_z_component import solve_nu_tmass, solve_nu
 
     fout= ROOT.TFile.Open(options.file_out, "RECREATE")
@@ -48,10 +50,6 @@ def plot_mttbar(argv) :
     h_mttbarCorrectedDown = ROOT.TH1F("h_mtopHadCorrectedDown", ";mtopHad Corrected Down;Number", 100, 0, 5000)
     h_mttbarCorrectedUpRES = ROOT.TH1F("h_mtopHadCorrectedUpRES", ";mtopHad Corrected Up Res;Number", 100, 0, 5000)
     h_mttbarCorrectedDownRES = ROOT.TH1F("h_mtopHadCorrectedDownRES", ";mtopHad Corrected Down Res;Number", 100, 0, 5000)
-
-
-
-    h_mtopHadGroomed =ROOT.TH1F("h_mtopHadGroomed", ";Groomed m_{jet} (GeV);Number", 100, 0, 400)
     
     #adding histgram
     h_FatJetPt = ROOT.TH1F('h_FatJetPt',"; AK8Jet Pt (GeV);Number",100,0,4000)
@@ -68,6 +66,9 @@ def plot_mttbar(argv) :
     h_NearestAK4JetPhi=ROOT.TH1F('h_NearestAK4JePhi',"; NearAK4Jet Phi ;Number",100,-4,4)
     h_NearestAK4JetMass=ROOT.TH1F('h_NearestAK4JetMass',"; NearAK4Jet Mass (GeV);Number",100,0,400)
     h_AK4bDisc=ROOT.TH1F('h_AK4bDisc',"AK4Jet bDisc;Number",100,0,1)
+    h_MissingEt=ROOT.TH1F('h_MissingET',"Missing ET (GeV);Number",100,0,400)
+    #h_LeptonHt = ROOT.TH1F('h_LeptonHt',"Lepton Ht (GeV);Number",100,0,500)
+
     fin = ROOT.TFile.Open(options.file_in)
     Npre = 0.
     Nnum = 0.
@@ -256,7 +257,7 @@ def plot_mttbar(argv) :
             tau32 = FatJetTau32[0]
             mass_sd = FatJetMassSoftDrop[0]
             bdisc = AK4bDisc[0]
-
+        
             passKin = hadTopCandP4.Perp() > 400.
             passTopTag = tau32 < 0.6 and mass_sd > 110. and mass_sd < 210.
             pass2DCut = LeptonPtRel[0] > 55. or LeptonDRMin[0] > 0.4
@@ -308,7 +309,8 @@ def plot_mttbar(argv) :
             ttbarCandDownRES = hadTopCandP4CorrectedDownRES + lepTopCandP4
             mttbar = ttbarCand.M()
 
-            weight = PUWeight[0]
+            weight = PUWeight[0]* btag_sf_func.Eval(NearestAK4JetPt[0])
+       
 
 
             mttbarUp = ttbarCandUp.M()
@@ -316,11 +318,11 @@ def plot_mttbar(argv) :
             mttbarUpRES = ttbarCandUpRES.M()
             mttbarDownRES = ttbarCandDown.M()
           
-            h_mttbarCorrectedUp.Fill( mttbarUp, PUWeight[0] )
-            h_mttbarCorrectedDown.Fill( mttbarDown, PUWeight[0] )
+            h_mttbarCorrectedUp.Fill( mttbarUp, weight )
+            h_mttbarCorrectedDown.Fill( mttbarDown, weight )
 
-            h_mttbarCorrectedUpRES.Fill( mttbarUpRES , PUWeight[0] )
-            h_mttbarCorrectedDownRES.Fill( mttbarDownRES , PUWeight[0] )
+            h_mttbarCorrectedUpRES.Fill( mttbarUpRES , weight )
+            h_mttbarCorrectedDownRES.Fill( mttbarDownRES , weight )
 
 
              
@@ -342,7 +344,8 @@ def plot_mttbar(argv) :
             h_NearestAK4JetPhi.Fill(bJetCandP4.Phi(),weight)
             h_NearestAK4JetMass.Fill(bJetCandP4.M(),weight)
             h_AK4bDisc.Fill(bdisc,weight)
-
+            h_MissingEt.Fill(nuCandP4.Perp(),weight)
+           ### h_LeptonHt.Fill()
 
 
             
