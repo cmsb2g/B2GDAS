@@ -67,7 +67,7 @@ def plot_mttbar(argv) :
     h_NearestAK4JetMass=ROOT.TH1F('h_NearestAK4JetMass',"; NearAK4Jet Mass (GeV);Number",100,0,400)
     h_AK4bDisc=ROOT.TH1F('h_AK4bDisc',"AK4Jet bDisc;Number",100,0,1)
     h_MissingEt=ROOT.TH1F('h_MissingET',"Missing ET (GeV);Number",100,0,400)
-    #h_LeptonHt = ROOT.TH1F('h_LeptonHt',"Lepton Ht (GeV);Number",100,0,500)
+    h_LeptonHt = ROOT.TH1F('h_LeptonHt',"Lepton Ht (GeV);Number",100,0,500)
 
     fin = ROOT.TFile.Open(options.file_in)
     Npre = 0.
@@ -345,7 +345,7 @@ def plot_mttbar(argv) :
             h_NearestAK4JetMass.Fill(bJetCandP4.M(),weight)
             h_AK4bDisc.Fill(bdisc,weight)
             h_MissingEt.Fill(nuCandP4.Perp(),weight)
-           ### h_LeptonHt.Fill()
+            h_LeptonHt.Fill(nuCandP4.Perp()+theLepton.Pt(),weight)
 
 
             
