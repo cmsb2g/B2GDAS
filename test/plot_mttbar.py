@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-
+1
 ## _________                _____.__                            __  .__               
 ## \_   ___ \  ____   _____/ ____\__| ____  __ ______________ _/  |_|__| ____   ____  
 ## /    \  \/ /  _ \ /    \   __\|  |/ ___\|  |  \_  __ \__  \\   __\  |/  _ \ /    \ 
@@ -40,7 +40,7 @@ def plot_mttbar(argv) :
 
     from leptonic_nu_z_component import solve_nu_tmass, solve_nu
 
-    fout= ROOT.TFile(options.file_out, "RECREATE")
+    fout= ROOT.TFile.Open(options.file_out, "RECREATE")
     h_mttbar = ROOT.TH1F("h_mttbar", ";m_{t#bar{t}} (GeV);Number", 100, 0, 5000)
     h_mtopHad = ROOT.TH1F("h_mtopHad", ";m_{jet} (GeV);Number", 100, 0, 400)
    # h_mtopHadGroomed = ROOT.TH1F("h_mtopHadGroomed", ";Groomed m_{jet} (GeV);Number", 100, 0, 400)
@@ -68,7 +68,7 @@ def plot_mttbar(argv) :
     h_NearestAK4JetPhi=ROOT.TH1F('h_NearestAK4JePhi',"; NearAK4Jet Phi ;Number",100,-4,4)
     h_NearestAK4JetMass=ROOT.TH1F('h_NearestAK4JetMass',"; NearAK4Jet Mass (GeV);Number",100,0,400)
     h_AK4bDisc=ROOT.TH1F('h_AK4bDisc',"AK4Jet bDisc;Number",100,0,1)
-    fin = ROOT.TFile(options.file_in)
+    fin = ROOT.TFile.Open(options.file_in)
     Npre = 0.
     Nnum = 0.
 
