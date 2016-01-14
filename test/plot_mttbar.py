@@ -45,7 +45,7 @@ def plot_mttbar(argv) :
     fout= ROOT.TFile.Open(options.file_out, "RECREATE")
     h_mttbar = ROOT.TH1F("h_mttbar", ";m_{t#bar{t}} (GeV);Number", 100, 0, 5000)
     h_mtopHad = ROOT.TH1F("h_mtopHad", ";m_{jet} (GeV);Number", 100, 0, 400)
-    h_mtopHadGroomed = ROOT.TH1F("h_mtopHadGroomed", ";Groomed m_{jet} (GeV);Number", 100, 0, 400)
+   # h_mtopHadGroomed = ROOT.TH1F("h_mtopHadGroomed", ";Groomed m_{jet} (GeV);Number", 100, 0, 400)
     h_mttbarCorrectedUp = ROOT.TH1F("h_mtopHadCorrectedUp", ";mtopHad Corrected Up;Number", 100, 0, 5000)
     h_mttbarCorrectedDown = ROOT.TH1F("h_mtopHadCorrectedDown", ";mtopHad Corrected Down;Number", 100, 0, 5000)
     h_mttbarCorrectedUpRES = ROOT.TH1F("h_mtopHadCorrectedUpRES", ";mtopHad Corrected Up Res;Number", 100, 0, 5000)
@@ -57,14 +57,17 @@ def plot_mttbar(argv) :
     
     #adding histgram
     h_FatJetPt = ROOT.TH1F('h_FatJetPt',"; AK8Jet Pt (GeV);Number",100,0,4000)
-    h_FatJetEta = ROOT.TH1F(' h_FatJetEta',"; AK8Jet Eta ;Number",100,-4,4)
+    h_FatJetRapidity = ROOT.TH1F(' h_FatJetRapidity',"; AK8Jet Rapidity ;Number",100,-4,4)
+    h_FatJetPhi = ROOT.TH1F(' h_FatJetPhi',"; AK8Jet Phi ;Number",100,-4,4)
     h_FatJetMass = ROOT.TH1F('h_FatJetMass',"; AK8Jet Mass (GeV);Number",100,0,400)
     h_FatJetMassSoftDrop = ROOT.TH1F('h_FatJetMassSoftDrop',"; AK8Jet Mass SoftDrop (GeV);Number",100,0,400)
     h_FatJetTau32 = ROOT.TH1F('h_FatJetTau32',"AK8Jet Tau32;Number",100,0,1)
     h_LeptonPt =ROOT.TH1F('h_LeptonPt',"; Lepton Pt (GeV);Number",100,0,400)
-    h_LeptonEta =ROOT.TH1F('h_LeptonEta',"; Lepton Eta;Number",100,-4,4)
+    h_LeptonPseudoRapidity =ROOT.TH1F('h_LeptonPseudoRapidity',"; Lepton PseudoRapidity;Number",100,-4,4)
+    h_LeptonPhi = ROOT.TH1F(' h_LeptonPhi',"; Lepton Phi ;Number",100,-4,4)
     h_NearestAK4JetPt=ROOT.TH1F('h_NearestAK4JetPt',"; NearAK4Jet Pt (GeV);Number",100,0,2000)
-    h_NearestAK4JetEta=ROOT.TH1F('h_NearestAK4JetEta',"; NearAK4Jet Eta ;Number",100,-4,4)
+    h_NearestAK4JetRapidity=ROOT.TH1F('h_NearestAK4JeRapidity',"; NearAK4Jet Rapidity ;Number",100,-4,4)
+    h_NearestAK4JetPhi=ROOT.TH1F('h_NearestAK4JePhi',"; NearAK4Jet Phi ;Number",100,-4,4)
     h_NearestAK4JetMass=ROOT.TH1F('h_NearestAK4JetMass',"; NearAK4Jet Mass (GeV);Number",100,0,400)
     h_AK4bDisc=ROOT.TH1F('h_AK4bDisc',"AK4Jet bDisc;Number",100,0,1)
     fin = ROOT.TFile(options.file_in)
@@ -328,19 +331,22 @@ def plot_mttbar(argv) :
             h_mttbar.Fill( mttbar, weight )
             h_mtopHad.Fill( hadTopCandP4.M(), weight )
             h_FatJetPt.Fill(hadTopCandP4.Pt(),weight)
-            h_FatJetEta.Fill(hadTopCandP4.Rapidty(),weight)
+            h_FatJetRapidity.Fill(hadTopCandP4.Rapidity(),weight)
+            h_FatJetPhi.Fill(hadTopCandP4.Phi(),weight)
             h_FatJetMass.Fill(hadTopCandP4.M(),weight)
-            h_FatJetMassSoftDrop.Fill(FatJetMassSoftDrop[0],weight) 
-            h_FatJetTau32.Fill(Tau32,weight)
-            h_LeptonPt.Fill(LeptonPt[0],weight)
-            h_LeptonEta.Fill(LeptonEta[0],weight)
-            h_NearestAK4JetPt.Fill(NearestAK4JetPt[0],weight)
-            h_NearestAK4JetEta.Fill(NearestAK4JetEta[0],weight)
-            h_NearestAK4JetMass.Fill(NearestAK4JetMass[0],weight)
-            h_AK4bDisc.Fill(AK4bDisc[0],weight)
+            h_FatJetMassSoftDrop.Fill(mass_sd,weight) 
+            h_FatJetTau32.Fill(tau32,weight)
+            h_LeptonPt.Fill(theLepton.Pt(),weight)
+            h_LeptonPseudoRapidity.Fill(theLepton.PseudoRapidity(),weight)
+            h_LeptonPhi.Fill(theLepton.Phi(),weight)
+            h_NearestAK4JetPt.Fill(bJetCandP4.Pt(),weight)
+            h_NearestAK4JetRapidity.Fill(bJetCandP4.Rapidity(),weight)
+            h_NearestAK4JetPhi.Fill(bJetCandP4.Phi(),weight)
+            h_NearestAK4JetMass.Fill(bJetCandP4.M(),weight)
+            h_AK4bDisc.Fill(bdisc,weight)
 
 
-            h_mtopHadGroomed.Fill( mass_sd, PUWeight[0] )
+
             
             
             
@@ -349,6 +355,7 @@ def plot_mttbar(argv) :
     Eff = Nnum/Npre
     dEff = math.sqrt( Eff * (1.0-Eff) / Npre )
     print Nnum, Npre, Eff, dEff
+
 
     fout.cd()
     fout.Write()
