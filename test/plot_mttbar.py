@@ -215,12 +215,16 @@ def plot_mttbar(argv) :
         t.SetBranchStatus ('FatJetJECDnSys'         , 1)
         t.SetBranchStatus ('FatJetJERUpSys'         , 1)
         t.SetBranchStatus ('FatJetJERDnSys'         , 1)
-
+       # set the Trig and lepton Type for electron and Muon
+        if options.isElectron:
+            TrigCheck = 6
+            LeptonTypeCheck =11
+        else :
+            TrigCheck = 3
+            LeptonTypeCheck =13
 
         entries = t.GetEntriesFast()
         print 'Processing tree ' + str(itree)
-
-        
 
         eventsToRun = entries
         for jentry in xrange( eventsToRun ):
@@ -228,16 +232,15 @@ def plot_mttbar(argv) :
                 print 'processing ' + str(jentry)
             # get the next tree in the chain and verify
             ientry = t.GetEntry( jentry )
-            if ientry < 0:
+
+            if ientry < 0: 
                 break
-            if options.isElectron :
-                SemiLeptTrig[0] = 6
-                LeptonType[0] = 11
-            else :
-                SemiLeptTrig[0] = 3
-                LeptonType[0] = 13
-            if options.isData and SemiLeptTrig[0] !=6 and  SemiLeptTrig[0] !=3 or LeptonType[0] != 11 and LeptonType[0] != 13:
-                continue
+            
+            # check the event is Muon or Electron and skip the event that not Muon and Electron 
+            if options.isData and SemiLeptTrig[0]!= TrigCheck and LeptonType[0] !=LeptonTypeCheck :
+                continue 
+
+
             hadTopCandP4 = ROOT.TLorentzVector()
             hadTopCandP4Corrected = ROOT.TLorentzVector()
             hadTopCandP4.SetPtEtaPhiM( FatJetPt[0], FatJetEta[0], FatJetPhi[0], FatJetMass[0])
