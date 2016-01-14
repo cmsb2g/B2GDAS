@@ -42,8 +42,8 @@ def plot_mttbar(argv) :
     fout= ROOT.TFile(options.file_out, "RECREATE")
     h_mttbar = ROOT.TH1F("h_mttbar", ";m_{t#bar{t}} (GeV);Number", 100, 0, 5000)
     h_mtopHad = ROOT.TH1F("h_mtopHad", ";m_{jet} (GeV);Number", 100, 0, 400)
-
-    fin = ROOT.TFile(options.file_in)
+    h_mtopHadGroomed = ROOT.TH1F("h_mtopHadGroomed", ";Groomed m_{jet} (GeV);Number", 100, 0, 400)
+    fin = ROOT.TFile.Open(options.file_in)
 
 
     trees = [ fin.Get("TreeSemiLept") ]
@@ -199,7 +199,7 @@ def plot_mttbar(argv) :
                 continue
 
             # Muon triggers only for now
-            if options.isData and ( SemiLeptTrig[0] < 2 or SemiLeptTrig[0] > 3 ) :
+            if options.isData and SemiLeptTrig[0] != 3  :
                 continue
 
             hadTopCandP4 = ROOT.TLorentzVector()
@@ -221,7 +221,7 @@ def plot_mttbar(argv) :
             pass2DCut = LeptonPtRel[0] > 55. or LeptonDRMin[0] > 0.4
             passBtag = bdisc > 0.7
 
-            if not passKin or not pass2DCut or not passBtag :
+            if not passKin or not pass2DCut or not passBtag or not passTopTag :
                 continue
 
 
@@ -251,7 +251,9 @@ def plot_mttbar(argv) :
             ttbarCand = hadTopCandP4 + lepTopCandP4
             mttbar = ttbarCand.M()
             h_mttbar.Fill( mttbar, PUWeight[0] )
+            h_mtopHadGroomed.Fill( mass_sd, PUWeight[0] )
             h_mtopHad.Fill( hadTopCandP4.M(), PUWeight[0] )
+            
 
     fout.cd()
     fout.Write()
