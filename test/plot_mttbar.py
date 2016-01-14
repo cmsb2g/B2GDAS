@@ -8,6 +8,7 @@
 ##  \______  /\____/|___|  /__|  |__\___  /|____/ |__|  (____  /__| |__|\____/|___|  /
 ##         \/            \/        /_____/                   \/                    \/ 
 import sys
+import math
 import array as array
 from optparse import OptionParser
 
@@ -65,7 +66,8 @@ def plot_mttbar(argv) :
     h_NearestAK4JetMass=ROOT.TH1F('h_NearestAK4JetMass',"; NearAK4Jet Mass (GeV);Number",100,0,400)
     h_AK4bDisc=ROOT.TH1F('h_AK4bDisc',"AK4Jet bDisc;Number",100,0,1)
     fin = ROOT.TFile(options.file_in)
-
+    Npre = 0.
+    Nnum = 0.
 
     trees = [ fin.Get("TreeSemiLept") ]
 
@@ -209,6 +211,7 @@ def plot_mttbar(argv) :
         entries = t.GetEntriesFast()
         print 'Processing tree ' + str(itree)
 
+        
 
         eventsToRun = entries
         for jentry in xrange( eventsToRun ):
@@ -255,6 +258,16 @@ def plot_mttbar(argv) :
             passTopTag = tau32 < 0.6 and mass_sd > 110. and mass_sd < 210.
             pass2DCut = LeptonPtRel[0] > 55. or LeptonDRMin[0] > 0.4
             passBtag = bdisc > 0.7
+            
+            passNpre = passKin and pass2DCut and hadTopCandP4.Perp() > 400 and  mass_sd > 90 and abs(FatJetEta[0])< 2.4
+
+            passNnum = passNpre and mass_sd > 110 and mass_sd < 210 and tau32 < 0.6
+
+            if passNpre :
+                Npre += 1 #PUWeight[0]
+
+                if passNnum :
+                    Nnum += 1 #PUWeight[0]
 
 
             if not passKin or not pass2DCut or not passBtag or not passTopTag :
@@ -323,6 +336,17 @@ def plot_mttbar(argv) :
             h_NearestAK4JetEta.Fill(NearestAK4JetEta[0],weight)
             h_NearestAK4JetMass.Fill(NearestAK4JetMass[0],weight)
             h_AK4bDisc.Fill(AK4bDisc[0],weight)
+
+
+            h_mtopHadGroomed.Fill( mass_sd, PUWeight[0] )
+            
+            
+            
+                
+            
+    Eff = Nnum/Npre
+    dEff = math.sqrt( Eff * (1.0-Eff) / Npre )
+    print Nnum, Npre, Eff, dEff
 
     fout.cd()
     fout.Write()
