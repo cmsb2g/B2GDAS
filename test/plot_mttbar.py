@@ -8,6 +8,7 @@
 ##  \______  /\____/|___|  /__|  |__\___  /|____/ |__|  (____  /__| |__|\____/|___|  /
 ##         \/            \/        /_____/                   \/                    \/ 
 import sys
+import math
 import array as array
 from optparse import OptionParser
 
@@ -42,9 +43,11 @@ def plot_mttbar(argv) :
     fout= ROOT.TFile(options.file_out, "RECREATE")
     h_mttbar = ROOT.TH1F("h_mttbar", ";m_{t#bar{t}} (GeV);Number", 100, 0, 5000)
     h_mtopHad = ROOT.TH1F("h_mtopHad", ";m_{jet} (GeV);Number", 100, 0, 400)
+    h_mtopHadGroomed = ROOT.TH1F("h_mtopHadGroomed", ";Groomed m_{jet} (GeV);Number", 100, 0, 400)
 
     fin = ROOT.TFile(options.file_in)
-
+    Npre = 0.
+    Nnum = 0.
 
     trees = [ fin.Get("TreeSemiLept") ]
 
@@ -184,6 +187,7 @@ def plot_mttbar(argv) :
         entries = t.GetEntriesFast()
         print 'Processing tree ' + str(itree)
 
+        
 
         eventsToRun = entries
         for jentry in xrange( eventsToRun ):
@@ -199,7 +203,7 @@ def plot_mttbar(argv) :
                 continue
 
             # Muon triggers only for now
-            if options.isData and ( SemiLeptTrig[0] < 2 or SemiLeptTrig[0] > 3 ) :
+            if options.isData and ( SemiLeptTrig[0]!= 3 ) :
                 continue
 
             hadTopCandP4 = ROOT.TLorentzVector()
@@ -220,8 +224,20 @@ def plot_mttbar(argv) :
             passTopTag = tau32 < 0.6 and mass_sd > 110. and mass_sd < 250.
             pass2DCut = LeptonPtRel[0] > 55. or LeptonDRMin[0] > 0.4
             passBtag = bdisc > 0.7
+            
+            passNpre = passKin and pass2DCut and hadTopCandP4.Perp() > 400 and  mass_sd > 90 and abs(FatJetEta[0])< 2.4
 
-            if not passKin or not pass2DCut or not passBtag :
+            passNnum = passNpre and mass_sd > 110 and mass_sd < 210 and tau32 < 0.6
+
+            if passNpre :
+                Npre += 1 #PUWeight[0]
+
+                if passNnum :
+                    Nnum += 1 #PUWeight[0]
+
+                
+            
+            if not passKin or not pass2DCut or not passBtag or not passTopTag :
                 continue
 
 
@@ -252,6 +268,15 @@ def plot_mttbar(argv) :
             mttbar = ttbarCand.M()
             h_mttbar.Fill( mttbar, PUWeight[0] )
             h_mtopHad.Fill( hadTopCandP4.M(), PUWeight[0] )
+            h_mtopHadGroomed.Fill( mass_sd, PUWeight[0] )
+            
+            
+            
+                
+            
+    Eff = Nnum/Npre
+    dEff = math.sqrt( Eff * (1.0-Eff) / Npre )
+    print Nnum, Npre, Eff, dEff
 
     fout.cd()
     fout.Write()
