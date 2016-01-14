@@ -43,6 +43,20 @@ def plot_mttbar(argv) :
     h_mttbar = ROOT.TH1F("h_mttbar", ";m_{t#bar{t}} (GeV);Number", 100, 0, 5000)
     h_mtopHad = ROOT.TH1F("h_mtopHad", ";m_{jet} (GeV);Number", 100, 0, 400)
 
+    h_mtopHadGroomed =ROOT.TH1F("h_mtopHadGroomed", ";Groomed m_{jet} (GeV);Number", 100, 0, 400)
+    
+    #adding histgram
+    h_FatJetPt = ROOT.TH1F('h_FatJetPt',"; AK8Jet Pt (GeV);Number",100,0,4000)
+    h_FatJetEta = ROOT.TH1F(' h_FatJetEta',"; AK8Jet Eta ;Number",100,-4,4)
+    h_FatJetMass = ROOT.TH1F('h_FatJetMass',"; AK8Jet Mass (GeV);Number",100,0,400)
+    h_FatJetMassSoftDrop = ROOT.TH1F('h_FatJetMassSoftDrop',"; AK8Jet Mass SoftDrop (GeV);Number",100,0,400)
+    h_FatJetTau32 = ROOT.TH1F('h_FatJetTau32',"AK8Jet Tau32;Number",100,0,1)
+    h_LeptonPt =ROOT.TH1F('h_LeptonPt',"; Lepton Pt (GeV);Number",100,0,400)
+    h_LeptonEta =ROOT.TH1F('h_LeptonEta',"; Lepton Eta;Number",100,-4,4)
+    h_NearestAK4JetPt=ROOT.TH1F('h_NearestAK4JetPt',"; NearAK4Jet Pt (GeV);Number",100,0,2000)
+    h_NearestAK4JetEta=ROOT.TH1F('h_NearestAK4JetEta',"; NearAK4Jet Eta ;Number",100,-4,4)
+    h_NearestAK4JetMass=ROOT.TH1F('h_NearestAK4JetMass',"; NearAK4Jet Mass (GeV);Number",100,0,400)
+    h_AK4bDisc=ROOT.TH1F('h_AK4bDisc',"AK4Jet bDisc;Number",100,0,1)
     fin = ROOT.TFile(options.file_in)
 
 
@@ -199,7 +213,7 @@ def plot_mttbar(argv) :
                 continue
 
             # Muon triggers only for now
-            if options.isData and ( SemiLeptTrig[0] < 2 or SemiLeptTrig[0] > 3 ) :
+            if options.isData and SemiLeptTrig[0]!=3 :
                 continue
 
             hadTopCandP4 = ROOT.TLorentzVector()
@@ -217,11 +231,11 @@ def plot_mttbar(argv) :
             bdisc = AK4bDisc[0]
 
             passKin = hadTopCandP4.Perp() > 400.
-            passTopTag = tau32 < 0.6 and mass_sd > 110. and mass_sd < 250.
+            passTopTag = tau32 < 0.6 and mass_sd > 110. and mass_sd < 210.
             pass2DCut = LeptonPtRel[0] > 55. or LeptonDRMin[0] > 0.4
             passBtag = bdisc > 0.7
 
-            if not passKin or not pass2DCut or not passBtag :
+            if not passKin or not pass2DCut or not passBtag or not passTopTag :
                 continue
 
 
@@ -250,9 +264,21 @@ def plot_mttbar(argv) :
 
             ttbarCand = hadTopCandP4 + lepTopCandP4
             mttbar = ttbarCand.M()
-            h_mttbar.Fill( mttbar, PUWeight[0] )
-            h_mtopHad.Fill( hadTopCandP4.M(), PUWeight[0] )
+            weight = PUWeight[0]
 
+            h_mttbar.Fill( mttbar, weight )
+            h_mtopHad.Fill( hadTopCandP4.M(), weight )
+            h_FatJetPt.Fill(hadTopCandP4.Pt(),weight)
+            h_FatJetEta.Fill(hadTopCandP4.Rapidty(),weight)
+            h_FatJetMass.Fill(hadTopCandP4.M(),weight)
+            h_FatJetMassSoftDrop.Fill(FatJetMassSoftDrop[0],weight) 
+            h_FatJetTau32.Fill(Tau32,weight)
+            h_LeptonPt.Fill(LeptonPt[0],weight)
+            h_LeptonEta.Fill(LeptonEta[0],weight)
+            h_NearestAK4JetPt.Fill(NearestAK4JetPt[0],weight)
+            h_NearestAK4JetEta.Fill(NearestAK4JetEta[0],weight)
+            h_NearestAK4JetMass.Fill(NearestAK4JetMass[0],weight)
+            h_AK4bDisc.Fill(AK4bDisc[0],weight)
     fout.cd()
     fout.Write()
     fout.Close()
