@@ -60,7 +60,7 @@ def plot_mttbar(argv) :
     #Histgrams before Cuts
     h_mttbar_pre               = ROOT.TH1F("h_mttbar_pre", ";m_{t#bar{t}} (GeV);Number", 100, 0, 5000)
     h_mtopHad_pre              = ROOT.TH1F("h_mtopHad_pre", ";m_{jet} (GeV);Number", 100, 0, 400)
- #      h_2D_pre               = ROOT.TH2F('2D_cut_pre',";Pt Real; DeltaR",100,0,400,40,-4,4)
+ #   h_2D_pre                  = ROOT.TH2F('2D_cut_pre',";Pt Real; DeltaR",100,0,400,40,-4,4)
     h_FatJetPt_pre             = ROOT.TH1F('h_FatJetPt_pre',"; AK8Jet Pt (GeV);Number",100,0,4000)
     h_FatJetRapidity_pre       = ROOT.TH1F(' h_FatJetRapidity_pre',"; AK8Jet Rapidity ;Number",100,-4,4)
     h_FatJetPhi_pre            = ROOT.TH1F(' h_FatJetPhi_pre',"; AK8Jet Phi ;Number",100,-4,4)
@@ -77,7 +77,7 @@ def plot_mttbar(argv) :
     h_AK4bDisc_pre             = ROOT.TH1F('h_AK4bDisc_pre',"AK4Jet bDisc;Number",100,0,1)
     h_MissingEt_pre            = ROOT.TH1F('h_MissingET_pre',"Missing ET (GeV);Number",100,0,400)
     h_LeptonHt_pre             = ROOT.TH1F('h_LeptonHt_pre',"Lepton Ht (GeV);Number",100,0,500)
-
+    
     #adding histgram after Cuts
 #    h_2D =ROOT.TH2F('2D_cut',";Pt Real; DeltaR",100,0,400,40,-4,4)
     h_FatJetPt = ROOT.TH1F('h_FatJetPt',"; AK8Jet Pt (GeV);Number",100,0,4000)
@@ -301,67 +301,8 @@ def plot_mttbar(argv) :
 
                 if passNnum :
                     Nnum += 1 #PUWeight[0]
-            
-
-            mttbar = -1.0
-            lepTopCandP4 = None
-            # Get the z-component of the lepton from the W mass constraint
-            solution, nuz1, nuz2 = solve_nu( vlep=theLepton, vnu=nuCandP4 )
-            # If there is at least one real solution, pick it up
-            if solution :
-                nuCandP4.SetPz( nuz1 )
-            else :
-                nuCandP4.SetPz( nuz1.real )
-
-            lepTopCandP4 = nuCandP4 + theLepton + bJetCandP4
-
-            ttbarCand = hadTopCandP4 + lepTopCandP4
-            ttbarCandUp = hadTopCandP4CorrectedUp + lepTopCandP4
-            ttbarCandDown = hadTopCandP4CorrectedDown + lepTopCandP4
-            ttbarCandUpRES = hadTopCandP4CorrectedUpRES + lepTopCandP4
-            ttbarCandDownRES = hadTopCandP4CorrectedDownRES + lepTopCandP4
-            mttbar = ttbarCand.M()
-
-            weight = PUWeight[0]* btag_sf_func.Eval(NearestAK4JetPt[0])
-       
-
-
-            mttbarUp = ttbarCandUp.M()
-            mttbarDown = ttbarCandDownRES.M()
-            mttbarUpRES = ttbarCandUpRES.M()
-            mttbarDownRES = ttbarCandDown.M()
-          
-                #  h_2D.Fill( LeptonPtRel[0] , LeptonDRMin[0], weight)
-            h_mttbar.Fill( mttbar, weight )
-            h_mtopHad.Fill( hadTopCandP4.M(), weight )
-            h_FatJetPt.Fill(hadTopCandP4.Pt(),weight)
-            h_FatJetRapidity.Fill(hadTopCandP4.Rapidity(),weight)
-            h_FatJetPhi.Fill(hadTopCandP4.Phi(),weight)
-            h_FatJetMass.Fill(hadTopCandP4.M(),weight)
-            h_FatJetMassSoftDrop.Fill(mass_sd,weight) 
-            h_FatJetTau32.Fill(tau32,weight)
-            h_LeptonPt.Fill(theLepton.Pt(),weight)
-            h_LeptonPseudoRapidity.Fill(theLepton.PseudoRapidity(),weight)
-            h_LeptonPhi.Fill(theLepton.Phi(),weight)
-            h_NearestAK4JetPt.Fill(bJetCandP4.Pt(),weight)
-            h_NearestAK4JetRapidity.Fill(bJetCandP4.Rapidity(),weight)
-            h_NearestAK4JetPhi.Fill(bJetCandP4.Phi(),weight)
-            h_NearestAK4JetMass.Fill(bJetCandP4.M(),weight)
-            h_AK4bDisc.Fill(bdisc,weight)
-            h_MissingEt.Fill(nuCandP4.Perp(),weight)
-            h_LeptonHt.Fill(nuCandP4.Perp()+theLepton.Pt(),weight)
-
-                    
-
-
-
-
-            #### applying cuts
-            if not passKin or not pass2DCut or not passBtag or not passTopTag :
-                continue
-            
-
-
+             
+                
             ##  ____  __.__                              __  .__         __________                     
             ## |    |/ _|__| ____   ____   _____ _____ _/  |_|__| ____   \______   \ ____   ____  ____  
             ## |      < |  |/    \_/ __ \ /     \\__  \\   __\  |/ ___\   |       _// __ \_/ ___\/  _ \ 
@@ -400,6 +341,37 @@ def plot_mttbar(argv) :
             mttbarDown = ttbarCandDownRES.M()
             mttbarUpRES = ttbarCandUpRES.M()
             mttbarDownRES = ttbarCandDown.M()
+               
+            #Adding Histgrams before Cuts
+               
+          #  h_2D_pre.Fill( LeptonPtRel[0] , LeptonDRMin[0], weight)
+            h_mttbar_pre.Fill( mttbar, weight )
+            h_mtopHad_pre.Fill( hadTopCandP4.M(), weight )
+            h_FatJetPt_pre.Fill(hadTopCandP4.Pt(),weight)
+            h_FatJetRapidity_pre.Fill(hadTopCandP4.Rapidity(),weight)
+            h_FatJetPhi_pre.Fill(hadTopCandP4.Phi(),weight)
+            h_FatJetMass_pre.Fill(hadTopCandP4.M(),weight)
+            h_FatJetMassSoftDrop_pre.Fill(mass_sd,weight) 
+            h_FatJetTau32_pre.Fill(tau32,weight)
+            h_LeptonPt_pre.Fill(theLepton.Pt(),weight)
+            h_LeptonPseudoRapidity_pre.Fill(theLepton.PseudoRapidity(),weight)
+            h_LeptonPhi_pre.Fill(theLepton.Phi(),weight)
+            h_NearestAK4JetPt_pre.Fill(bJetCandP4.Pt(),weight)
+            h_NearestAK4JetRapidity_pre.Fill(bJetCandP4.Rapidity(),weight)
+            h_NearestAK4JetPhi_pre.Fill(bJetCandP4.Phi(),weight)
+            h_NearestAK4JetMass_pre.Fill(bJetCandP4.M(),weight)
+            h_AK4bDisc_pre.Fill(bdisc,weight)
+            h_MissingEt_pre.Fill(nuCandP4.Perp(),weight)
+            h_LeptonHt_pre.Fill(nuCandP4.Perp()+theLepton.Pt(),weight)
+
+
+            
+            #### applying cuts
+           
+            if not passKin or not pass2DCut or not passBtag or not passTopTag :
+                continue
+
+
           
             h_mttbarCorrectedUp.Fill( mttbarUp, weight )
             h_mttbarCorrectedDown.Fill( mttbarDown, weight )
@@ -432,7 +404,7 @@ def plot_mttbar(argv) :
             
 
             
-            
+        uncibin =0     
         xnbins = h_mtopHad.GetXaxis().GetNbins()
         for ibin in xrange( xnbins ):
             val =  h_mttbar.GetBinContent(ibin)
