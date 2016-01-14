@@ -40,7 +40,7 @@ def plot_mttbar(argv) :
 
     from leptonic_nu_z_component import solve_nu_tmass, solve_nu
 
-    fout= ROOT.TFile(options.file_out, "RECREATE")
+    fout= ROOT.TFile.Open(options.file_out, "RECREATE")
     h_mttbar = ROOT.TH1F("h_mttbar", ";m_{t#bar{t}} (GeV);Number", 100, 0, 5000)
     h_mtopHad = ROOT.TH1F("h_mtopHad", ";m_{jet} (GeV);Number", 100, 0, 400)
    # h_mtopHadGroomed = ROOT.TH1F("h_mtopHadGroomed", ";Groomed m_{jet} (GeV);Number", 100, 0, 400)
@@ -68,7 +68,10 @@ def plot_mttbar(argv) :
     h_NearestAK4JetPhi=ROOT.TH1F('h_NearestAK4JePhi',"; NearAK4Jet Phi ;Number",100,-4,4)
     h_NearestAK4JetMass=ROOT.TH1F('h_NearestAK4JetMass',"; NearAK4Jet Mass (GeV);Number",100,0,400)
     h_AK4bDisc=ROOT.TH1F('h_AK4bDisc',"AK4Jet bDisc;Number",100,0,1)
-    fin = ROOT.TFile(options.file_in)
+    h_MissingET=ROOT.TH1F('h_MissingET',"Missing ET (GeV);Number",100,0,400)
+    h_LeptonHt = ROOT.TH1F('h_LeptonHt',"Lepton Ht (GeV);Number",100,0,500)
+
+    fin = ROOT.TFile.Open(options.file_in)
     Npre = 0.
     Nnum = 0.
 
@@ -256,7 +259,7 @@ def plot_mttbar(argv) :
             tau32 = FatJetTau32[0]
             mass_sd = FatJetMassSoftDrop[0]
             bdisc = AK4bDisc[0]
-
+        
             passKin = hadTopCandP4.Perp() > 400.
             passTopTag = tau32 < 0.6 and mass_sd > 110. and mass_sd < 210.
             pass2DCut = LeptonPtRel[0] > 55. or LeptonDRMin[0] > 0.4
@@ -342,7 +345,8 @@ def plot_mttbar(argv) :
             h_NearestAK4JetPhi.Fill(bJetCandP4.Phi(),weight)
             h_NearestAK4JetMass.Fill(bJetCandP4.M(),weight)
             h_AK4bDisc.Fill(bdisc,weight)
-
+            h_MissingEt.Fill(NuCandP4.Perp(),weight)
+            h_LeptonHt.Fill()
 
 
             
