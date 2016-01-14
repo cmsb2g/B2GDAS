@@ -28,6 +28,11 @@ def plot_mttbar(argv) :
                       dest='isData',
                       default = False,
                       help='Is this Data?')
+
+    parser.add_option('--isElectron', action='store_true',
+                      dest='isElectron',
+                      default = False,
+                      help='Is Electron?')
         
     (options, args) = parser.parse_args(argv)
     argv = []
@@ -225,16 +230,14 @@ def plot_mttbar(argv) :
             ientry = t.GetEntry( jentry )
             if ientry < 0:
                 break
-
-            # Muons only for now
-            if LeptonType[0] != 13 :
+            if options.isElectron :
+                SemiLeptTrig[0] = 6
+                LeptonType[0] = 11
+            else :
+                SemiLeptTrig[0] = 3
+                LeptonType[0] = 13
+            if options.isData and SemiLeptTrig[0] !=6 and  SemiLeptTrig[0] !=3 or LeptonType[0] != 11 and LeptonType[0] != 13:
                 continue
-
-            # Muon triggers only for now
-
-            if options.isData and SemiLeptTrig[0] != 3  :
-                continue
-
             hadTopCandP4 = ROOT.TLorentzVector()
             hadTopCandP4Corrected = ROOT.TLorentzVector()
             hadTopCandP4.SetPtEtaPhiM( FatJetPt[0], FatJetEta[0], FatJetPhi[0], FatJetMass[0])
