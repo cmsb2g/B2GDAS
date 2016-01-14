@@ -57,6 +57,7 @@ def plot_mttbar(argv) :
     h_mttbarCorrectedDownRES = ROOT.TH1F("h_mtopHadCorrectedDownRES", ";mtopHad Corrected Down Res;Number", 100, 0, 5000)
     
     #adding histgram
+#    h_2D =ROOT.TH2F('2D_cut',";Pt Real; DeltaR",100,0,400,40,-4,4)
     h_FatJetPt = ROOT.TH1F('h_FatJetPt',"; AK8Jet Pt (GeV);Number",100,0,4000)
     h_FatJetRapidity = ROOT.TH1F(' h_FatJetRapidity',"; AK8Jet Rapidity ;Number",100,-4,4)
     h_FatJetPhi = ROOT.TH1F(' h_FatJetPhi',"; AK8Jet Phi ;Number",100,-4,4)
@@ -237,7 +238,7 @@ def plot_mttbar(argv) :
                 break
             
             # check the event is Muon or Electron and skip the event that not Muon and Electron 
-            if options.isData and SemiLeptTrig[0]!= TrigCheck and LeptonType[0] !=LeptonTypeCheck :
+            if (options.isData and SemiLeptTrig[0]!= TrigCheck) or (LeptonType[0] !=LeptonTypeCheck) :
                 continue 
 
 
@@ -333,7 +334,7 @@ def plot_mttbar(argv) :
 
              
            
-
+          #  h_2D.Fill( LeptonPtRel[0] , DeltaPhiLepFat[0], weight)
             h_mttbar.Fill( mttbar, weight )
             h_mtopHad.Fill( hadTopCandP4.M(), weight )
             h_FatJetPt.Fill(hadTopCandP4.Pt(),weight)
@@ -352,7 +353,7 @@ def plot_mttbar(argv) :
             h_AK4bDisc.Fill(bdisc,weight)
             h_MissingEt.Fill(nuCandP4.Perp(),weight)
             h_LeptonHt.Fill(nuCandP4.Perp()+theLepton.Pt(),weight)
-
+            
 
             
             
