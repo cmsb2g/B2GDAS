@@ -8,6 +8,7 @@
 ##  \______  /\____/|___|  /__|  |__\___  /|____/ |__|  (____  /__| |__|\____/|___|  /
 ##         \/            \/        /_____/                   \/                    \/ 
 import sys
+import math
 import array as array
 from optparse import OptionParser
 
@@ -42,6 +43,13 @@ def plot_mttbar(argv) :
     fout= ROOT.TFile(options.file_out, "RECREATE")
     h_mttbar = ROOT.TH1F("h_mttbar", ";m_{t#bar{t}} (GeV);Number", 100, 0, 5000)
     h_mtopHad = ROOT.TH1F("h_mtopHad", ";m_{jet} (GeV);Number", 100, 0, 400)
+   # h_mtopHadGroomed = ROOT.TH1F("h_mtopHadGroomed", ";Groomed m_{jet} (GeV);Number", 100, 0, 400)
+    h_mttbarCorrectedUp = ROOT.TH1F("h_mtopHadCorrectedUp", ";mtopHad Corrected Up;Number", 100, 0, 5000)
+    h_mttbarCorrectedDown = ROOT.TH1F("h_mtopHadCorrectedDown", ";mtopHad Corrected Down;Number", 100, 0, 5000)
+    h_mttbarCorrectedUpRES = ROOT.TH1F("h_mtopHadCorrectedUpRES", ";mtopHad Corrected Up Res;Number", 100, 0, 5000)
+    h_mttbarCorrectedDownRES = ROOT.TH1F("h_mtopHadCorrectedDownRES", ";mtopHad Corrected Down Res;Number", 100, 0, 5000)
+
+
 
     h_mtopHadGroomed =ROOT.TH1F("h_mtopHadGroomed", ";Groomed m_{jet} (GeV);Number", 100, 0, 400)
     
@@ -61,7 +69,8 @@ def plot_mttbar(argv) :
     h_NearestAK4JetMass=ROOT.TH1F('h_NearestAK4JetMass',"; NearAK4Jet Mass (GeV);Number",100,0,400)
     h_AK4bDisc=ROOT.TH1F('h_AK4bDisc',"AK4Jet bDisc;Number",100,0,1)
     fin = ROOT.TFile(options.file_in)
-
+    Npre = 0.
+    Nnum = 0.
 
     trees = [ fin.Get("TreeSemiLept") ]
 
@@ -196,11 +205,16 @@ def plot_mttbar(argv) :
         t.SetBranchStatus ('LeptonIso'           , 1)
         t.SetBranchStatus ('LeptonPtRel'         , 1)
         t.SetBranchStatus ('LeptonDRMin'         , 1)
+        t.SetBranchStatus ('FatJetJECUpSys'         , 1)
+        t.SetBranchStatus ('FatJetJECDnSys'         , 1)
+        t.SetBranchStatus ('FatJetJERUpSys'         , 1)
+        t.SetBranchStatus ('FatJetJERDnSys'         , 1)
 
 
         entries = t.GetEntriesFast()
         print 'Processing tree ' + str(itree)
 
+        
 
         eventsToRun = entries
         for jentry in xrange( eventsToRun ):
@@ -216,10 +230,12 @@ def plot_mttbar(argv) :
                 continue
 
             # Muon triggers only for now
-            if options.isData and SemiLeptTrig[0]!=3 :
+
+            if options.isData and SemiLeptTrig[0] != 3  :
                 continue
 
             hadTopCandP4 = ROOT.TLorentzVector()
+            hadTopCandP4Corrected = ROOT.TLorentzVector()
             hadTopCandP4.SetPtEtaPhiM( FatJetPt[0], FatJetEta[0], FatJetPhi[0], FatJetMass[0])
             bJetCandP4 = ROOT.TLorentzVector()
             bJetCandP4.SetPtEtaPhiM( NearestAK4JetPt[0], NearestAK4JetEta[0], NearestAK4JetPhi[0], NearestAK4JetMass[0])
@@ -228,7 +244,15 @@ def plot_mttbar(argv) :
             theLepton = ROOT.TLorentzVector()
             theLepton.SetPtEtaPhiE( LeptonPt[0], LeptonEta[0], LeptonPhi[0], LeptonEnergy[0] ) # Assume massless
             
-            
+            # JEC and JER
+            hadTopCandP4CorrectedUp = hadTopCandP4 * FatJetJECUpSys[0]
+            hadTopCandP4CorrectedDown = hadTopCandP4 * FatJetJECDnSys[0]
+            hadTopCandP4CorrectedUpRES = hadTopCandP4 * FatJetJERUpSys[0]
+            hadTopCandP4CorrectedDownRES = hadTopCandP4 * FatJetJERDnSys[0]
+
+            #print FatJetJECUpSys[0] , '/////' , FatJetJERUpSys[0]
+
+            #print hadTopCandP4Corrected[1]
             tau32 = FatJetTau32[0]
             mass_sd = FatJetMassSoftDrop[0]
             bdisc = AK4bDisc[0]
@@ -237,9 +261,21 @@ def plot_mttbar(argv) :
             passTopTag = tau32 < 0.6 and mass_sd > 110. and mass_sd < 210.
             pass2DCut = LeptonPtRel[0] > 55. or LeptonDRMin[0] > 0.4
             passBtag = bdisc > 0.7
+            
+            passNpre = passKin and pass2DCut and hadTopCandP4.Perp() > 400 and  mass_sd > 90 and abs(FatJetEta[0])< 2.4
+
+            passNnum = passNpre and mass_sd > 110 and mass_sd < 210 and tau32 < 0.6
+
+            if passNpre :
+                Npre += 1 #PUWeight[0]
+
+                if passNnum :
+                    Nnum += 1 #PUWeight[0]
+
 
             if not passKin or not pass2DCut or not passBtag or not passTopTag :
                 continue
+            
 
 
             ##  ____  __.__                              __  .__         __________                     
@@ -266,8 +302,29 @@ def plot_mttbar(argv) :
             lepTopCandP4 = nuCandP4 + theLepton + bJetCandP4
 
             ttbarCand = hadTopCandP4 + lepTopCandP4
+            ttbarCandUp = hadTopCandP4CorrectedUp + lepTopCandP4
+            ttbarCandDown = hadTopCandP4CorrectedDown + lepTopCandP4
+            ttbarCandUpRES = hadTopCandP4CorrectedUpRES + lepTopCandP4
+            ttbarCandDownRES = hadTopCandP4CorrectedDownRES + lepTopCandP4
             mttbar = ttbarCand.M()
+
             weight = PUWeight[0]
+
+
+            mttbarUp = ttbarCandUp.M()
+            mttbarDown = ttbarCandDownRES.M()
+            mttbarUpRES = ttbarCandUpRES.M()
+            mttbarDownRES = ttbarCandDown.M()
+          
+            h_mttbarCorrectedUp.Fill( mttbarUp, PUWeight[0] )
+            h_mttbarCorrectedDown.Fill( mttbarDown, PUWeight[0] )
+
+            h_mttbarCorrectedUpRES.Fill( mttbarUpRES , PUWeight[0] )
+            h_mttbarCorrectedDownRES.Fill( mttbarDownRES , PUWeight[0] )
+
+
+             
+           
 
             h_mttbar.Fill( mttbar, weight )
             h_mtopHad.Fill( hadTopCandP4.M(), weight )
@@ -285,6 +342,19 @@ def plot_mttbar(argv) :
             h_NearestAK4JetPhi.Fill(bJetCandP4.Phi(),weight)
             h_NearestAK4JetMass.Fill(bJetCandP4.M(),weight)
             h_AK4bDisc.Fill(bdisc,weight)
+
+
+
+            
+            
+            
+                
+            
+    Eff = Nnum/Npre
+    dEff = math.sqrt( Eff * (1.0-Eff) / Npre )
+    print Nnum, Npre, Eff, dEff
+
+
     fout.cd()
     fout.Write()
     fout.Close()
