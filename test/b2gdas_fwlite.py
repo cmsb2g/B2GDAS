@@ -98,6 +98,10 @@ def b2gdas_fwlite(argv) :
                       help='Print debugging info')
 
 
+    parser.add_option('--trigProc', type='string', action='store',
+                      default='PAT',
+                      dest='trigProc',
+                      help='Name of trigger process')
 
     parser.add_option('--purw', action='store_true',
                       default=True,
@@ -215,7 +219,7 @@ def b2gdas_fwlite(argv) :
     # Enterprising students could figure out the LHE weighting for theoretical uncertainties
     #lheInfo, lheInfoLabel = Handle("LHEEventProduct"), "externalLHEProducer"
     triggerBits, triggerBitLabel = Handle("edm::TriggerResults"), ("TriggerResults","","HLT")
-    metfiltBits, metfiltBitLabel = Handle("edm::TriggerResults"), ("TriggerResults","","PAT")
+    metfiltBits, metfiltBitLabel = Handle("edm::TriggerResults"), ("TriggerResults","", options.trigProc)
     hcalnoise,hcalnoiseLabel = Handle("HcalNoiseSummary"), "hcalnoise"
 
 
