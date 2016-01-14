@@ -51,7 +51,7 @@ def plot_mttbar(argv) :
     fout= ROOT.TFile.Open(options.file_out, "RECREATE")
     h_mttbar = ROOT.TH1F("h_mttbar", ";m_{t#bar{t}} (GeV);Number", 100, 0, 5000)
     h_mtopHad = ROOT.TH1F("h_mtopHad", ";m_{jet} (GeV);Number", 100, 0, 400)
-   # h_mtopHadGroomed = ROOT.TH1F("h_mtopHadGroomed", ";Groomed m_{jet} (GeV);Number", 100, 0, 400)
+    h_mtopHadGroomed = ROOT.TH1F("h_mtopHadGroomed", ";Groomed m_{jet} (GeV);Number", 100, 0, 400)
     h_mttbarCorrectedUp = ROOT.TH1F("h_mtopHadCorrectedUp", ";mtopHad Corrected Up;Number", 100, 0, 5000)
     h_mttbarCorrectedDown = ROOT.TH1F("h_mtopHadCorrectedDown", ";mtopHad Corrected Down;Number", 100, 0, 5000)
     h_mttbarCorrectedUpRES = ROOT.TH1F("h_mtopHadCorrectedUpRES", ";mtopHad Corrected Up Res;Number", 100, 0, 5000)
@@ -60,7 +60,7 @@ def plot_mttbar(argv) :
     #Histgrams before Cuts
     h_mttbar_pre               = ROOT.TH1F("h_mttbar_pre", ";m_{t#bar{t}} (GeV);Number", 100, 0, 5000)
     h_mtopHad_pre              = ROOT.TH1F("h_mtopHad_pre", ";m_{jet} (GeV);Number", 100, 0, 400)
- #   h_2D_pre                  = ROOT.TH2F('2D_cut_pre',";Pt Real; DeltaR",100,0,400,40,-4,4)
+    h_2D_pre                   = ROOT.TH2F('2D_cut_pre',";Pt Real; DeltaR",100,0,400,40,-4,4)
     h_FatJetPt_pre             = ROOT.TH1F('h_FatJetPt_pre',"; AK8Jet Pt (GeV);Number",100,0,4000)
     h_FatJetRapidity_pre       = ROOT.TH1F(' h_FatJetRapidity_pre',"; AK8Jet Rapidity ;Number",100,-4,4)
     h_FatJetPhi_pre            = ROOT.TH1F(' h_FatJetPhi_pre',"; AK8Jet Phi ;Number",100,-4,4)
@@ -79,23 +79,23 @@ def plot_mttbar(argv) :
     h_LeptonHt_pre             = ROOT.TH1F('h_LeptonHt_pre',"Lepton Ht (GeV);Number",100,0,500)
     
     #adding histgram after Cuts
-#    h_2D =ROOT.TH2F('2D_cut',";Pt Real; DeltaR",100,0,400,40,-4,4)
-    h_FatJetPt = ROOT.TH1F('h_FatJetPt',"; AK8Jet Pt (GeV);Number",100,0,4000)
-    h_FatJetRapidity = ROOT.TH1F(' h_FatJetRapidity',"; AK8Jet Rapidity ;Number",100,-4,4)
-    h_FatJetPhi = ROOT.TH1F(' h_FatJetPhi',"; AK8Jet Phi ;Number",100,-4,4)
-    h_FatJetMass = ROOT.TH1F('h_FatJetMass',"; AK8Jet Mass (GeV);Number",100,0,400)
-    h_FatJetMassSoftDrop = ROOT.TH1F('h_FatJetMassSoftDrop',"; AK8Jet Mass SoftDrop (GeV);Number",100,0,400)
-    h_FatJetTau32 = ROOT.TH1F('h_FatJetTau32',"AK8Jet Tau32;Number",100,0,1)
-    h_LeptonPt =ROOT.TH1F('h_LeptonPt',"; Lepton Pt (GeV);Number",100,0,400)
-    h_LeptonPseudoRapidity =ROOT.TH1F('h_LeptonPseudoRapidity',"; Lepton PseudoRapidity;Number",100,-4,4)
-    h_LeptonPhi = ROOT.TH1F(' h_LeptonPhi',"; Lepton Phi ;Number",100,-4,4)
-    h_NearestAK4JetPt=ROOT.TH1F('h_NearestAK4JetPt',"; NearAK4Jet Pt (GeV);Number",100,0,2000)
-    h_NearestAK4JetRapidity=ROOT.TH1F('h_NearestAK4JeRapidity',"; NearAK4Jet Rapidity ;Number",100,-4,4)
-    h_NearestAK4JetPhi=ROOT.TH1F('h_NearestAK4JePhi',"; NearAK4Jet Phi ;Number",100,-4,4)
-    h_NearestAK4JetMass=ROOT.TH1F('h_NearestAK4JetMass',"; NearAK4Jet Mass (GeV);Number",100,0,400)
-    h_AK4bDisc=ROOT.TH1F('h_AK4bDisc',"AK4Jet bDisc;Number",100,0,1)
-    h_MissingEt=ROOT.TH1F('h_MissingET',"Missing ET (GeV);Number",100,0,400)
-    h_LeptonHt = ROOT.TH1F('h_LeptonHt',"Lepton Ht (GeV);Number",100,0,500)
+    h_2D                     = ROOT.TH2F('2D_cut',";Pt Real; DeltaR",100,0,400,40,-4,4)
+    h_FatJetPt               = ROOT.TH1F('h_FatJetPt',"; AK8Jet Pt (GeV);Number",100,0,4000)
+    h_FatJetRapidity         = ROOT.TH1F(' h_FatJetRapidity',"; AK8Jet Rapidity ;Number",100,-4,4)
+    h_FatJetPhi              = ROOT.TH1F(' h_FatJetPhi',"; AK8Jet Phi ;Number",100,-4,4)
+    h_FatJetMass             = ROOT.TH1F('h_FatJetMass',"; AK8Jet Mass (GeV);Number",100,0,400)
+    h_FatJetMassSoftDrop     = ROOT.TH1F('h_FatJetMassSoftDrop',"; AK8Jet Mass SoftDrop (GeV);Number",100,0,400)
+    h_FatJetTau32            = ROOT.TH1F('h_FatJetTau32',"AK8Jet Tau32;Number",100,0,1)
+    h_LeptonPt               = ROOT.TH1F('h_LeptonPt',"; Lepton Pt (GeV);Number",100,0,400)
+    h_LeptonPseudoRapidity   = ROOT.TH1F('h_LeptonPseudoRapidity',"; Lepton PseudoRapidity;Number",100,-4,4)
+    h_LeptonPhi              = ROOT.TH1F(' h_LeptonPhi',"; Lepton Phi ;Number",100,-4,4)
+    h_NearestAK4JetPt        = ROOT.TH1F('h_NearestAK4JetPt',"; NearAK4Jet Pt (GeV);Number",100,0,2000)
+    h_NearestAK4JetRapidity  = ROOT.TH1F('h_NearestAK4JeRapidity',"; NearAK4Jet Rapidity ;Number",100,-4,4)
+    h_NearestAK4JetPhi       = ROOT.TH1F('h_NearestAK4JePhi',"; NearAK4Jet Phi ;Number",100,-4,4)
+    h_NearestAK4JetMass      = ROOT.TH1F('h_NearestAK4JetMass',"; NearAK4Jet Mass (GeV);Number",100,0,400)
+    h_AK4bDisc               = ROOT.TH1F('h_AK4bDisc',"AK4Jet bDisc;Number",100,0,1)
+    h_MissingEt              = ROOT.TH1F('h_MissingET',"Missing ET (GeV);Number",100,0,400)
+    h_LeptonHt               = ROOT.TH1F('h_LeptonHt',"Lepton Ht (GeV);Number",100,0,500)
 
     fin = ROOT.TFile.Open(options.file_in)
     Npre = 0.
@@ -103,7 +103,10 @@ def plot_mttbar(argv) :
 
     trees = [ fin.Get("TreeSemiLept") ]
 
-
+    EventRunNum = 0
+    EventLumiBlock = 0
+    EventNum = 0
+    Mttbar = 0 
     
     for itree,t in enumerate(trees) :
 
@@ -238,7 +241,10 @@ def plot_mttbar(argv) :
         t.SetBranchStatus ('FatJetJECDnSys'         , 1)
         t.SetBranchStatus ('FatJetJERUpSys'         , 1)
         t.SetBranchStatus ('FatJetJERDnSys'         , 1)
-       # set the Trig and lepton Type for electron and Muon
+        t.SetBranchStatus ('SemiLeptRunNum'         , 1)
+        t.SetBranchStatus ('SemiLeptLumiBlock'      , 1)
+        t.SetBranchStatus ('SemiLeptEventNum'       , 1)
+        # set the Trig and lepton Type for electron and Muon
         if options.isElectron:
             TrigCheck = 6
             LeptonTypeCheck =11
@@ -334,7 +340,9 @@ def plot_mttbar(argv) :
             mttbar = ttbarCand.M()
 
             weight = PUWeight[0]* btag_sf_func.Eval(NearestAK4JetPt[0])
-       
+            
+            if options.isData : 
+                weight =1 
 
 
             mttbarUp = ttbarCandUp.M()
@@ -344,7 +352,7 @@ def plot_mttbar(argv) :
                
             #Adding Histgrams before Cuts
                
-          #  h_2D_pre.Fill( LeptonPtRel[0] , LeptonDRMin[0], weight)
+            h_2D_pre.Fill( LeptonPtRel[0] , LeptonDRMin[0], weight)
             h_mttbar_pre.Fill( mttbar, weight )
             h_mtopHad_pre.Fill( hadTopCandP4.M(), weight )
             h_FatJetPt_pre.Fill(hadTopCandP4.Pt(),weight)
@@ -382,7 +390,7 @@ def plot_mttbar(argv) :
 
              
            
-          #  h_2D.Fill( LeptonPtRel[0] , LeptonDRMin[0], weight)
+            h_2D.Fill( LeptonPtRel[0] , LeptonDRMin[0], weight)
             h_mttbar.Fill( mttbar, weight )
             h_mtopHad.Fill( hadTopCandP4.M(), weight )
             h_FatJetPt.Fill(hadTopCandP4.Pt(),weight)
@@ -401,8 +409,12 @@ def plot_mttbar(argv) :
             h_AK4bDisc.Fill(bdisc,weight)
             h_MissingEt.Fill(nuCandP4.Perp(),weight)
             h_LeptonHt.Fill(nuCandP4.Perp()+theLepton.Pt(),weight)
-            
-
+            #print the large mass event ID 
+            if mttbar > 2000 :
+                EventRunNum = SemiLeptRunNum[0]
+                EventLumiBlock = SemiLeptLumiBlock[0]
+                EventNum = SemiLeptEventNum[0]
+                print "Event Run Number", EventRunNum,"Event Lumi Block" ,EventLumiBlock,"Event Number", EventNum, "Mass of ttbar" ,mttbar
             
         uncibin =0     
         xnbins = h_mtopHad.GetXaxis().GetNbins()
@@ -424,7 +436,7 @@ def plot_mttbar(argv) :
     Eff = Nnum/Npre
     dEff = math.sqrt( Eff * (1.0-Eff) / Npre )
     print Nnum, Npre, Eff, dEff
-
+  #  print "Event Run Number", EventRunNum,"Event Lumi Block" ,EventLumiBlock,"Event Number", EventNum, "Mass of ttbar" ,Mttbar
 
     fout.cd()
     fout.Write()
