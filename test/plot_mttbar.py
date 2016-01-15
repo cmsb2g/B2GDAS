@@ -49,13 +49,13 @@ def plot_mttbar(argv) :
     from leptonic_nu_z_component import solve_nu_tmass, solve_nu
 
     fout= ROOT.TFile.Open(options.file_out, "RECREATE")
-    h_mttbar = ROOT.TH1F("h_mttbar", ";m_{t#bar{t}} (GeV);Number", 100, 0, 5000)
+    h_mttbar = ROOT.TH1F("h_mttbar", ";m_{t#bar{t}} (GeV);Number", 500, 0, 5000)
     h_mtopHad = ROOT.TH1F("h_mtopHad", ";m_{jet} (GeV);Number", 100, 0, 400)
    # h_mtopHadGroomed = ROOT.TH1F("h_mtopHadGroomed", ";Groomed m_{jet} (GeV);Number", 100, 0, 400)
-    h_mttbarCorrectedUp = ROOT.TH1F("h_mtopHadCorrectedUp", ";mtopHad Corrected Up;Number", 100, 0, 5000)
-    h_mttbarCorrectedDown = ROOT.TH1F("h_mtopHadCorrectedDown", ";mtopHad Corrected Down;Number", 100, 0, 5000)
-    h_mttbarCorrectedUpRES = ROOT.TH1F("h_mtopHadCorrectedUpRES", ";mtopHad Corrected Up Res;Number", 100, 0, 5000)
-    h_mttbarCorrectedDownRES = ROOT.TH1F("h_mtopHadCorrectedDownRES", ";mtopHad Corrected Down Res;Number", 100, 0, 5000)
+    h_mttbarCorrectedUp = ROOT.TH1F("h_mtopHadCorrectedUp", ";mtopHad Corrected Up;Number", 500, 0, 5000)
+    h_mttbarCorrectedDown = ROOT.TH1F("h_mtopHadCorrectedDown", ";mtopHad Corrected Down;Number", 500, 0, 5000)
+    h_mttbarCorrectedUpRES = ROOT.TH1F("h_mtopHadCorrectedUpRES", ";mtopHad Corrected Up Res;Number", 500, 0, 5000)
+    h_mttbarCorrectedDownRES = ROOT.TH1F("h_mtopHadCorrectedDownRES", ";mtopHad Corrected Down Res;Number", 500, 0, 5000)
     
     #adding histgram
 #    h_2D =ROOT.TH2F('2D_cut',";Pt Real; DeltaR",100,0,400,40,-4,4)
@@ -254,10 +254,12 @@ def plot_mttbar(argv) :
             theLepton.SetPtEtaPhiE( LeptonPt[0], LeptonEta[0], LeptonPhi[0], LeptonEnergy[0] ) # Assume massless
             
             # JEC and JER
-            hadTopCandP4CorrectedUp = hadTopCandP4 * FatJetJECUpSys[0]
-            hadTopCandP4CorrectedDown = hadTopCandP4 * FatJetJECDnSys[0]
-            hadTopCandP4CorrectedUpRES = hadTopCandP4 * FatJetJERUpSys[0]
-            hadTopCandP4CorrectedDownRES = hadTopCandP4 * FatJetJERDnSys[0]
+            hadTopCandP4CorrectedUp = hadTopCandP4 * (FatJetJECUpSys[0]-1)*FatJetPt[0]
+            hadTopCandP4CorrectedDown = hadTopCandP4 * (1-FatJetJECDnSys[0])*FatJetPt[0]
+            hadTopCandP4CorrectedUpRES = hadTopCandP4 * (FatJetJERUpSys[0]-1)*FatJetPt[0]
+            hadTopCandP4CorrectedDownRES = hadTopCandP4 *(1-FatJetJERDnSys[0])*FatJetPt[0]
+
+	    print (FatJetJECUpSys[0]-1)*FatJetPt[0],"////", (1-FatJetJECDnSys[0])*FatJetPt[0]
 
             #print FatJetJECUpSys[0] , '/////' , FatJetJERUpSys[0]
 
@@ -357,19 +359,34 @@ def plot_mttbar(argv) :
             
 
             
-            
-        xnbins = h_mtopHad.GetXaxis().GetNbins()
-        for ibin in xrange( xnbins ):
-            val =  h_mttbar.GetBinContent(ibin)
-            valup = h_mttbarCorrectedUp.GetBinContent(ibin)
-            valdown = h_mttbarCorrectedDown.GetBinContent(ibin)
-            jesup = abs(valup - val)
-            jesdown = abs(valdown - val)
-            jesun = 0.5 * ( jesup + jesdown)
-            if val!= 0 :
-                uncibin = h_mttbar.GetBinContent(ibin)/val
-            unc = sqrt(pow(jesun,2)+pow(uncibin,2))
+    uncibin = 0  
+    jesun = 0  
+    xnbins = h_mtopHad.GetXaxis().GetNbins()
+    h_mttbar.Sumw2()
+    h_mttbarCorrectedUp.Sumw2()
+    h_mttbarCorrectedDown.Sumw2()
+    #print "before"
+    for ibin in xrange( xnbins ):
+        val =  h_mttbar.GetBinContent(ibin)
+        #print h_mttbar.GetBinError(ibin)
+        valup = h_mttbarCorrectedUp.GetBinContent(ibin)
+        valdown = h_mttbarCorrectedDown.GetBinContent(ibin)
+        jesup = abs(valup - val)
+        jesdown = abs(valdown - val)
+        
+        if val!= 0 :
+              jesun = 0.5 * ( jesup + jesdown)/val
+              #uncibin = h_mttbar.GetBinContent(ibin)/val
+              uncibin = h_mttbar.GetBinError(ibin)/val
+        if val == 0 :
+            unc = 0
+        else:
+            unc = sqrt((jesun*jesun)+(uncibin*uncibin))
             h_mttbar.SetBinError(ibin, unc*val)
+    print unc
+    #print "after"
+    for ibin in xrange( xnbins ):
+        print h_mttbar.GetBinError(ibin)
             
         
                 
