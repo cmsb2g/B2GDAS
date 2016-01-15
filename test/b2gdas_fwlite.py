@@ -894,11 +894,11 @@ def b2gdas_fwlite(argv) :
                 jecUncAK4.setJetPhi(  jetP4Raw.Phi()  )
                 jecUncAK4.setJetEta(  jetP4Raw.Eta()  )
                 jecUncAK4.setJetPt(   jetP4Raw.Perp() * newJEC    )
-                corrDn = newJEC - jecUncAK4.getUncertainty(0)
+                corrDn = 1. - jecUncAK4.getUncertainty(0)
                 jecUncAK4.setJetPhi(  jetP4Raw.Phi()  )
                 jecUncAK4.setJetEta(  jetP4Raw.Eta()  )
                 jecUncAK4.setJetPt(   jetP4Raw.Perp() * newJEC    )
-                corrUp = newJEC + jecUncAK4.getUncertainty(1)
+                corrUp = 1. + jecUncAK4.getUncertainty(1)
 
 
 
@@ -935,7 +935,7 @@ def b2gdas_fwlite(argv) :
                 dR = jetP4.DeltaR(theLepton )
                 ak4JetsGood.append(jet)
                 ak4JetsGoodP4.append( jetP4 )
-                ak4JetsGoodSysts.append( [1+corrUp/jetP4.Perp(), 1-corrDn/jetP4.Perp(), 1+ptsmearUp/jetP4.Perp(), 1-ptsmearDn/jetP4.Perp()] )
+                ak4JetsGoodSysts.append( [corrUp, corrDn, ptsmearUp, ptsmearDn] )
                 if options.verbose :
                     print 'corrjet pt = {0:6.2f}, y = {1:6.2f}, phi = {2:6.2f}, m = {3:6.2f}, bdisc = {4:6.2f}'.format (
                         jetP4.Perp(), jetP4.Rapidity(), jetP4.Phi(), jetP4.M(), jet.bDiscriminator( options.bdisc )
@@ -1023,11 +1023,11 @@ def b2gdas_fwlite(argv) :
                 jecUncAK8.setJetPhi(  jetP4Raw.Phi()  )
                 jecUncAK8.setJetEta(  jetP4Raw.Eta()  )
                 jecUncAK8.setJetPt(   jetP4Raw.Perp() * newJEC   )
-                corrDn = newJEC - jecUncAK8.getUncertainty(0)
+                corrDn = 1. - jecUncAK8.getUncertainty(0)
                 jecUncAK8.setJetPhi(  jetP4Raw.Phi()  )
                 jecUncAK8.setJetEta(  jetP4Raw.Eta()  )
                 jecUncAK8.setJetPt(   jetP4Raw.Perp() * newJEC   )
-                corrUp = newJEC + jecUncAK8.getUncertainty(1)
+                corrUp = 1. + jecUncAK8.getUncertainty(1)
 
 
 
@@ -1067,7 +1067,7 @@ def b2gdas_fwlite(argv) :
                 if dR > ROOT.TMath.Pi()/2.0 :
                     ak8JetsGood.append(jet)
                     ak8JetsGoodP4.append( jetP4 )
-                    ak8JetsGoodSysts.append( [1+corrUp/jetP4.Perp(), 1-corrDn/jetP4.Perp(), 1+ptsmearUp/jetP4.Perp(), 1-ptsmearDn/jetP4.Perp()] )
+                    ak8JetsGoodSysts.append( [corrUp, corrDn, ptsmearUp, ptsmearDn] )
 
             ## ___________                     .__                
             ## \__    ___/____     ____   ____ |__| ____    ____  
