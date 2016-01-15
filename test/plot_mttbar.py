@@ -286,7 +286,7 @@ def plot_mttbar(argv) :
             hadTopCandP4CorrectedUpRES = hadTopCandP4 * (FatJetJERUpSys[0]-1)*FatJetPt[0]
             hadTopCandP4CorrectedDownRES = hadTopCandP4 * (2 - (1-FatJetJERDnSys[0])*FatJetPt[0])
 
-	    print (FatJetJECUpSys[0]-1)*FatJetPt[0],"////", 2 - (1-FatJetJECDnSys[0])*FatJetPt[0]
+	    #print (FatJetJECUpSys[0]-1)*FatJetPt[0],"////", 2 - (1-FatJetJECDnSys[0])*FatJetPt[0]
 
             #print FatJetJECUpSys[0] , '/////' , FatJetJERUpSys[0]
 
