@@ -354,6 +354,8 @@ def plot_mttbar(argv) :
                
             #Adding Histgrams before Cuts
                
+            if not passKin or not pass2DCut :
+                continue
             h_2D_pre.Fill( LeptonPtRel[0] , LeptonDRMin[0], weight)
             h_mttbar_pre.Fill( mttbar, weight )
             h_mtopHad_pre.Fill( hadTopCandP4.M(), weight )
@@ -378,7 +380,7 @@ def plot_mttbar(argv) :
             
             #### applying cuts
            
-            if not passKin or not pass2DCut or not passBtag or not passTopTag :
+            if not passBtag or not passTopTag :
                 continue
 
 
