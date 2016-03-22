@@ -3,8 +3,7 @@
 # Use the VID framework for the electron ID. Tight ID without the PF isolation cut. 
 from RecoEgamma.ElectronIdentification.VIDElectronSelector import VIDElectronSelector
 from RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_25ns_V1_cff import cutBasedElectronID_Spring15_25ns_V1_standalone_tight
-
-
+from RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_nonTrig_V1_cff import mvaEleID_Spring15_25ns_nonTrig_V1_wp80
 ##   ___ ___         .__                        ___________                   __  .__                      
 ##  /   |   \   ____ |  | ______   ___________  \_   _____/_ __  ____   _____/  |_|__| ____   ____   ______
 ## /    ~    \_/ __ \|  | \____ \_/ __ \_  __ \  |    __)|  |  \/    \_/ ___\   __\  |/  _ \ /    \ /  ___/
@@ -52,22 +51,6 @@ def getJER(jetEta, sysType) :
     return float(jerSF)
 
 
-
-def hbheNoiseFilter(summary, minHPDHits=17, minHPDNoOtherHits=10, minZeros=99999, IgnoreTS4TS5ifJetInLowBVRegion=False):
-  failCommon = (summary.maxHPDHits() >= minHPDHits  or
-                summary.maxHPDNoOtherHits() >= minHPDNoOtherHits or
-                summary.maxZeros() >= minZeros)
-  goodJetFoundInLowBVRegion = False
-  if IgnoreTS4TS5ifJetInLowBVRegion: goodJetFoundInLowBVRegion = summary.goodJetFoundInLowBVRegion();
-  failRun2Loose = failCommon or (summary.HasBadRBXRechitR45Loose() and not goodJetFoundInLowBVRegion)
-  return not failRun2Loose
-
-def hbheIsoNoiseFilter(summary):
-   failIso = True
-   if(summary.numIsolatedNoiseChannels() >=10): failIso=False
-   if(summary.isolatedNoiseSumE() >=50) : failIso=False
-   if(summary.isolatedNoiseSumEt() >=25): failIso=False
-   return failIso
 
 ## _________                _____.__                            __  .__               
 ## \_   ___ \  ____   _____/ ____\__| ____  __ ______________ _/  |_|__| ____   ____  
@@ -213,6 +196,7 @@ def b2gdas_fwlite(argv) :
     ak8jets, ak8jetLabel = Handle("std::vector<pat::Jet>"), "slimmedJetsAK8"
     mets, metLabel = Handle("std::vector<pat::MET>"), "slimmedMETs"
     vertices, vertexLabel = Handle("std::vector<reco::Vertex>"), "offlineSlimmedPrimaryVertices"
+    pileups, pileuplabel = Handle("std::vector<PileupSummaryInfo>"), "slimmedAddPileupInfo"
     rhos, rhoLabel = Handle("double"), "fixedGridRhoAll"
     gens, genLabel = Handle("std::vector<reco::GenParticle>"), "prunedGenParticles"
     genInfo, genInfoLabel = Handle("GenEventInfoProduct"), "generator"
@@ -220,7 +204,6 @@ def b2gdas_fwlite(argv) :
     #lheInfo, lheInfoLabel = Handle("LHEEventProduct"), "externalLHEProducer"
     triggerBits, triggerBitLabel = Handle("edm::TriggerResults"), ("TriggerResults","","HLT")
     metfiltBits, metfiltBitLabel = Handle("edm::TriggerResults"), ("TriggerResults","", options.trigProc)
-    hcalnoise,hcalnoiseLabel = Handle("HcalNoiseSummary"), "hcalnoise"
 
 
 
@@ -395,26 +378,26 @@ def b2gdas_fwlite(argv) :
 
     if options.isData :
         print 'Getting L2L3 for AK4'
-        L2L3JetParAK4  = ROOT.JetCorrectorParameters("JECs/74X_dataRun2_v5_L2L3Residual_AK4PFchs.txt");
+        L2L3JetParAK4  = ROOT.JetCorrectorParameters("JECs/Fall15_25nsV2_DATA_L2L3Residual_AK4PFchs.txt");
         print 'Getting L3 for AK4'
-        L3JetParAK4  = ROOT.JetCorrectorParameters("JECs/74X_dataRun2_v5_L3Absolute_AK4PFchs.txt");
+        L3JetParAK4  = ROOT.JetCorrectorParameters("JECs/Fall15_25nsV2_DATA_L3Absolute_AK4PFchs.txt");
         print 'Getting L2 for AK4'
-        L2JetParAK4  = ROOT.JetCorrectorParameters("JECs/74X_dataRun2_v5_L2Relative_AK4PFchs.txt");
+        L2JetParAK4  = ROOT.JetCorrectorParameters("JECs/Fall15_25nsV2_DATA_L2Relative_AK4PFchs.txt");
         print 'Getting L1 for AK4'
-        L1JetParAK4  = ROOT.JetCorrectorParameters("JECs/74X_dataRun2_v5_L1FastJet_AK4PFchs.txt");
+        L1JetParAK4  = ROOT.JetCorrectorParameters("JECs/Fall15_25nsV2_DATA_L1FastJet_AK4PFchs.txt");
         # for data only :
-        #ResJetParAK4 = ROOT.JetCorrectorParameters("JECs/74X_dataRun2_v5_L2L3Residual_AK4PFchs.txt");
+        #ResJetParAK4 = ROOT.JetCorrectorParameters("JECs/Fall15_25nsV2_DATA_L2L3Residual_AK4PFchs.txt");
 
         print 'Getting L2L3 for AK8'
-        L2L3JetParAK8  = ROOT.JetCorrectorParameters("JECs/74X_dataRun2_v5_L2L3Residual_AK8PFchs.txt");    
+        L2L3JetParAK8  = ROOT.JetCorrectorParameters("JECs/Fall15_25nsV2_DATA_L2L3Residual_AK8PFchs.txt");    
         print 'Getting L3 for AK8'
-        L3JetParAK8  = ROOT.JetCorrectorParameters("JECs/74X_dataRun2_v5_L3Absolute_AK8PFchs.txt");
+        L3JetParAK8  = ROOT.JetCorrectorParameters("JECs/Fall15_25nsV2_DATA_L3Absolute_AK8PFchs.txt");
         print 'Getting L2 for AK8'
-        L2JetParAK8  = ROOT.JetCorrectorParameters("JECs/74X_dataRun2_v5_L2Relative_AK8PFchs.txt");
+        L2JetParAK8  = ROOT.JetCorrectorParameters("JECs/Fall15_25nsV2_DATA_L2Relative_AK8PFchs.txt");
         print 'Getting L1 for AK8'
-        L1JetParAK8  = ROOT.JetCorrectorParameters("JECs/74X_dataRun2_v5_L1FastJet_AK8PFchs.txt");
+        L1JetParAK8  = ROOT.JetCorrectorParameters("JECs/Fall15_25nsV2_DATA_L1FastJet_AK8PFchs.txt");
         # for data only :
-        #ResJetParAK8 = ROOT.JetCorrectorParameters("JECs/74X_dataRun2_v5_L2L3Residual_AK8PFchs.txt");
+        #ResJetParAK8 = ROOT.JetCorrectorParameters("JECs/Fall15_25nsV2_DATA_L2L3Residual_AK8PFchs.txt");
         #  Load the JetCorrectorParameter objects into a vector, IMPORTANT: THE ORDER MATTERS HERE !!!! 
         vParJecAK4 = ROOT.vector('JetCorrectorParameters')()
         vParJecAK4.push_back(L1JetParAK4)
@@ -433,30 +416,30 @@ def b2gdas_fwlite(argv) :
         ak8JetCorrector = ROOT.FactorizedJetCorrector(vParJecAK8)
 
 
-        jecParUncStrAK4 = ROOT.std.string('JECs/74X_mcRun2_asymptotic_v4_Uncertainty_AK4PFchs.txt')
+        jecParUncStrAK4 = ROOT.std.string('JECs/Fall15_25nsV2_DATA_Uncertainty_AK4PFchs.txt')
         jecUncAK4 = ROOT.JetCorrectionUncertainty( jecParUncStrAK4 )
-        jecParUncStrAK8 = ROOT.std.string('JECs/74X_mcRun2_asymptotic_v4_Uncertainty_AK8PFchs.txt')
+        jecParUncStrAK8 = ROOT.std.string('JECs/Fall15_25nsV2_DATA_Uncertainty_AK8PFchs.txt')
         jecUncAK8 = ROOT.JetCorrectionUncertainty( jecParUncStrAK8 )    
 
         
     else :
         print 'Getting L3 for AK4'
-        L3JetParAK4  = ROOT.JetCorrectorParameters("JECs/74X_mcRun2_asymptotic_v4_L3Absolute_AK4PFchs.txt");
+        L3JetParAK4  = ROOT.JetCorrectorParameters("JECs/Fall15_25nsV2_MC_L3Absolute_AK4PFchs.txt");
         print 'Getting L2 for AK4'
-        L2JetParAK4  = ROOT.JetCorrectorParameters("JECs/74X_mcRun2_asymptotic_v4_L2Relative_AK4PFchs.txt");
+        L2JetParAK4  = ROOT.JetCorrectorParameters("JECs/Fall15_25nsV2_MC_L2Relative_AK4PFchs.txt");
         print 'Getting L1 for AK4'
-        L1JetParAK4  = ROOT.JetCorrectorParameters("JECs/74X_mcRun2_asymptotic_v4_L1FastJet_AK4PFchs.txt");
+        L1JetParAK4  = ROOT.JetCorrectorParameters("JECs/Fall15_25nsV2_MC_L1FastJet_AK4PFchs.txt");
         # for data only :
-        #ResJetParAK4 = ROOT.JetCorrectorParameters("JECs/74X_mcRun2_asymptotic_v4_L2L3Residual_AK4PFchs.txt");
+        #ResJetParAK4 = ROOT.JetCorrectorParameters("JECs/Fall15_25nsV2_MC_L2L3Residual_AK4PFchs.txt");
 
         print 'Getting L3 for AK8'
-        L3JetParAK8  = ROOT.JetCorrectorParameters("JECs/74X_mcRun2_asymptotic_v4_L3Absolute_AK8PFchs.txt");
+        L3JetParAK8  = ROOT.JetCorrectorParameters("JECs/Fall15_25nsV2_MC_L3Absolute_AK8PFchs.txt");
         print 'Getting L2 for AK8'
-        L2JetParAK8  = ROOT.JetCorrectorParameters("JECs/74X_mcRun2_asymptotic_v4_L2Relative_AK8PFchs.txt");
+        L2JetParAK8  = ROOT.JetCorrectorParameters("JECs/Fall15_25nsV2_MC_L2Relative_AK8PFchs.txt");
         print 'Getting L1 for AK8'
-        L1JetParAK8  = ROOT.JetCorrectorParameters("JECs/74X_mcRun2_asymptotic_v4_L1FastJet_AK8PFchs.txt");
+        L1JetParAK8  = ROOT.JetCorrectorParameters("JECs/Fall15_25nsV2_MC_L1FastJet_AK8PFchs.txt");
         # for data only :
-        #ResJetParAK8 = ROOT.JetCorrectorParameters("JECs/74X_mcRun2_asymptotic_v4_L2L3Residual_AK8PFchs.txt"); 
+        #ResJetParAK8 = ROOT.JetCorrectorParameters("JECs/Fall15_25nsV2_MC_L2L3Residual_AK8PFchs.txt"); 
 
         #  Load the JetCorrectorParameter objects into a vector, IMPORTANT: THE ORDER MATTERS HERE !!!! 
         vParJecAK4 = ROOT.vector('JetCorrectorParameters')()
@@ -477,13 +460,13 @@ def b2gdas_fwlite(argv) :
 
         ak8JetCorrector = ROOT.FactorizedJetCorrector(vParJecAK8)
 
-        jecParUncStrAK4 = ROOT.std.string('JECs/74X_mcRun2_asymptotic_v4_Uncertainty_AK4PFchs.txt')
+        jecParUncStrAK4 = ROOT.std.string('JECs/Fall15_25nsV2_MC_Uncertainty_AK4PFchs.txt')
         jecUncAK4 = ROOT.JetCorrectionUncertainty( jecParUncStrAK4 )
-        jecParUncStrAK8 = ROOT.std.string('JECs/74X_mcRun2_asymptotic_v4_Uncertainty_AK8PFchs.txt')
+        jecParUncStrAK8 = ROOT.std.string('JECs/Fall15_25nsV2_MC_Uncertainty_AK8PFchs.txt')
         jecUncAK8 = ROOT.JetCorrectionUncertainty( jecParUncStrAK8 )    
 
 
-    selectElectron = VIDElectronSelector(cutBasedElectronID_Spring15_25ns_V1_standalone_tight)
+    selectElectron = VIDElectronSelector(mvaEleID_Spring15_25ns_nonTrig_V1_wp80)
     selectElectron._VIDSelectorBase__instance.ignoreCut('GsfEleEffAreaPFIsoCut_0')
 
 
@@ -529,7 +512,8 @@ def b2gdas_fwlite(argv) :
     nevents = 0
     for ifile in filesraw :
         if len( ifile ) > 2 : 
-            s = 'root://cmsxrootd-site.fnal.gov/' + ifile.rstrip()
+            #s = 'root://cmsxrootd-site.fnal.gov/' + ifile.rstrip()
+            s = 'root://xrootd-cms.infn.it/' + ifile.rstrip()
             files.append( s )
             print 'Added ' + s
 
@@ -571,56 +555,57 @@ def b2gdas_fwlite(argv) :
                 SemiLeptTrig[0] = -1
             passTrig = False
                 
-            if options.isData :
-                # Require HCAL noise filter
-                event.getByLabel(hcalnoiseLabel, hcalnoise)
-                if not hbheIsoNoiseFilter(hcalnoise.product()):
-                    continue
 
-                # Perform trigger selection
-                event.getByLabel(triggerBitLabel, triggerBits)
-                event.getByLabel(metfiltBitLabel, metfiltBits)
+            # Perform trigger selection
+            event.getByLabel(triggerBitLabel, triggerBits)
+            event.getByLabel(metfiltBitLabel, metfiltBits)
 
+            if options.verbose : 
+                print "\nEvent %d: run %6d, lumi %4d, event %12d" % (iev,event.eventAuxiliary().run(), event.eventAuxiliary().luminosityBlock(),event.eventAuxiliary().event())
+                print "\n === TRIGGER PATHS ==="
+
+            # Check the names of the triggers to see if any of "our" trigger fired
+            names = event.object().triggerNames(triggerBits.product())
+            # Get list of triggers that fired
+            firedTrigs = []
+            for itrig in xrange(triggerBits.product().size()):
+                if triggerBits.product().accept(itrig) : 
+                    firedTrigs.append( itrig )
+
+            for trig in firedTrigs :
+                trigName = names.triggerName(trig)
+                for itrigToRun in xrange(0,len(trigsToRun)) :
+                    if trigsToRun[itrigToRun] in trigName :
+                        if options.verbose : 
+                            print "Trigger ", trigName,  " PASSED "
+                        passTrig = True
+                        SemiLeptTrig[0] = itrigToRun
+                        break
+                if passTrig :
+                    break                
+
+            if options.verbose :
+                print "\n === MET FILTER PATHS ==="
+            names2 = event.object().triggerNames(metfiltBits.product())
+            passFilters = True
+            for itrig in xrange(metfiltBits.product().size()):
+                if names2.triggerName(itrig) == "Flag_HBHENoiseFilter" and not metfiltBits.product().accept(itrig) :
+                    passFilters = False
+                if names2.triggerName(itrig) == "Flag_HBHENoiseIsoFilter" and not metfiltBits.product().accept(itrig) :
+                    passFilters = False
+                if names2.triggerName(itrig) == "Flag_CSCTightHalo2015Filter" and not metfiltBits.product().accept(itrig) :
+                    passFilters = False
+                if names2.triggerName(itrig) == "Flag_EcalDeadCellTriggerPrimitiveFilter" and not metfiltBits.product().accept(itrig) :
+                    passFilters = False
+                if names2.triggerName(itrig) == "Flag_goodVertices" and not metfiltBits.product().accept(itrig) :
+                    passFilters = False
+                if names2.triggerName(itrig) == "Flag_eeBadScFilter" and not metfiltBits.product().accept(itrig) :
+                    passFilters = False 
                 if options.verbose : 
-                    print "\nEvent %d: run %6d, lumi %4d, event %12d" % (iev,event.eventAuxiliary().run(), event.eventAuxiliary().luminosityBlock(),event.eventAuxiliary().event())
-                    print "\n === TRIGGER PATHS ==="
+                    print "MET Filter ", names2.triggerName(itrig),  ": ", ("PASS" if metfiltBits.product().accept(itrig) else "fail (or not run)") 
 
-                # Check the names of the triggers to see if any of "our" trigger fired
-                names = event.object().triggerNames(triggerBits.product())
-                # Get list of triggers that fired
-                firedTrigs = []
-                for itrig in xrange(triggerBits.product().size()):
-                    if triggerBits.product().accept(itrig) : 
-                        firedTrigs.append( itrig )
-
-                for trig in firedTrigs :
-                    trigName = names.triggerName(trig)
-                    for itrigToRun in xrange(0,len(trigsToRun)) :
-                        if trigsToRun[itrigToRun] in trigName :
-                            if options.verbose : 
-                                print "Trigger ", trigName,  " PASSED "
-                            passTrig = True
-                            SemiLeptTrig[0] = itrigToRun
-                            break
-                    if passTrig :
-                        break                
-
-                if options.verbose :
-                    print "\n === MET FILTER PATHS ==="
-                names2 = event.object().triggerNames(metfiltBits.product())
-                passFilters = True
-                for itrig in xrange(metfiltBits.product().size()):
-                    if names2.triggerName(itrig) == "Flag_CSCTightHaloFilter" and not metfiltBits.product().accept(itrig) :
-                        passFilters = False
-                    if names2.triggerName(itrig) == "Flag_goodVertices" and not metfiltBits.product().accept(itrig) :
-                        passFilters = False
-                    if names2.triggerName(itrig) == "Flag_eeBadScFilter" and not metfiltBits.product().accept(itrig) :
-                        passFilters = False 
-                    if options.verbose : 
-                        print "MET Filter ", names2.triggerName(itrig),  ": ", ("PASS" if metfiltBits.product().accept(itrig) else "fail (or not run)") 
-
-                if not passTrig :
-                    continue
+            if not passTrig :
+                continue
 
                                       
 
@@ -675,9 +660,25 @@ def b2gdas_fwlite(argv) :
                 if options.verbose : 
                     print "PV at x,y,z = %+5.3f, %+5.3f, %+6.3f (ndof %.1f)" % (PV.x(), PV.y(), PV.z(), PV.ndof())
 
+            ##   __________.__.__                        __________                     .__       .__     __  .__                
+            ##   \______   \__|  |   ____  __ ________   \______   \ ______  _  __ ____ |__| ____ |  |___/  |_|__| ____    ____  
+            ##    |     ___/  |  | _/ __ \|  |  \____ \   |       _// __ \ \/ \/ // __ \|  |/ ___\|  |  \   __\  |/    \  / ___\ 
+            ##    |    |   |  |  |_\  ___/|  |  /  |_> >  |    |   \  ___/\     /\  ___/|  / /_/  >   Y  \  | |  |   |  \/ /_/  >
+            ##    |____|   |__|____/\___  >____/|   __/   |____|_  /\___  >\/\_/  \___  >__\___  /|___|  /__| |__|___|  /\___  / 
+            ##                          \/      |__|             \/     \/            \/  /_____/      \/             \//_____/  
+
+            event.getByLabel(pileuplabel, pileups)
+
+            TrueNumInteractions = 0
+            if len(pileups.product())>0 :
+                TrueNumInteractions = pileups.product()[0].getTrueNumInteractions()
+            else:
+                print 'Event has no pileup information, setting TrueNumInteractions to 0.'
+
             if not options.isData and options.purw :
-                puWeight = purw.GetBinContent( purw.GetXaxis().FindBin( NPV ) )
+                puWeight = purw.GetBinContent( purw.GetXaxis().FindBin( TrueNumInteractions ) )
                 evWeight *= puWeight
+
 
             ## __________.__             ____   ____      .__                 
             ## \______   \  |__   ____   \   \ /   /____  |  |  __ __   ____  

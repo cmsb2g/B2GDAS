@@ -8,9 +8,9 @@ Beyond Two Generations Physics Analysis Group (B2G PAG)
 To run :
 
 
-`cmsrel CMSSW_7_4_4`
+`cmsrel CMSSW_7_6_4`
 
-`cd CMSSW_7_4_4/src`
+`cd CMSSW_7_6_4/src`
 
 `git clone https://github.com/cmsb2g/B2GDAS.git Analysis/B2GDAS`
 
@@ -22,4 +22,4 @@ To run :
 
 `voms-proxy-init`
 
-`python b2gdas_fwlite.py --files=rsgluon_ttbar_3TeV.txt --outname=rsgluon_ttbar_3TeV.root`
+`python b2gdas_fwlite.py --files=inputfiles/rsgluon_ttbar_3TeV.txt --outname=rsgluon_ttbar_3TeV.root`
