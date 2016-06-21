@@ -7,10 +7,13 @@ Beyond Two Generations Physics Analysis Group (B2G PAG)
 
 To run :
 
+`export SCRAM_ARCH=slc6_amd64_gcc530` *if using BASH*
 
-`cmsrel CMSSW_7_6_4`
+`setenv SCRAM_ARCH slc6_amd64_gcc530` *if using TCSH*
 
-`cd CMSSW_7_6_4/src`
+`cmsrel CMSSW_8_0_11`
+
+`cd CMSSW_8_0_11/src`
 
 `git clone https://github.com/cmsb2g/B2GDAS.git Analysis/B2GDAS`
 
