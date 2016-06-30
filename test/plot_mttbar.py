@@ -157,6 +157,7 @@ def plot_mttbar(argv) :
 
         t.SetBranchStatus ('*', 0)
         t.SetBranchStatus ('PUWeight', 1)
+        t.SetBranchStatus ('GenWeight', 1)
         t.SetBranchStatus ('FatJetPt', 1)
         t.SetBranchStatus ('FatJetEta', 1)
         t.SetBranchStatus ('FatJetPhi', 1)
@@ -250,9 +251,9 @@ def plot_mttbar(argv) :
 
             ttbarCand = hadTopCandP4 + lepTopCandP4
             mttbar = ttbarCand.M()
-            h_mttbar.Fill( mttbar, PUWeight[0] )
-            h_mtopHadGroomed.Fill( mass_sd, PUWeight[0] )
-            h_mtopHad.Fill( hadTopCandP4.M(), PUWeight[0] )
+            h_mttbar.Fill( mttbar, PUWeight[0]*GenWeight[0] )
+            h_mtopHadGroomed.Fill( mass_sd, PUWeight[0]*GenWeight[0] )
+            h_mtopHad.Fill( hadTopCandP4.M(), PUWeight[0]*GenWeight[0] )
             
 
     fout.cd()
