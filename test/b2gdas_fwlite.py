@@ -208,12 +208,11 @@ def b2gdas_fwlite(argv) :
 
 
     trigsToRun = [
-        "HLT_IsoMu24_eta2p1",
+        "HLT_IsoMu22_",
         "HLT_Mu45_eta2p1",
         "HLT_Mu50_",
         "HLT_Mu40_eta2p1_PFJet200_PFJet50",
-        "HLT_IsoMu24_eta2p1",
-        "HLT_Ele32_eta2p1_WPLoose_Gsf",
+        "HLT_Ele35_WPLoose_Gsf",
         "HLT_Ele45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50",
         "HLT_Ele105_CaloIdVT_GsfTrkIdT",
         "HLT_Ele115_CaloIdVT_GsfTrkIdT"
@@ -338,7 +337,7 @@ def b2gdas_fwlite(argv) :
     h_mttbar_true = ROOT.TH1F("h_mttbar_true", "True m_{t#bar{t}};m_{t#bar{t}} (GeV)", 200, 0, 6000)
 
     h_ptLep = ROOT.TH1F("h_ptLep", "Lepton p_{T};p_{T} (GeV)", 100, 0, 1000)
-    h_etaLep = ROOT.TH1F("h_etaLep", "Lepton #eta;p_{T} (GeV)#eta", 100, 0, ROOT.TMath.TwoPi() )
+    h_etaLep = ROOT.TH1F("h_etaLep", "Lepton #eta;#eta", 120, -6, 6 )
     h_met = ROOT.TH1F("h_met", "Missing p_{T};p_{T} (GeV)", 100, 0, 1000)
     h_ptRel = ROOT.TH1F("h_ptRel", "p_{T}^{REL};p_{T}^{REL} (GeV)", 100, 0, 100)
     h_dRMin = ROOT.TH1F("h_dRMin", "#Delta R_{MIN};#Delta R_{MIN}", 100, 0, 5.0)
@@ -358,8 +357,8 @@ def b2gdas_fwlite(argv) :
     h_mAK8 = ROOT.TH1F("h_mAK8", "AK8 Jet Mass;Mass (GeV)", 100, 0, 1000)
     h_msoftdropAK8 = ROOT.TH1F("h_msoftdropAK8", "AK8 Softdrop Jet Mass;Mass (GeV)", 100, 0, 1000)
     h_mprunedAK8 = ROOT.TH1F("h_mprunedAK8", "AK8 Pruned Jet Mass;Mass (GeV)", 100, 0, 1000)
-    h_mfilteredAK8 = ROOT.TH1F("h_mfilteredAK8", "AK8 Filtered Jet Mass;Mass (GeV)", 100, 0, 1000)
-    h_mtrimmedAK8 = ROOT.TH1F("h_mtrimmedAK8", "AK8 Trimmed Jet Mass;Mass (GeV)", 100, 0, 1000)
+    #h_mfilteredAK8 = ROOT.TH1F("h_mfilteredAK8", "AK8 Filtered Jet Mass;Mass (GeV)", 100, 0, 1000)
+    #h_mtrimmedAK8 = ROOT.TH1F("h_mtrimmedAK8", "AK8 Trimmed Jet Mass;Mass (GeV)", 100, 0, 1000)
     h_minmassAK8 = ROOT.TH1F("h_minmassAK8", "AK8 CMS Top Tagger Min Mass Paring;m_{min} (GeV)", 100, 0, 1000)
     h_nsjAK8 = ROOT.TH1F("h_nsjAK8", "AK8 CMS Top Tagger N_{subjets};N_{subjets}", 5, 0, 5)
     h_tau21AK8 = ROOT.TH1F("h_tau21AK8", "AK8 Jet #tau_{2} / #tau_{1};Mass#tau_{21}", 100, 0, 1.0)
@@ -513,7 +512,8 @@ def b2gdas_fwlite(argv) :
     for ifile in filesraw :
         if len( ifile ) > 2 : 
             #s = 'root://cmsxrootd-site.fnal.gov/' + ifile.rstrip()
-            s = 'root://xrootd-cms.infn.it/' + ifile.rstrip()
+            #s = 'root://xrootd-cms.infn.it/' + ifile.rstrip()
+            s =  'file:/pnfs/desy.de/cms/tier2/' + ifile.rstrip()
             files.append( s )
             print 'Added ' + s
 
@@ -566,6 +566,7 @@ def b2gdas_fwlite(argv) :
 
             # Check the names of the triggers to see if any of "our" trigger fired
             names = event.object().triggerNames(triggerBits.product())
+
             # Get list of triggers that fired
             firedTrigs = []
             for itrig in xrange(triggerBits.product().size()):
@@ -667,18 +668,19 @@ def b2gdas_fwlite(argv) :
             ##    |____|   |__|____/\___  >____/|   __/   |____|_  /\___  >\/\_/  \___  >__\___  /|___|  /__| |__|___|  /\___  / 
             ##                          \/      |__|             \/     \/            \/  /_____/      \/             \//_____/  
 
-            event.getByLabel(pileuplabel, pileups)
+            if not options.isData:
+                event.getByLabel(pileuplabel, pileups)
 
-            TrueNumInteractions = 0
-            if len(pileups.product())>0 :
-                TrueNumInteractions = pileups.product()[0].getTrueNumInteractions()
-            else:
-                print 'Event has no pileup information, setting TrueNumInteractions to 0.'
+                TrueNumInteractions = 0
+                if len(pileups.product())>0 :
+                    TrueNumInteractions = pileups.product()[0].getTrueNumInteractions()
+                else:
+                    print 'Event has no pileup information, setting TrueNumInteractions to 0.'
 
-            if not options.isData and options.purw :
-                puWeight = purw.GetBinContent( purw.GetXaxis().FindBin( TrueNumInteractions ) )
-                evWeight *= puWeight
-
+                if not options.isData and options.purw :
+                    puWeight = purw.GetBinContent( purw.GetXaxis().FindBin( TrueNumInteractions ) )
+                    evWeight *= puWeight
+                        
 
             ## __________.__             ____   ____      .__                 
             ## \______   \  |__   ____   \   \ /   /____  |  |  __ __   ____  
@@ -963,19 +965,19 @@ def b2gdas_fwlite(argv) :
             theLepJetBDisc = nearestJet.bDiscriminator( options.bdisc )
 
             # Fill some plots related to the jets
-            h_ptAK4.Fill( theLepJet.Perp() )
-            h_etaAK4.Fill( theLepJet.Eta() )
-            h_yAK4.Fill( theLepJet.Rapidity() )
-            h_mAK4.Fill( theLepJet.M() )
-            h_bdiscAK4.Fill( theLepJetBDisc )
+            h_ptAK4.Fill( theLepJet.Perp(), evWeight )
+            h_etaAK4.Fill( theLepJet.Eta(), evWeight )
+            h_yAK4.Fill( theLepJet.Rapidity(), evWeight )
+            h_mAK4.Fill( theLepJet.M(), evWeight )
+            h_bdiscAK4.Fill( theLepJetBDisc, evWeight )
             # Fill some plots related to the lepton, the MET, and the 2-d cut
             ptRel = theLepJet.Perp( theLepton.Vect() )
-            h_ptLep.Fill(theLepton.Perp())
-            h_etaLep.Fill(theLepton.Eta())
-            h_met.Fill(met.pt())
-            h_ptRel.Fill( ptRel )
-            h_dRMin.Fill( dRMin )
-            h_2DCut.Fill( dRMin, ptRel )
+            h_ptLep.Fill(theLepton.Perp(), evWeight)
+            h_etaLep.Fill(theLepton.Eta(), evWeight)
+            h_met.Fill(met.pt(), evWeight)
+            h_ptRel.Fill( ptRel, evWeight )
+            h_dRMin.Fill( dRMin, evWeight )
+            h_2DCut.Fill( dRMin, ptRel, evWeight )
             pass2D = ptRel > 20.0 or dRMin > 0.4
             if options.verbose : 
                 print '2d cut : dRMin = {0:6.2f}, ptRel = {1:6.2f}, pass = {2:6d}'.format( dRMin, ptRel, pass2D )
@@ -1091,18 +1093,18 @@ def b2gdas_fwlite(argv) :
 
                 mAK8Softdrop = jet.userFloat('ak8PFJetsCHSSoftDropMass')
                 mAK8Pruned = jet.userFloat('ak8PFJetsCHSPrunedMass')
-                mAK8Filtered = jet.userFloat('ak8PFJetsCHSFilteredMass')
-                mAK8Trimmed = jet.userFloat('ak8PFJetsCHSTrimmedMass')
+                #mAK8Filtered = jet.userFloat('ak8PFJetsCHSFilteredMass')
+                #mAK8Trimmed = jet.userFloat('ak8PFJetsCHSTrimmedMass')
 
 
-                h_ptAK8.Fill( jet.pt() )
-                h_etaAK8.Fill( jet.eta() )
-                h_yAK8.Fill( jet.rapidity() )
-                h_mAK8.Fill( jet.mass() )
-                h_msoftdropAK8.Fill( mAK8Softdrop )
-                h_mprunedAK8.Fill( mAK8Pruned )
-                h_mfilteredAK8.Fill( mAK8Filtered )
-                h_mtrimmedAK8.Fill( mAK8Trimmed )
+                h_ptAK8.Fill( jet.pt(), evWeight )
+                h_etaAK8.Fill( jet.eta(), evWeight )
+                h_yAK8.Fill( jet.rapidity(), evWeight )
+                h_mAK8.Fill( jet.mass(), evWeight )
+                h_msoftdropAK8.Fill( mAK8Softdrop, evWeight )
+                h_mprunedAK8.Fill( mAK8Pruned, evWeight )
+                #h_mfilteredAK8.Fill( mAK8Filtered, evWeight )
+                #h_mtrimmedAK8.Fill( mAK8Trimmed, evWeight )
 
 
 
@@ -1126,14 +1128,14 @@ def b2gdas_fwlite(argv) :
                 tau3 = ak8JetsGood[candToPlot].userFloat('NjettinessAK8:tau3')
                 if tau1 > 0.0001 :
                     tau21 = tau2 / tau1
-                    h_tau21AK8.Fill( tau21 )
+                    h_tau21AK8.Fill( tau21, evWeight )
                 else :
-                    h_tau21AK8.Fill( -1.0 )
+                    h_tau21AK8.Fill( -1.0, evWeight )
                 if tau2 > 0.0001 :
                     tau32 = tau3 / tau2
-                    h_tau32AK8.Fill( tau32 )
+                    h_tau32AK8.Fill( tau32, evWeight )
                 else :
-                    h_tau32AK8.Fill( -1.0 )
+                    h_tau32AK8.Fill( -1.0, evWeight )
 
                 # Get the subjets from the modified mass drop algorithm
                 # aka softdrop with beta=0.
