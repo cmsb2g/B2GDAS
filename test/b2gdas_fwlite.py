@@ -82,8 +82,13 @@ def b2gdas_fwlite(argv) :
 
 
     parser.add_option('--trigProc', type='string', action='store',
-                      default='PAT',
+                      default='HLT',
                       dest='trigProc',
+                      help='Name of trigger process')
+
+    parser.add_option('--trigProcMETFilters', type='string', action='store',
+                      default='PAT',
+                      dest='trigProcMETFilters',
                       help='Name of trigger process')
 
     parser.add_option('--purw', action='store_true',
@@ -101,6 +106,11 @@ def b2gdas_fwlite(argv) :
                       default=False,
                       dest='isData',
                       help='Is this data?')
+
+    parser.add_option('--isCrabRun', action='store_true',
+                      default=False,
+                      dest='isCrabRun',
+                      help='Use this flag when running with crab on the grid')
 
     parser.add_option('--maxevents', type='int', action='store',
                       default=-1,
@@ -202,8 +212,8 @@ def b2gdas_fwlite(argv) :
     genInfo, genInfoLabel = Handle("GenEventInfoProduct"), "generator"
     # Enterprising students could figure out the LHE weighting for theoretical uncertainties
     #lheInfo, lheInfoLabel = Handle("LHEEventProduct"), "externalLHEProducer"
-    triggerBits, triggerBitLabel = Handle("edm::TriggerResults"), ("TriggerResults","","HLT")
-    metfiltBits, metfiltBitLabel = Handle("edm::TriggerResults"), ("TriggerResults","", options.trigProc)
+    triggerBits, triggerBitLabel = Handle("edm::TriggerResults"), ("TriggerResults","", options.trigProc)
+    metfiltBits, metfiltBitLabel = Handle("edm::TriggerResults"), ("TriggerResults","", options.trigProcMETFilters)
 
 
 
@@ -512,8 +522,10 @@ def b2gdas_fwlite(argv) :
     for ifile in filesraw :
         if len( ifile ) > 2 : 
             #s = 'root://cmsxrootd-site.fnal.gov/' + ifile.rstrip()
-            #s = 'root://xrootd-cms.infn.it/' + ifile.rstrip()
-            s =  'file:/pnfs/desy.de/cms/tier2/' + ifile.rstrip()
+            if  not options.isCrabRun:
+                s =  'file:/pnfs/desy.de/cms/tier2/' + ifile.rstrip()
+            else:
+                s = 'root://xrootd-cms.infn.it/' + ifile.rstrip()
             files.append( s )
             print 'Added ' + s
 
@@ -604,6 +616,9 @@ def b2gdas_fwlite(argv) :
                     passFilters = False 
                 if options.verbose : 
                     print "MET Filter ", names2.triggerName(itrig),  ": ", ("PASS" if metfiltBits.product().accept(itrig) else "fail (or not run)") 
+
+            if not passFilters :
+                continue
 
             if not passTrig :
                 continue

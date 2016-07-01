@@ -13,8 +13,8 @@ from plot_mttbar import plot_mttbar
 
 
 ttjetsStr = ["--file_in", "ttjets.root", "--file_out", "ttjets_plots.root"]
-rsgluon3TeVStr = ["--file_in", "rskkgluon3TeV.root", "--file_out", "rskkgluon3TeV_plots.root"]
-singlemuStr = ["--file_in", "singlemu.root", "--file_out", "singlemu_plots.root", "--isData"]
+rsgluon3TeVStr = ["--file_in", "rsgluon_ttbar_3TeV.root", "--file_out", "rsluon3TeV_plots.root"]
+singlemuStr = ["--file_in", "singlemuon.root", "--file_out", "singlemuon_plots.root", "--isData"]
 
 plot_mttbar( ttjetsStr )
 plot_mttbar( rsgluon3TeVStr )
