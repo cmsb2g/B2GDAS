@@ -106,7 +106,7 @@ def plot_mttbar(argv) :
 
         if options.isData : 
             t.SetBranchAddress('SemiLeptTrig'        , SemiLeptTrig        )
-        t.SetBranchAddress('SemiLeptWeight'      , SemiLeptWeight      )
+        t.SetBranchAddress('SemiLeptWeight'      , SemiLeptWeight      ) #Combined weight of all scale factors (lepton, PU, generator) relevant for the smeileptonic event selection
         t.SetBranchAddress('PUWeight'            , PUWeight            )
         t.SetBranchAddress('GenWeight'           , GenWeight               )
         t.SetBranchAddress('FatJetPt'            , FatJetPt            )
@@ -156,6 +156,7 @@ def plot_mttbar(argv) :
 
 
         t.SetBranchStatus ('*', 0)
+        t.SetBranchStatus ('SemiLeptWeight', 1)
         t.SetBranchStatus ('PUWeight', 1)
         t.SetBranchStatus ('GenWeight', 1)
         t.SetBranchStatus ('FatJetPt', 1)
@@ -251,9 +252,10 @@ def plot_mttbar(argv) :
 
             ttbarCand = hadTopCandP4 + lepTopCandP4
             mttbar = ttbarCand.M()
-            h_mttbar.Fill( mttbar, PUWeight[0]*GenWeight[0] )
-            h_mtopHadGroomed.Fill( mass_sd, PUWeight[0]*GenWeight[0] )
-            h_mtopHad.Fill( hadTopCandP4.M(), PUWeight[0]*GenWeight[0] )
+            print SemiLeptWeight[0]
+            h_mttbar.Fill( mttbar, SemiLeptWeight[0] )
+            h_mtopHadGroomed.Fill( mass_sd, SemiLeptWeight[0] )
+            h_mtopHad.Fill( hadTopCandP4.M(), SemiLeptWeight[0] )
             
 
     fout.cd()

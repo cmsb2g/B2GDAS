@@ -244,8 +244,10 @@ def b2gdas_fwlite(argv) :
         SemiLeptTrig        = array('i', [0]  )
         SemiLeptWeight      = array('f', [0.] )
         PUWeight            = array('f', [0.] )
-        LEPWeight           = array('f', [0.] )
-        LEPWeightUnc        = array('f', [0.] )
+        LEPIDWeight         = array('f', [0.] )
+        LEPIDWeightUnc      = array('f', [0.] )
+        MUONTRKWeight       = array('f', [0.] )
+        MUONTRKWeightUnc    = array('f', [0.] )
         GenWeight           = array('f', [0.] )
         FatJetPt            = array('f', [-1.])
         FatJetEta           = array('f', [-1.])
@@ -296,8 +298,10 @@ def b2gdas_fwlite(argv) :
         TreeSemiLept.Branch('SemiLeptTrig'        , SemiLeptTrig        ,  'SemiLeptTrig/I'        )
         TreeSemiLept.Branch('SemiLeptWeight'      , SemiLeptWeight      ,  'SemiLeptWeight/F'      )
         TreeSemiLept.Branch('PUWeight'            , PUWeight            ,  'PUWeight/F'            )
-        TreeSemiLept.Branch('LEPWeight'           , LEPWeight           ,  'LEPWeight/F'           )
-        TreeSemiLept.Branch('LEPWeightUnc'        , LEPWeightUnc        ,  'LEPWeightUnc/F'        )
+        TreeSemiLept.Branch('LEPIDWeight'         , LEPIDWeight         ,  'LEPIDWeight/F'         )
+        TreeSemiLept.Branch('LEPIDWeightUnc'      , LEPIDWeightUnc      ,  'LEPIDWeightUnc/F'      )
+        TreeSemiLept.Branch('MUONTRKWeight'       , MUONTRKWeight       ,  'MUONTRKWeight/F'       )
+        TreeSemiLept.Branch('MUONTRKWeightUnc'    , MUONTRKWeightUnc    ,  'MUONTRKWeightUnc/F'    )
         TreeSemiLept.Branch('GenWeight'           , GenWeight           ,  'GenWeight/F'           )    
         TreeSemiLept.Branch('FatJetPt'            , FatJetPt            ,  'FatJetPt/F'            )
         TreeSemiLept.Branch('FatJetEta'           , FatJetEta           ,  'FatJetEta/F'           )
@@ -516,6 +520,9 @@ def b2gdas_fwlite(argv) :
         muonSFFile = ROOT.TFile('MuonID_Z_2016runB_2p6fb.root', 'READ')
         muon_SFs = muonSFFile.Get('MC_NUM_TightIDandIPCut_DEN_genTracks_PAR_pt_spliteta_bin1/pt_abseta_ratio')
 
+        muonTrkSFFile = ROOT.TFile('general_tracks_and_early_general_tracks_corr_ratio.root', 'READ')
+        muonTrk_SFs = muonTrkSFFile.Get('mutrksfptg10')
+
         
     ## ___________                    __    .____                         
     ## \_   _____/__  __ ____   _____/  |_  |    |    ____   ____ ______  
@@ -558,6 +565,8 @@ def b2gdas_fwlite(argv) :
             genWeight = 1.0
             LepWeight = 1.0
             LepWeightUnc = 0.0
+            MuonTrkWeight = 1.0
+            MuonTrkWeightUnc = 0.0
             
             if options.maxevents > 0 and nevents > options.maxevents :
                 break
@@ -787,10 +796,11 @@ def b2gdas_fwlite(argv) :
                 theLeptonObjKey = goodmuons[0].originalObjectRef().key()
                 leptonType = 13
                 
-                # Get the lepton scale factors for simulation
+                # Get the muon ID and TRK scale factors for simulation
                 if not options.isData:
                     pt = goodmuons[0].pt()
                     eta = abs(goodmuons[0].eta())
+                    # ID scale factors
                     overflow = False
                     if pt >=120:
                         pt=119.9
@@ -799,7 +809,15 @@ def b2gdas_fwlite(argv) :
                     LepWeightUnc =  muon_SFs.GetBinError( muon_SFs.GetXaxis().FindBin( pt ), muon_SFs.GetYaxis().FindBin( eta ) )
                     if overflow:
                         LepWeightUnc *=2
+                    # add additional 1% systematic uncertainty
+                    LepWeightUnc = (LepWeightUnc**2 + (0.01*LepWeight)**2)**0.5
                     evWeight *= LepWeight
+
+                    # tracker efficiency sccale factors
+                    eta = goodmuons[0].eta()
+                    MuonTrkWeight = muonTrk_SFs.GetBinContent( muonTrk_SFs.GetXaxis().FindBin( eta ))
+                    MuonTrkWeightUnc = muonTrk_SFs.GetBinError( muonTrk_SFs.GetXaxis().FindBin( eta ))
+                    evWeight *= MuonTrkWeight
                 
             else :
                 theLeptonCand = goodelectrons[0]
@@ -810,7 +828,7 @@ def b2gdas_fwlite(argv) :
                 theLeptonObjKey = goodelectrons[0].originalObjectRef().key()
                 leptonType = 11
 
-                # Get the lepton scale factors for simulation
+                # Get the electron ID scale factor for simulation
                 if not options.isData:
                     pt = goodelectrons[0].pt() 
                     eta =  goodelectrons[0].superCluster().eta()
@@ -1218,8 +1236,10 @@ def b2gdas_fwlite(argv) :
                 
                 SemiLeptWeight      [0] = evWeight
                 PUWeight            [0] = puWeight
-                LEPWeight           [0] = LepWeight
-                LEPWeightUnc        [0] = LepWeightUnc
+                LEPIDWeight         [0] = LepWeight
+                LEPIDWeightUnc      [0] = LepWeightUnc
+                MUONTRKWeight       [0] = MuonTrkWeight
+                MUONTRKWeightUnc    [0] = MuonTrkWeightUnc
                 GenWeight           [0] = genWeight
                 FatJetPt            [0] = ak8JetsGoodP4[candToPlot].Perp()
                 FatJetEta           [0] = ak8JetsGoodP4[candToPlot].Eta()
