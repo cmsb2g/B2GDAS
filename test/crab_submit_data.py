@@ -9,14 +9,16 @@ config.General.transferLogs = True
 config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = 'PSet.py'
 
-config.Data.inputDataset = '/SingleMuon/jpilot-crab_CMSDAS_skim_mu-4f50d602a6e6a83d24076c7043579a32/USER'
-config.Data.inputDBS = 'phys03'
-config.Data.splitting = 'FileBased'
-config.Data.unitsPerJob = 1
+config.Data.inputDataset = '/SingleMuon/Run2016B-PromptReco-v2/MINIAOD'
+config.Data.inputDBS = 'global'
+config.Data.splitting = 'LumiBased'
+config.Data.unitsPerJob = 100
+config.Data.lumiMask = 'https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions16/13TeV/Cert_271036-275783_13TeV_PromptReco_Collisions16_JSON.txt'
+#config.Data.runRange = '273403-273404'
 
-config.Site.storageSite = 'T3_US_FNALLPC'
+config.Site.storageSite = 'T2_DE_DESY'
 
 config.JobType.scriptExe = 'execute_for_crab_data.sh'
 
 config.JobType.outputFiles = ['outplots.root']
-config.JobType.inputFiles = ['FrameworkJobReport.xml', 'execute_for_crab.py', 'b2gdas_fwlite.py', 'leptonic_nu_z_component.py', 'JECs', 'purw.root' ]
+config.JobType.inputFiles = ['FrameworkJobReport.xml', 'execute_for_crab_data.py', 'b2gdas_fwlite.py', 'leptonic_nu_z_component.py', 'JECs' ]

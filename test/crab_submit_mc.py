@@ -19,4 +19,4 @@ config.Site.storageSite = 'T2_DE_DESY'
 config.JobType.scriptExe = 'execute_for_crab.sh'
 
 config.JobType.outputFiles = ['outplots.root']
-config.JobType.inputFiles = ['FrameworkJobReport.xml', 'execute_for_crab.py', 'b2gdas_fwlite.py', 'leptonic_nu_z_component.py', 'JECs', 'purw.root' ]
+config.JobType.inputFiles = ['FrameworkJobReport.xml', 'execute_for_crab.py', 'b2gdas_fwlite.py', 'leptonic_nu_z_component.py', 'JECs', 'purw.root', 'egammaEffi.txt_SF2D.root', 'MuonID_Z_2016runB_2p6fb.root', 'general_tracks_and_early_general_tracks_corr_ratio.root' ]
