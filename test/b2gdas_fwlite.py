@@ -241,7 +241,7 @@ def b2gdas_fwlite(argv) :
     # Actually to make life easy, we're going to make "N-dimensional histograms" aka Ntuples
     if options.writeTree : 
         TreeSemiLept = ROOT.TTree("TreeSemiLept", "TreeSemiLept")
-        SemiLeptTrig        = array('i', [0]  )
+        SemiLeptTrig        = ROOT.vector('bool')()
         SemiLeptWeight      = array('f', [0.] )
         PUWeight            = array('f', [0.] )
         LEPIDWeight         = array('f', [0.] )
@@ -295,7 +295,7 @@ def b2gdas_fwlite(argv) :
         SemiLeptEventNum      = array('f', [-1.])   
 
 
-        TreeSemiLept.Branch('SemiLeptTrig'        , SemiLeptTrig        ,  'SemiLeptTrig/I'        )
+        TreeSemiLept.Branch('SemiLeptTrig'        , "std::vector<bool>" ,  SemiLeptTrig            )
         TreeSemiLept.Branch('SemiLeptWeight'      , SemiLeptWeight      ,  'SemiLeptWeight/F'      )
         TreeSemiLept.Branch('PUWeight'            , PUWeight            ,  'PUWeight/F'            )
         TreeSemiLept.Branch('LEPIDWeight'         , LEPIDWeight         ,  'LEPIDWeight/F'         )
@@ -588,7 +588,9 @@ def b2gdas_fwlite(argv) :
             ##  \___|_  /|_______ \____|    (____  /___|  /\____ |   \___  /   |__|____/__|  \___  >__|  /____  >
             ##        \/         \/              \/     \/      \/       \/                      \/           \/
             if options.writeTree : 
-                SemiLeptTrig[0] = -1
+                SemiLeptTrig.clear()
+                for i in xrange(len(trigsToRun)):
+                    SemiLeptTrig.push_back(False)
             passTrig = False
                 
 
@@ -616,10 +618,7 @@ def b2gdas_fwlite(argv) :
                         if options.verbose : 
                             print "Trigger ", trigName,  " PASSED "
                         passTrig = True
-                        SemiLeptTrig[0] = itrigToRun
-                        break
-                if passTrig :
-                    break                
+                        SemiLeptTrig[itrigToRun] = True
 
             if options.verbose :
                 print "\n === MET FILTER PATHS ==="
