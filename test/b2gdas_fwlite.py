@@ -395,26 +395,26 @@ def b2gdas_fwlite(argv) :
 
     if options.isData :
         print 'Getting L2L3 for AK4'
-        L2L3JetParAK4  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV3_DATA_L2L3Residual_AK4PFchs.txt");
+        L2L3JetParAK4  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV6_DATA_L2L3Residual_AK4PFchs.txt");
         print 'Getting L3 for AK4'
-        L3JetParAK4  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV3_DATA_L3Absolute_AK4PFchs.txt");
+        L3JetParAK4  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV6_DATA_L3Absolute_AK4PFchs.txt");
         print 'Getting L2 for AK4'
-        L2JetParAK4  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV3_DATA_L2Relative_AK4PFchs.txt");
+        L2JetParAK4  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV6_DATA_L2Relative_AK4PFchs.txt");
         print 'Getting L1 for AK4'
-        L1JetParAK4  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV3_DATA_L1FastJet_AK4PFchs.txt");
+        L1JetParAK4  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV6_DATA_L1FastJet_AK4PFchs.txt");
         # for data only :
-        #ResJetParAK4 = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV3_DATA_L2L3Residual_AK4PFchs.txt");
+        #ResJetParAK4 = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV6_DATA_L2L3Residual_AK4PFchs.txt");
 
         print 'Getting L2L3 for AK8'
-        L2L3JetParAK8  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV3_DATA_L2L3Residual_AK8PFchs.txt");    
+        L2L3JetParAK8  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV6_DATA_L2L3Residual_AK8PFchs.txt");    
         print 'Getting L3 for AK8'
-        L3JetParAK8  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV3_DATA_L3Absolute_AK8PFchs.txt");
+        L3JetParAK8  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV6_DATA_L3Absolute_AK8PFchs.txt");
         print 'Getting L2 for AK8'
-        L2JetParAK8  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV3_DATA_L2Relative_AK8PFchs.txt");
+        L2JetParAK8  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV6_DATA_L2Relative_AK8PFchs.txt");
         print 'Getting L1 for AK8'
-        L1JetParAK8  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV3_DATA_L1FastJet_AK8PFchs.txt");
+        L1JetParAK8  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV6_DATA_L1FastJet_AK8PFchs.txt");
         # for data only :
-        #ResJetParAK8 = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV3_DATA_L2L3Residual_AK8PFchs.txt");
+        #ResJetParAK8 = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV6_DATA_L2L3Residual_AK8PFchs.txt");
         #  Load the JetCorrectorParameter objects into a vector, IMPORTANT: THE ORDER MATTERS HERE !!!! 
         vParJecAK4 = ROOT.vector('JetCorrectorParameters')()
         vParJecAK4.push_back(L1JetParAK4)
@@ -433,30 +433,30 @@ def b2gdas_fwlite(argv) :
         ak8JetCorrector = ROOT.FactorizedJetCorrector(vParJecAK8)
 
 
-        jecParUncStrAK4 = ROOT.std.string('JECs/Spring16_25nsV3_DATA_Uncertainty_AK4PFchs.txt')
+        jecParUncStrAK4 = ROOT.std.string('JECs/Spring16_25nsV6_DATA_Uncertainty_AK4PFchs.txt')
         jecUncAK4 = ROOT.JetCorrectionUncertainty( jecParUncStrAK4 )
-        jecParUncStrAK8 = ROOT.std.string('JECs/Spring16_25nsV3_DATA_Uncertainty_AK8PFchs.txt')
+        jecParUncStrAK8 = ROOT.std.string('JECs/Spring16_25nsV6_DATA_Uncertainty_AK8PFchs.txt')
         jecUncAK8 = ROOT.JetCorrectionUncertainty( jecParUncStrAK8 )    
 
         
     else :
         print 'Getting L3 for AK4'
-        L3JetParAK4  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV3_MC_L3Absolute_AK4PFchs.txt");
+        L3JetParAK4  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV6_MC_L3Absolute_AK4PFchs.txt");
         print 'Getting L2 for AK4'
-        L2JetParAK4  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV3_MC_L2Relative_AK4PFchs.txt");
+        L2JetParAK4  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV6_MC_L2Relative_AK4PFchs.txt");
         print 'Getting L1 for AK4'
-        L1JetParAK4  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV3_MC_L1FastJet_AK4PFchs.txt");
+        L1JetParAK4  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV6_MC_L1FastJet_AK4PFchs.txt");
         # for data only :
-        #ResJetParAK4 = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV3_MC_L2L3Residual_AK4PFchs.txt");
+        #ResJetParAK4 = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV6_MC_L2L3Residual_AK4PFchs.txt");
 
         print 'Getting L3 for AK8'
-        L3JetParAK8  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV3_MC_L3Absolute_AK8PFchs.txt");
+        L3JetParAK8  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV6_MC_L3Absolute_AK8PFchs.txt");
         print 'Getting L2 for AK8'
-        L2JetParAK8  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV3_MC_L2Relative_AK8PFchs.txt");
+        L2JetParAK8  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV6_MC_L2Relative_AK8PFchs.txt");
         print 'Getting L1 for AK8'
-        L1JetParAK8  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV3_MC_L1FastJet_AK8PFchs.txt");
+        L1JetParAK8  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV6_MC_L1FastJet_AK8PFchs.txt");
         # for data only :
-        #ResJetParAK8 = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV3_MC_L2L3Residual_AK8PFchs.txt"); 
+        #ResJetParAK8 = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV6_MC_L2L3Residual_AK8PFchs.txt"); 
 
         #  Load the JetCorrectorParameter objects into a vector, IMPORTANT: THE ORDER MATTERS HERE !!!! 
         vParJecAK4 = ROOT.vector('JetCorrectorParameters')()
@@ -477,9 +477,9 @@ def b2gdas_fwlite(argv) :
 
         ak8JetCorrector = ROOT.FactorizedJetCorrector(vParJecAK8)
 
-        jecParUncStrAK4 = ROOT.std.string('JECs/Spring16_25nsV3_MC_Uncertainty_AK4PFchs.txt')
+        jecParUncStrAK4 = ROOT.std.string('JECs/Spring16_25nsV6_MC_Uncertainty_AK4PFchs.txt')
         jecUncAK4 = ROOT.JetCorrectionUncertainty( jecParUncStrAK4 )
-        jecParUncStrAK8 = ROOT.std.string('JECs/Spring16_25nsV3_MC_Uncertainty_AK8PFchs.txt')
+        jecParUncStrAK8 = ROOT.std.string('JECs/Spring16_25nsV6_MC_Uncertainty_AK8PFchs.txt')
         jecUncAK8 = ROOT.JetCorrectionUncertainty( jecParUncStrAK8 )    
 
 
