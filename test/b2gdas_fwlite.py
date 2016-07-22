@@ -2,7 +2,6 @@
 
 import ROOT, copy, sys, logging
 from array import array
-from optparse import OptionParser
 from DataFormats.FWLite import Events, Handle
 # Use the VID framework for the electron ID. Tight ID without the PF isolation cut. 
 from RecoEgamma.ElectronIdentification.VIDElectronSelector import VIDElectronSelector
@@ -81,138 +80,85 @@ def getJER(jetEta, sysType):
                 return scale_nom
     raise Exception('ERROR: Unable to get JER for jets at eta = %.3f!' % jetEta)
 
+############################################
+# Command line parsing
 
-## _________                _____.__                            __  .__               
-## \_   ___ \  ____   _____/ ____\__| ____  __ ______________ _/  |_|__| ____   ____  
-## /    \  \/ /  _ \ /    \   __\|  |/ ___\|  |  \_  __ \__  \\   __\  |/  _ \ /    \ 
-## \     \___(  <_> )   |  \  |  |  / /_/  >  |  /|  | \// __ \|  | |  (  <_> )   |  \
-##  \______  /\____/|___|  /__|  |__\___  /|____/ |__|  (____  /__| |__|\____/|___|  /
-##         \/            \/        /_____/                   \/                    \/ 
-import sys
-from array import array
-from optparse import OptionParser
-
-
-def b2gdas_fwlite(argv) : 
+def getUserOptions():
+    from optparse import OptionParser
     parser = OptionParser()
 
-    parser.add_option('--files', type='string', action='store',
-                      dest='files',
-                      help='Input files')
+    def add_option(option, **kwargs):
+        parser.add_option('--' + option, dest=option, **kwargs)
 
-    parser.add_option('--outname', type='string', action='store',
-                      default='outplots.root',
-                      dest='outname',
-                      help='Name of output file')
+    add_option('input',              default='',
+        help='Name of file with list of input files')
+    add_option('output',             default='output.root',
+        help='Name of output file')
+    add_option('verbose',            default=False, action='store_true',
+        help='Print debugging info')
+    add_option('maxevents',          default=-1,
+        help='Number of events to run. -1 is all events')
+    add_option('isCrabRun',          default=False, action='store_true',
+        help='Use this flag when running with crab on the grid')
 
-    parser.add_option('--verbose', action='store_true',
-                      default=False,
-                      dest='verbose',
-                      help='Print debugging info')
+    add_option('disableTree',        default=False, action='store_true',
+        help='Disable Tree creation')
+    add_option('disablePileup',      default=False, action='store_true',
+        help='Disable pileup reweighting')
+    add_option('isData',             default=False, action='store_true',
+        help='Enable processing as data')
 
+    add_option('trigProc',           default='HLT',
+        help='Name of trigger process')
+    add_option('trigProcMETFilters', default='PAT',
+        help='Name of trigger process for MET filters')
 
-    parser.add_option('--trigProc', type='string', action='store',
-                      default='HLT',
-                      dest='trigProc',
-                      help='Name of trigger process')
+    add_option('bdisc',              default='pfCombinedInclusiveSecondaryVertexV2BJetTags',
+        help='Name of b jet discriminator')
+    add_option('bdiscMin',           default=0.679, type='float',
+        help='Minimum b discriminator')
+    add_option('minMuonPt',          default=45.,   type='float',
+        help='Minimum PT for muons')
+    add_option('maxMuonEta',         default=2.1,   type='float',
+        help='Maximum muon pseudorapidity')
+    add_option('minElectronPt',      default=45.,   type='float',
+        help='Minimum PT for electrons')
+    add_option('maxElectronEta',     default=2.5,   type='float',
+        help='Maximum electron pseudorapidity')
+    add_option('minAK4Pt',           default=30.,   type='float',
+        help='Minimum PT for AK4 jets')
+    add_option('maxAK4Rapidity',     default=2.4,   type='float',
+        help='Maximum AK4 rapidity')
+    add_option('minAK8Pt',           default=400.,  type='float',
+        help='Minimum PT for AK8 jets')
+    add_option('maxAK8Rapidity',     default=2.4,   type='float',
+        help='Maximum AK8 rapidity')
 
-    parser.add_option('--trigProcMETFilters', type='string', action='store',
-                      default='PAT',
-                      dest='trigProcMETFilters',
-                      help='Name of trigger process')
-
-    parser.add_option('--purw', action='store_true',
-                      default=True,
-                      dest='purw',
-                      help='Reweight pileup distribution?')
-
-    
-    parser.add_option('--writeTree', action='store_true',
-                      default=True,
-                      dest='writeTree',
-                      help='Write TTree?')    
-
-    parser.add_option('--isData', action='store_true',
-                      default=False,
-                      dest='isData',
-                      help='Is this data?')
-
-    parser.add_option('--isCrabRun', action='store_true',
-                      default=False,
-                      dest='isCrabRun',
-                      help='Use this flag when running with crab on the grid')
-
-    parser.add_option('--maxevents', type='int', action='store',
-                      default=-1,
-                      dest='maxevents',
-                      help='Number of events to run. -1 is all events')
-
-    parser.add_option('--maxjets', type='int', action='store',
-                      default=999,
-                      dest='maxjets',
-                      help='Number of jets to plot. To plot all jets, set to a big number like 999')
-
-    
-    parser.add_option('--bdisc', type='string', action='store',
-                      default='pfCombinedInclusiveSecondaryVertexV2BJetTags',
-                      dest='bdisc',
-                      help='Name of output file')
-
-
-    parser.add_option('--bdiscMin', type='float', action='store',
-                      default=0.679,
-                      dest='bDiscMin',
-                      help='Minimum b discriminator')
-
-    parser.add_option('--minMuonPt', type='float', action='store',
-                      default=45.,
-                      dest='minMuonPt',
-                      help='Minimum PT for muons')
-
-    parser.add_option('--maxMuonEta', type='float', action='store',
-                      default=2.1,
-                      dest='maxMuonEta',
-                      help='Maximum muon pseudorapidity')
-
-    parser.add_option('--minElectronPt', type='float', action='store',
-                      default=45.,
-                      dest='minElectronPt',
-                      help='Minimum PT for electrons')
-
-    parser.add_option('--maxElectronEta', type='float', action='store',
-                      default=2.5,
-                      dest='maxElectronEta',
-                      help='Maximum electron pseudorapidity')
-
-
-    parser.add_option('--minAK4Pt', type='float', action='store',
-                      default=30.,
-                      dest='minAK4Pt',
-                      help='Minimum PT for AK4 jets')
-
-    parser.add_option('--maxAK4Rapidity', type='float', action='store',
-                      default=2.4,
-                      dest='maxAK4Rapidity',
-                      help='Maximum AK4 rapidity')
-
-    parser.add_option('--minAK8Pt', type='float', action='store',
-                      default=400.,
-                      dest='minAK8Pt',
-                      help='Minimum PT for AK8 jets')
-
-    parser.add_option('--maxAK8Rapidity', type='float', action='store',
-                      default=2.4,
-                      dest='maxAK8Rapidity',
-                      help='Maximum AK8 rapidity')
-
-    (options, args) = parser.parse_args(argv)
-    argv = []
+    (options, args) = parser.parse_args()
 
     print '===== Command line options ====='
     print options
     print '================================'
+    return options
 
-    
+
+def getInputFiles(options):
+    result = []
+    with open(options.input, 'r') as fpInput:
+        for lfn in fpInput:
+            lfn = lfn.strip()
+            if lfn:
+                if not options.isCrabRun:
+                    pfn = 'file:/pnfs/desy.de/cms/tier2/' + lfn
+                else:
+                    #pfn = 'root://cmsxrootd-site.fnal.gov/' + lfn
+                    pfn = 'root://xrootd-cms.infn.it/' + lfn
+                print 'Adding ' + pfn
+                result.append(pfn)
+    return result
+
+
+def b2gdas_fwlite():
     ## _____________      __.____    .__  __             _________ __          _____  _____ 
     ## \_   _____/  \    /  \    |   |__|/  |_  ____    /   _____//  |_ __ ___/ ____\/ ____\
     ##  |    __) \   \/\/   /    |   |  \   __\/ __ \   \_____  \\   __\  |  \   __\\   __\ 
@@ -220,13 +166,8 @@ def b2gdas_fwlite(argv) :
     ##  \___  /    \__/\  / |_______ \__||__|  \___  > /_______  /|__| |____/ |__|   |__|   
     ##      \/          \/          \/             \/          \/                           
 
-    import ROOT
-    import sys
-    from DataFormats.FWLite import Events, Handle
-
-    
+    options = getUserOptions()
     ROOT.gROOT.Macro("rootlogon.C")
-    import copy
 
     muons, muonLabel = Handle("std::vector<pat::Muon>"), "slimmedMuons"
     electrons, electronLabel = Handle("std::vector<pat::Electron>"), "slimmedElectrons"
@@ -265,11 +206,11 @@ def b2gdas_fwlite(argv) :
     ##  \___|_  /|__/____  > |__|  \____/\___  /|__|  (____  /__|_|  /____  >
     ##        \/         \/             /_____/            \/      \/     \/
 
-    f = ROOT.TFile(options.outname, "RECREATE")
+    f = ROOT.TFile(options.output, "RECREATE")
     f.cd()
 
     # Actually to make life easy, we're going to make "N-dimensional histograms" aka Ntuples
-    if options.writeTree : 
+    if not options.disableTree:
         TreeSemiLept = ROOT.TTree("TreeSemiLept", "TreeSemiLept")
         SemiLeptTrig        = ROOT.vector('bool')()
         SemiLeptWeight      = array('f', [0.] )
@@ -457,7 +398,7 @@ def b2gdas_fwlite(argv) :
     # python makepuhist.py --file_data MyDataPileupHistogram.root --file_mc pumc.root --file_out purw.root
     #
     
-    if not options.isData and options.purw : 
+    if not options.isData and not options.disablePileup:
         pileupReweightFile = ROOT.TFile('purw.root', 'READ')
         purw = pileupReweightFile.Get('pileup')
 
@@ -485,22 +426,21 @@ def b2gdas_fwlite(argv) :
     # IMPORTANT : Run one FWLite instance per file. Otherwise,
     # FWLite aggregates ALL of the information immediately, which
     # can take a long time to parse. 
-    filelist = file( options.files )
-    filesraw = filelist.readlines()
-    files = []
-    nevents = 0
-    for ifile in filesraw :
-        if len( ifile ) > 2 : 
-            #s = 'root://cmsxrootd-site.fnal.gov/' + ifile.rstrip()
-            if  not options.isCrabRun:
-                s =  'file:/pnfs/desy.de/cms/tier2/' + ifile.rstrip()
-            else:
-                s = 'root://xrootd-cms.infn.it/' + ifile.rstrip()
-            files.append( s )
-            print 'Added ' + s
 
+    files = []
+    with open(options.input, 'r') as fpInput:
+        for ifile in filesraw :
+            if len( ifile ) > 2 : 
+                #s = 'root://cmsxrootd-site.fnal.gov/' + ifile.rstrip()
+                if  not options.isCrabRun:
+                    s =  'file:/pnfs/desy.de/cms/tier2/' + ifile.rstrip()
+                else:
+                    s = 'root://xrootd-cms.infn.it/' + ifile.rstrip()
+                files.append( s )
+                print 'Added ' + s
 
     # loop over files
+    nevents = 0
     for ifile in files :
         print 'Processing file ' + ifile
         events = Events (ifile)
@@ -537,7 +477,7 @@ def b2gdas_fwlite(argv) :
             ## \    Y    /    |___|    |     / __ \|   |  \/ /_/ |   |     \   |  |  |_|  | \  ___/|  | \/\___ \ 
             ##  \___|_  /|_______ \____|    (____  /___|  /\____ |   \___  /   |__|____/__|  \___  >__|  /____  >
             ##        \/         \/              \/     \/      \/       \/                      \/           \/
-            if options.writeTree : 
+            if not options.disableTree : 
                 SemiLeptTrig.clear()
                 for i in xrange(len(trigsToRun)):
                     SemiLeptTrig.push_back(False)
@@ -665,7 +605,7 @@ def b2gdas_fwlite(argv) :
                 else:
                     print 'Event has no pileup information, setting TrueNumInteractions to 0.'
 
-                if not options.isData and options.purw :
+                if not options.isData and not options.disablePileup:
                     puWeight = purw.GetBinContent( purw.GetXaxis().FindBin( TrueNumInteractions ) )
                     evWeight *= puWeight
                         
@@ -1107,7 +1047,7 @@ def b2gdas_fwlite(argv) :
             ##  |     \   |  |  |_|  |__   |    |   |  | \/\  ___/\  ___/ 
             ##  \___  /   |__|____/____/   |____|   |__|    \___  >\___  >
             ##      \/                                          \/     \/ 
-            if options.writeTree :
+            if not options.disableTree :
                 candToPlot = 0
 
                 # Make sure there are top tags if we want to plot them               
@@ -1212,5 +1152,3 @@ def b2gdas_fwlite(argv) :
 
 if __name__ == "__main__" :
     b2gdas_fwlite(sys.argv)
-
-
