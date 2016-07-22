@@ -212,114 +212,76 @@ def b2gdas_fwlite():
     # Actually to make life easy, we're going to make "N-dimensional histograms" aka Ntuples
     if not options.disableTree:
         TreeSemiLept = ROOT.TTree("TreeSemiLept", "TreeSemiLept")
-        SemiLeptTrig        = ROOT.vector('bool')()
-        SemiLeptWeight      = array('f', [0.] )
-        PUWeight            = array('f', [0.] )
-        LEPIDWeight         = array('f', [0.] )
-        LEPIDWeightUnc      = array('f', [0.] )
-        MUONTRKWeight       = array('f', [0.] )
-        MUONTRKWeightUnc    = array('f', [0.] )
-        GenWeight           = array('f', [0.] )
-        FatJetPt            = array('f', [-1.])
-        FatJetEta           = array('f', [-1.])
-        FatJetPhi           = array('f', [-1.])
-        FatJetRap           = array('f', [-1.])
-        FatJetEnergy        = array('f', [-1.])
-        FatJetBDisc         = array('f', [-1.])
-        FatJetMass          = array('f', [-1.])
-        FatJetMassSoftDrop  = array('f', [-1.])
-        FatJetTau32         = array('f', [-1.])
-        FatJetTau21         = array('f', [-1.]) 
-        FatJetSDbdiscW      = array('f', [-1.])
-        FatJetSDbdiscB      = array('f', [-1.])
-        FatJetSDsubjetWpt   = array('f', [-1.])
-        FatJetSDsubjetWmass = array('f', [-1.])
-        FatJetSDsubjetBpt   = array('f', [-1.])
-        FatJetSDsubjetBmass = array('f', [-1.])
-        FatJetJECUpSys      = array('f', [-1.])
-        FatJetJECDnSys      = array('f', [-1.])
-        FatJetJERUpSys      = array('f', [-1.])
-        FatJetJERDnSys      = array('f', [-1.])
-        LeptonType          = array('i', [-1])
-        LeptonPt            = array('f', [-1.])
-        LeptonEta           = array('f', [-1.])
-        LeptonPhi           = array('f', [-1.])
-        LeptonEnergy        = array('f', [-1.])
-        LeptonIso           = array('f', [-1.])
-        LeptonPtRel         = array('f', [-1.])
-        LeptonDRMin         = array('f', [-1.])
-        SemiLepMETpt        = array('f', [-1.])
-        SemiLepMETphi       = array('f', [-1.])
-        SemiLepNvtx         = array('f', [-1.])
-        DeltaPhiLepFat      = array('f', [-1.]) 
-        AK4bDisc            = array('f', [-1.])
-        NearestAK4JetPt     = array('f', [-1.])
-        NearestAK4JetEta    = array('f', [-1.])
-        NearestAK4JetPhi    = array('f', [-1.])
-        NearestAK4JetMass   = array('f', [-1.])
-        NearestAK4JetJECUpSys = array('f', [-1.])
-        NearestAK4JetJECDnSys = array('f', [-1.])
-        NearestAK4JetJERUpSys = array('f', [-1.])
-        NearestAK4JetJERDnSys = array('f', [-1.])
-        SemiLeptRunNum        = array('f', [-1.])   
-        SemiLeptLumiBlock     = array('f', [-1.])   
-        SemiLeptEventNum      = array('f', [-1.])   
 
+        SemiLeptTrig = ROOT.vector('bool')()
+        TreeSemiLept.Branch('SemiLeptTrig', "std::vector<bool>",  SemiLeptTrig)
 
-        TreeSemiLept.Branch('SemiLeptTrig'        , "std::vector<bool>" ,  SemiLeptTrig            )
-        TreeSemiLept.Branch('SemiLeptWeight'      , SemiLeptWeight      ,  'SemiLeptWeight/F'      )
-        TreeSemiLept.Branch('PUWeight'            , PUWeight            ,  'PUWeight/F'            )
-        TreeSemiLept.Branch('LEPIDWeight'         , LEPIDWeight         ,  'LEPIDWeight/F'         )
-        TreeSemiLept.Branch('LEPIDWeightUnc'      , LEPIDWeightUnc      ,  'LEPIDWeightUnc/F'      )
-        TreeSemiLept.Branch('MUONTRKWeight'       , MUONTRKWeight       ,  'MUONTRKWeight/F'       )
-        TreeSemiLept.Branch('MUONTRKWeightUnc'    , MUONTRKWeightUnc    ,  'MUONTRKWeightUnc/F'    )
-        TreeSemiLept.Branch('GenWeight'           , GenWeight           ,  'GenWeight/F'           )    
-        TreeSemiLept.Branch('FatJetPt'            , FatJetPt            ,  'FatJetPt/F'            )
-        TreeSemiLept.Branch('FatJetEta'           , FatJetEta           ,  'FatJetEta/F'           )
-        TreeSemiLept.Branch('FatJetPhi'           , FatJetPhi           ,  'FatJetPhi/F'           )
-        TreeSemiLept.Branch('FatJetRap'           , FatJetRap           ,  'FatJetRap/F'           )
-        TreeSemiLept.Branch('FatJetEnergy'        , FatJetEnergy        ,  'FatJetEnergy/F'        )
-        TreeSemiLept.Branch('FatJetBDisc'         , FatJetBDisc         ,  'FatJetBDisc/F'         )
-        TreeSemiLept.Branch('FatJetMass'          , FatJetMass          ,  'FatJetMass/F'          ) 
-        TreeSemiLept.Branch('FatJetMassSoftDrop'  , FatJetMassSoftDrop  ,  'FatJetMassSoftDrop/F'  )
-        TreeSemiLept.Branch('FatJetTau32'         , FatJetTau32         ,  'FatJetTau32/F'         )
-        TreeSemiLept.Branch('FatJetTau21'         , FatJetTau21         ,  'FatJetTau21/F'         )
-        TreeSemiLept.Branch('FatJetSDbdiscW'      , FatJetSDbdiscW      ,  'FatJetSDbdiscW/F'      )
-        TreeSemiLept.Branch('FatJetSDbdiscB'      , FatJetSDbdiscB      ,  'FatJetSDbdiscB/F'      )        
-        TreeSemiLept.Branch('FatJetSDsubjetWpt'   , FatJetSDsubjetWpt   ,  'FatJetSDsubjetWpt/F'   )
-        TreeSemiLept.Branch('FatJetSDsubjetWmass' , FatJetSDsubjetWmass ,  'FatJetSDsubjetWmass/F' )
-        TreeSemiLept.Branch('FatJetSDsubjetBpt'   , FatJetSDsubjetBpt   ,  'FatJetSDsubjetBpt/F'   )
-        TreeSemiLept.Branch('FatJetSDsubjetBmass' , FatJetSDsubjetBmass ,  'FatJetSDsubjetBmass/F' )
-        TreeSemiLept.Branch('FatJetJECUpSys'      , FatJetJECUpSys      ,  'FatJetJECUpSys/F'      )
-        TreeSemiLept.Branch('FatJetJECDnSys'      , FatJetJECDnSys      ,  'FatJetJECDnSys/F'      )
-        TreeSemiLept.Branch('FatJetJERUpSys'      , FatJetJERUpSys      ,  'FatJetJERUpSys/F'      )
-        TreeSemiLept.Branch('FatJetJERDnSys'      , FatJetJERDnSys      ,  'FatJetJERDnSys/F'      )
-        TreeSemiLept.Branch('LeptonType'          , LeptonType          ,  'LeptonType/I'          )
-        TreeSemiLept.Branch('LeptonPt'            , LeptonPt            ,  'LeptonPt/F'            )
-        TreeSemiLept.Branch('LeptonEta'           , LeptonEta           ,  'LeptonEta/F'           )
-        TreeSemiLept.Branch('LeptonPhi'           , LeptonPhi           ,  'LeptonPhi/F'           )
-        TreeSemiLept.Branch('LeptonEnergy'        , LeptonEnergy        ,  'LeptonEnergy/F'        )
-        TreeSemiLept.Branch('LeptonIso'           , LeptonIso           ,  'LeptonIso/F'           )
-        TreeSemiLept.Branch('LeptonPtRel'         , LeptonPtRel         ,  'LeptonPtRel/F'         )
-        TreeSemiLept.Branch('LeptonDRMin'         , LeptonDRMin         ,  'LeptonDRMin/F'         )        
-        TreeSemiLept.Branch('SemiLepMETpt'        , SemiLepMETpt        ,  'SemiLepMETpt/F'        )
-        TreeSemiLept.Branch('SemiLepMETphi'       , SemiLepMETphi       ,  'SemiLepMETphi/F'       )
-        TreeSemiLept.Branch('SemiLepNvtx'         , SemiLepNvtx         ,  'SemiLepNvtx/F'         )
-        TreeSemiLept.Branch('DeltaPhiLepFat'      , DeltaPhiLepFat      ,  'DeltaPhiLepFat/F'      )
-        TreeSemiLept.Branch('AK4bDisc'            ,AK4bDisc             ,  'AK4bDisc/F'            )
-        TreeSemiLept.Branch('NearestAK4JetPt'     ,NearestAK4JetPt      ,  'NearestAK4JetPt/F'     )
-        TreeSemiLept.Branch('NearestAK4JetEta'    ,NearestAK4JetEta     ,  'NearestAK4JetEta/F'    )
-        TreeSemiLept.Branch('NearestAK4JetPhi'    ,NearestAK4JetPhi     ,  'NearestAK4JetPhi/F'    )
-        TreeSemiLept.Branch('NearestAK4JetMass'   ,NearestAK4JetMass    ,  'NearestAK4JetMass/F'   )
-        TreeSemiLept.Branch('NearestAK4JetJECUpSys'      , NearestAK4JetJECUpSys      ,  'NearestAK4JetJECUpSys/F'      )
-        TreeSemiLept.Branch('NearestAK4JetJECDnSys'      , NearestAK4JetJECDnSys      ,  'NearestAK4JetJECDnSys/F'      )
-        TreeSemiLept.Branch('NearestAK4JetJERUpSys'      , NearestAK4JetJERUpSys      ,  'NearestAK4JetJERUpSys/F'      )
-        TreeSemiLept.Branch('NearestAK4JetJERDnSys'      , NearestAK4JetJERDnSys      ,  'NearestAK4JetJERDnSys/F'      )
-        TreeSemiLept.Branch('SemiLeptRunNum'         ,  SemiLeptRunNum       ,  'SemiLeptRunNum/F'          )
-        TreeSemiLept.Branch('SemiLeptLumiBlock'      ,  SemiLeptLumiBlock    ,  'SemiLeptLumiBlock/F'       )
-        TreeSemiLept.Branch('SemiLeptEventNum'       ,  SemiLeptEventNum     ,  'SemiLeptEventNum/F'        )
+        def bookFloatBranch(name, default):
+            tmp = array('f', [default])
+            TreeSemiLept.Branch(name, tmp, '%s/F' % name)
+            return tmp
+        def bookIntBranch(name, default):
+            tmp = array('i', [default])
+            TreeSemiLept.Branch(name, tmp, '%s/I' % name)
+            return tmp
 
-    
+        # Event weights
+        GenWeight             = bookFloatBranch('GenWeight', 0.)
+        PUWeight              = bookFloatBranch('PUWeight', 0.)
+        MuonTrkWeight         = bookFloatBranch('MuonTrkWeight', 0.)
+        MuonTrkWeightUnc      = bookFloatBranch('MuonTrkWeightUnc', 0.)
+        # Fat jet properties
+        FatJetBDisc           = bookFloatBranch('FatJetBDisc', -1.)
+        FatJetDeltaPhiLep     = bookFloatBranch('FatJetDeltaPhiLep', -1.) 
+        FatJetEnergy          = bookFloatBranch('FatJetEnergy', -1.)
+        FatJetEta             = bookFloatBranch('FatJetEta', -1.)
+        FatJetJECDnSys        = bookFloatBranch('FatJetJECDnSys', -1.)
+        FatJetJECUpSys        = bookFloatBranch('FatJetJECUpSys', -1.)
+        FatJetJERDnSys        = bookFloatBranch('FatJetJERDnSys', -1.)
+        FatJetJERUpSys        = bookFloatBranch('FatJetJERUpSys', -1.)
+        FatJetMass            = bookFloatBranch('FatJetMass', -1.)
+        FatJetMassSoftDrop    = bookFloatBranch('FatJetMassSoftDrop', -1.)
+        FatJetPhi             = bookFloatBranch('FatJetPhi', -1.)
+        FatJetPt              = bookFloatBranch('FatJetPt', -1.)
+        FatJetRap             = bookFloatBranch('FatJetRap', -1.)
+        FatJetSDBDiscB        = bookFloatBranch('FatJetSDBDiscB', -1.)
+        FatJetSDBDiscW        = bookFloatBranch('FatJetSDBDiscW', -1.)
+        FatJetSDsubjetBmass   = bookFloatBranch('FatJetSDsubjetBmass', -1.)
+        FatJetSDsubjetBpt     = bookFloatBranch('FatJetSDsubjetBpt', -1.)
+        FatJetSDsubjetWmass   = bookFloatBranch('FatJetSDsubjetWmass', -1.)
+        FatJetSDsubjetWpt     = bookFloatBranch('FatJetSDsubjetWpt', -1.)
+        FatJetTau21           = bookFloatBranch('FatJetTau21', -1.)
+        FatJetTau32           = bookFloatBranch('FatJetTau32', -1.)
+        # Lepton properties
+        LeptonDRMin           = bookFloatBranch('LeptonDRMin', -1.)
+        LeptonEnergy          = bookFloatBranch('LeptonEnergy', -1.)
+        LeptonEta             = bookFloatBranch('LeptonEta', -1.)
+        LeptonIDWeight        = bookFloatBranch('LeptonIDWeight', 0.)
+        LeptonIDWeightUnc     = bookFloatBranch('LeptonIDWeightUnc', 0.)
+        LeptonIso             = bookFloatBranch('LeptonIso', -1.)
+        LeptonPhi             = bookFloatBranch('LeptonPhi', -1.)
+        LeptonPt              = bookFloatBranch('LeptonPt', -1.)
+        LeptonPtRel           = bookFloatBranch('LeptonPtRel', -1.)
+        LeptonType            = bookIntBranch('LeptonType', -1)
+        # Nearest AK4 Jet properties
+        NearestAK4JetBDisc    = bookFloatBranch('NearestAK4JetBDisc', -1.)
+        NearestAK4JetEta      = bookFloatBranch('NearestAK4JetEta', -1.)
+        NearestAK4JetJECDnSys = bookFloatBranch('NearestAK4JetJECDnSys', -1.)
+        NearestAK4JetJECUpSys = bookFloatBranch('NearestAK4JetJECUpSys', -1.)
+        NearestAK4JetJERDnSys = bookFloatBranch('NearestAK4JetJERDnSys', -1.)
+        NearestAK4JetJERUpSys = bookFloatBranch('NearestAK4JetJERUpSys', -1.)
+        NearestAK4JetMass     = bookFloatBranch('NearestAK4JetMass', -1.)
+        NearestAK4JetPhi      = bookFloatBranch('NearestAK4JetPhi', -1.)
+        NearestAK4JetPt       = bookFloatBranch('NearestAK4JetPt', -1.)
+        # Semi leptonic event properties
+        SemiLepMETphi         = bookFloatBranch('SemiLepMETphi', -1.)
+        SemiLepMETpt          = bookFloatBranch('SemiLepMETpt', -1.)
+        SemiLepNvtx           = bookIntBranch('SemiLepNvtx', -1)
+        SemiLeptWeight        = bookFloatBranch('SemiLeptWeight', 0.)
+        # Event information
+        SemiLeptEventNum      = bookIntBranch('SemiLeptEventNum', -1)
+        SemiLeptLumiNum       = bookIntBranch('SemiLeptLumiNum', -1)
+        SemiLeptRunNum        = bookIntBranch('SemiLeptRunNum', -1)
 
     # and also make a few 1-d histograms
     h_mttbar = ROOT.TH1F("h_mttbar", ";m_{t#bar{t}} (GeV)", 200, 0, 6000)
@@ -337,7 +299,7 @@ def b2gdas_fwlite():
     h_yAK4 = ROOT.TH1F("h_yAK4", "AK4 Jet Rapidity;y", 120, -6, 6)
     h_phiAK4 = ROOT.TH1F("h_phiAK4", "AK4 Jet #phi;#phi (radians)",100,-ROOT.Math.Pi(),ROOT.Math.Pi())
     h_mAK4 = ROOT.TH1F("h_mAK4", "AK4 Jet Mass;Mass (GeV)", 100, 0, 1000)
-    h_bdiscAK4 = ROOT.TH1F("h_bdiscAK4", "AK4 b discriminator;b discriminator", 100, 0, 1.0)
+    h_BDiscAK4 = ROOT.TH1F("h_BDiscAK4", "AK4 b discriminator;b discriminator", 100, 0, 1.0)
 
     h_ptAK8 = ROOT.TH1F("h_ptAK8", "AK8 Jet p_{T};p_{T} (GeV)", 300, 0, 3000)
     h_etaAK8 = ROOT.TH1F("h_etaAK8", "AK8 Jet #eta;#eta", 120, -6, 6)
@@ -919,7 +881,7 @@ def b2gdas_fwlite():
             h_etaAK4.Fill( theLepJet.Eta(), evWeight )
             h_yAK4.Fill( theLepJet.Rapidity(), evWeight )
             h_mAK4.Fill( theLepJet.M(), evWeight )
-            h_bdiscAK4.Fill( theLepJetBDisc, evWeight )
+            h_BDiscAK4.Fill( theLepJetBDisc, evWeight )
             # Fill some plots related to the lepton, the MET, and the 2-d cut
             ptRel = theLepJet.Perp( theLepton.Vect() )
             h_ptLep.Fill(theLepton.Perp(), evWeight)
@@ -1087,10 +1049,10 @@ def b2gdas_fwlite():
                 
                 SemiLeptWeight      [0] = evWeight
                 PUWeight            [0] = puWeight
-                LEPIDWeight         [0] = LepWeight
-                LEPIDWeightUnc      [0] = LepWeightUnc
-                MUONTRKWeight       [0] = MuonTrkWeight
-                MUONTRKWeightUnc    [0] = MuonTrkWeightUnc
+                LeptonIDWeight         [0] = LepWeight
+                LeptonIDWeightUnc      [0] = LepWeightUnc
+                MuonTrkWeight       [0] = MuonTrkWeight
+                MuonTrkWeightUnc    [0] = MuonTrkWeightUnc
                 GenWeight           [0] = genWeight
                 FatJetPt            [0] = ak8JetsGoodP4[candToPlot].Perp()
                 FatJetEta           [0] = ak8JetsGoodP4[candToPlot].Eta()
@@ -1106,9 +1068,10 @@ def b2gdas_fwlite():
                 FatJetJECDnSys      [0] = ak8JetsGoodSysts[candToPlot][1]
                 FatJetJERUpSys      [0] = ak8JetsGoodSysts[candToPlot][2]
                 FatJetJERDnSys      [0] = ak8JetsGoodSysts[candToPlot][3]
+                FatJetDeltaPhiLep      [0] = ak8JetsGoodP4[candToPlot].DeltaR(theLepton)
                 if subjetW != None : 
-                    FatJetSDbdiscW      [0] = subjetW.bDiscriminator(options.bdisc)
-                    FatJetSDbdiscB      [0] = subjetB.bDiscriminator(options.bdisc)
+                    FatJetSDBDiscW      [0] = subjetW.bDiscriminator(options.bdisc)
+                    FatJetSDBDiscB      [0] = subjetB.bDiscriminator(options.bdisc)
                     FatJetSDsubjetWpt   [0] = subjetW.pt()
                     FatJetSDsubjetWmass [0] = subjetW.mass()
                     FatJetSDsubjetBpt   [0] = subjetB.pt()
@@ -1123,8 +1086,7 @@ def b2gdas_fwlite():
                 SemiLepMETpt        [0] = met.pt()
                 SemiLepMETphi       [0] = met.phi()   
                 SemiLepNvtx         [0] = NPV
-                DeltaPhiLepFat      [0] = ak8JetsGoodP4[candToPlot].DeltaR(theLepton)
-                AK4bDisc            [0] = nearestJet.bDiscriminator(options.bdisc)
+                NearestAK4JetBDisc[0] = nearestJet.bDiscriminator(options.bdisc)
                 NearestAK4JetPt     [0] = nearestJetP4.Perp()
                 NearestAK4JetEta    [0] = nearestJetP4.Eta()
                 NearestAK4JetPhi    [0] = nearestJetP4.Phi()
@@ -1134,10 +1096,10 @@ def b2gdas_fwlite():
                 NearestAK4JetJERUpSys      [0] = ak4JetsGoodSysts[candToPlot][2]
                 NearestAK4JetJERDnSys      [0] = ak4JetsGoodSysts[candToPlot][3]
                 SemiLeptRunNum      [0] = event.object().id().run()
-                SemiLeptLumiBlock   [0] = event.object().luminosityBlock()
+                SemiLeptLumiNum   [0] = event.object().luminosityBlock()
                 SemiLeptEventNum    [0] = event.object().id().event()
 
-                TreeSemiLept.Fill()                        
+                TreeSemiLept.Fill()
 
     ## _________ .__                                     
     ## \_   ___ \|  |   ____ _____    ____  __ ________  
