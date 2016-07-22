@@ -1057,16 +1057,17 @@ def b2gdas_fwlite():
     # Main event loop
 
     nevents = 0
+    maxevents = int(options.maxevents)
     for ifile in getInputFiles(options):
         print 'Processing file ' + ifile
         events = Events (ifile)
-        if options.maxevents > 0 and nevents > options.maxevents:
+        if maxevents > 0 and nevents > maxevents:
             break
 
         # loop over events in this file
         for iev, event in enumerate(events):
 
-            if options.maxevents > 0 and nevents > options.maxevents:
+            if maxevents > 0 and nevents > maxevents:
                 break
             nevents += 1
 
