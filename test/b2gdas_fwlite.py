@@ -370,7 +370,7 @@ def b2gdas_fwlite():
         electonSFFile = ROOT.TFile('egammaEffi.txt_SF2D.root', 'READ')
         ele_SFs = electonSFFile.Get('EGamma_SF2D')
 
-        muonSFFile = ROOT.TFile('MuonID_Z_2016runB_2p6fb.root', 'READ')
+        muonSFFile = ROOT.TFile('MuonID_Z_RunBCD_prompt80X_7p65.root', 'READ')
         muon_SFs = muonSFFile.Get('MC_NUM_TightIDandIPCut_DEN_genTracks_PAR_pt_spliteta_bin1/pt_abseta_ratio')
 
         muonTrkSFFile = ROOT.TFile('general_tracks_and_early_general_tracks_corr_ratio.root', 'READ')
@@ -612,15 +612,15 @@ def b2gdas_fwlite():
                 eta = abs(goodmuons[0].eta())
                 # ID scale factors
                 overflow = False
-                if pt >=120:
-                    pt=119.9
+                if pt >=200:
+                    pt=199.9
                     overflow =True
                 LepWeight = muon_SFs.GetBinContent( muon_SFs.GetXaxis().FindBin( pt ), muon_SFs.GetYaxis().FindBin( eta ) )
                 LepWeightUnc =  muon_SFs.GetBinError( muon_SFs.GetXaxis().FindBin( pt ), muon_SFs.GetYaxis().FindBin( eta ) )
-                if overflow:
-                    LepWeightUnc *=2
-                # add additional 1% systematic uncertainty
-                LepWeightUnc = (LepWeightUnc**2 + (0.01*LepWeight)**2)**0.5
+                #if overflow:
+                #    LepWeightUnc *=2
+                # add additional 1% systematic uncertainty for ID +0.5% for HIP effect
+                LepWeightUnc = (LepWeightUnc**2 + (0.01*LepWeight)**2 + (0.005*LepWeight)**2)**0.5
                 evWeight *= LepWeight
 
                 # tracker efficiency sccale factors
