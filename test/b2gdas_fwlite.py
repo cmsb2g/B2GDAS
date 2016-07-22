@@ -1,17 +1,66 @@
 #! /usr/bin/env python
 
+import ROOT, copy, sys, logging
+from array import array
+from optparse import OptionParser
+from DataFormats.FWLite import Events, Handle
 # Use the VID framework for the electron ID. Tight ID without the PF isolation cut. 
 from RecoEgamma.ElectronIdentification.VIDElectronSelector import VIDElectronSelector
 from RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_25ns_V1_cff import cutBasedElectronID_Spring15_25ns_V1_standalone_tight
 from RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_nonTrig_V1_cff import mvaEleID_Spring15_25ns_nonTrig_V1_wp80
-##   ___ ___         .__                        ___________                   __  .__                      
-##  /   |   \   ____ |  | ______   ___________  \_   _____/_ __  ____   _____/  |_|__| ____   ____   ______
-## /    ~    \_/ __ \|  | \____ \_/ __ \_  __ \  |    __)|  |  \/    \_/ ___\   __\  |/  _ \ /    \ /  ___/
-## \    Y    /\  ___/|  |_|  |_> >  ___/|  | \/  |     \ |  |  /   |  \  \___|  | |  (  <_> )   |  \\___ \ 
-##  \___|_  /  \___  >____/   __/ \___  >__|     \___  / |____/|___|  /\___  >__| |__|\____/|___|  /____  >
-##        \/       \/     |__|        \/             \/             \/     \/                    \/     \/ 
 
-def getJER(jetEta, sysType) :
+############################################
+# Jet Energy Corrections / Resolution tools
+
+jet_energy_resolution = [ # Values from https://twiki.cern.ch/twiki/bin/view/CMS/JetResolution
+    (0.0, 0.8, 1.061, 0.023),
+    (0.8, 1.3, 1.088, 0.029),
+    (1.3, 1.9, 1.106, 0.030),
+    (1.9, 2.5, 1.126, 0.094),
+    (2.5, 3.0, 1.343, 0.123),
+    (3.0, 3.2, 1.303, 0.111),
+    (3.2, 5.0, 1.320, 0.286),
+]
+
+
+def createJEC(jecSrc, jecLevelList, jetAlgo):
+    log = logging.getLogger('JEC')
+    log.info('Getting jet energy corrections for %s jets', jetAlgo)
+    jecParameterList = ROOT.vector('JetCorrectorParameters')()
+    # Load the different JEC levels (the order matters!)
+    for jecLevel in jecLevelList:
+        log.debug('  - %s jet corrections', jecLevel)
+        jecParameter = ROOT.JetCorrectorParameters('%s_%s_%s.txt' % (jecSrc, jecLevel, jetAlgo));
+        jecParameterList.push_back(jecParameter)
+    # Chain the JEC levels together
+    return ROOT.FactorizedJetCorrector(jecParameterList)
+
+
+def getJEC(jecSrc, uncSrc, jet, area, rho, nPV): # get JEC and uncertainty for an *uncorrected* jet
+    # Give jet properties to JEC source
+    jecSrc.setJetEta(jet.Eta())
+    jecSrc.setJetPt(jet.Perp())
+    jecSrc.setJetE(jet.E())
+    jecSrc.setJetA(area)
+    jecSrc.setRho(rho)
+    jecSrc.setNPV(nPV)
+    jec = jecSrc.getCorrection() # get jet energy correction
+
+    # Give jet properties to JEC uncertainty source
+    uncSrc.setJetPhi(jet.Phi())
+    uncSrc.setJetEta(jet.Eta())
+    uncSrc.setJetPt(jet.Perp() * jec)
+    corrDn = 1. - uncSrc.getUncertainty(0) # get jet energy uncertainty (down)
+
+    uncSrc.setJetPhi(jet.Phi())
+    uncSrc.setJetEta(jet.Eta())
+    uncSrc.setJetPt(jet.Perp() * jec)
+    corrUp = 1. + uncSrc.getUncertainty(1) # get jet energy uncertainty (up)
+
+    return (jec, corrDn, corrUp)
+
+
+def getJER(jetEta, sysType):
     """
     Here, jetEta should be the jet pseudorapidity, and sysType is :
         nominal : 0
@@ -19,37 +68,18 @@ def getJER(jetEta, sysType) :
         up      : +1
     """
 
-    jerSF = 1.0
+    if sysType not in [0, -1, 1]:
+        raise Exception('ERROR: Unable to get JER! use type=0 (nom), -1 (down), +1 (up)')
 
-    if ( (sysType==0 or sysType==-1 or sysType==1) == False):
-        print "ERROR: Can't get JER! use type=0 (nom), -1 (down), +1 (up)"
-        return float(jerSF)
-
-    # Values from https://twiki.cern.ch/twiki/bin/view/CMS/JetResolution
-    etamin = [0.0,0.8,1.3,1.9,2.5,3.0,3.2]
-    etamax = [0.8,1.3,1.9,2.5,3.0,3.2,5.0]
-    scale_nom =    [1.061,1.088,1.106,1.126,1.343,1.303,1.320]
-    scale_uncert = [0.023,0.029,0.030,0.094,0.123,0.111,0.286]
- 
-    # old 8 TeV
-    # etamin = [0.0,0.5,1.1,1.7,2.3,2.8,3.2]
-    # etamax = [0.5,1.1,1.7,2.3,2.8,3.2,5.0]
-    # scale_nom = [1.079,1.099,1.121,1.208,1.254,1.395,1.056]
-    # scale_dn  = [1.053,1.071,1.092,1.162,1.192,1.332,0.865]
-    # scale_up  = [1.105,1.127,1.150,1.254,1.316,1.458,1.247]
-
-    for iSF in range(0,len(scale_nom)) :
-        if abs(jetEta) >= etamin[iSF] and abs(jetEta) < etamax[iSF] :
+    for (etamin, etamax, scale_nom, scale_uncert) in jet_energy_resolution:
+        if etamin <= abs(jetEta) < etamax:
             if sysType < 0 :
-                jerSF = scale_nom[iSF] - scale_uncert[iSF]
+                return scale_nom - scale_uncert
             elif sysType > 0 :
-                jerSF = scale_nom[iSF] + scale_uncert[iSF]
-            else :
-                jerSF = scale_nom[iSF]
-            break
-
-    return float(jerSF)
-
+                return scale_nom + scale_uncert
+            else:
+                return scale_nom
+    raise Exception('ERROR: Unable to get JER for jets at eta = %.3f!' % jetEta)
 
 
 ## _________                _____.__                            __  .__               
@@ -391,97 +421,17 @@ def b2gdas_fwlite(argv) :
     ## \________|\___  >__|    \______  /\____/|__|   |__|    \___  >\___  >__| |__|\____/|___|  /____  >
     ##               \/               \/                          \/     \/                    \/     \/ 
     ROOT.gSystem.Load('libCondFormatsJetMETObjects')
+    if options.isData:
+        jecAK4 = createJEC('JECs/Spring16_25nsV6_DATA', ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'], 'AK4PFchs')
+        jecAK8 = createJEC('JECs/Spring16_25nsV6_DATA', ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'], 'AK8PFchs')
+        jecUncAK4 = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/Spring16_25nsV6_DATA_Uncertainty_AK4PFchs.txt'))
+        jecUncAK8 = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/Spring16_25nsV6_DATA_Uncertainty_AK8PFchs.txt'))
 
-
-    if options.isData :
-        print 'Getting L2L3 for AK4'
-        L2L3JetParAK4  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV6_DATA_L2L3Residual_AK4PFchs.txt");
-        print 'Getting L3 for AK4'
-        L3JetParAK4  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV6_DATA_L3Absolute_AK4PFchs.txt");
-        print 'Getting L2 for AK4'
-        L2JetParAK4  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV6_DATA_L2Relative_AK4PFchs.txt");
-        print 'Getting L1 for AK4'
-        L1JetParAK4  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV6_DATA_L1FastJet_AK4PFchs.txt");
-        # for data only :
-        #ResJetParAK4 = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV6_DATA_L2L3Residual_AK4PFchs.txt");
-
-        print 'Getting L2L3 for AK8'
-        L2L3JetParAK8  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV6_DATA_L2L3Residual_AK8PFchs.txt");    
-        print 'Getting L3 for AK8'
-        L3JetParAK8  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV6_DATA_L3Absolute_AK8PFchs.txt");
-        print 'Getting L2 for AK8'
-        L2JetParAK8  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV6_DATA_L2Relative_AK8PFchs.txt");
-        print 'Getting L1 for AK8'
-        L1JetParAK8  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV6_DATA_L1FastJet_AK8PFchs.txt");
-        # for data only :
-        #ResJetParAK8 = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV6_DATA_L2L3Residual_AK8PFchs.txt");
-        #  Load the JetCorrectorParameter objects into a vector, IMPORTANT: THE ORDER MATTERS HERE !!!! 
-        vParJecAK4 = ROOT.vector('JetCorrectorParameters')()
-        vParJecAK4.push_back(L1JetParAK4)
-        vParJecAK4.push_back(L2JetParAK4)
-        vParJecAK4.push_back(L3JetParAK4)
-        vParJecAK4.push_back(L2L3JetParAK4)
-
-        ak4JetCorrector = ROOT.FactorizedJetCorrector(vParJecAK4)
-
-        vParJecAK8 = ROOT.vector('JetCorrectorParameters')()
-        vParJecAK8.push_back(L1JetParAK8)
-        vParJecAK8.push_back(L2JetParAK8)
-        vParJecAK8.push_back(L3JetParAK8)
-        vParJecAK8.push_back(L2L3JetParAK8)
-
-        ak8JetCorrector = ROOT.FactorizedJetCorrector(vParJecAK8)
-
-
-        jecParUncStrAK4 = ROOT.std.string('JECs/Spring16_25nsV6_DATA_Uncertainty_AK4PFchs.txt')
-        jecUncAK4 = ROOT.JetCorrectionUncertainty( jecParUncStrAK4 )
-        jecParUncStrAK8 = ROOT.std.string('JECs/Spring16_25nsV6_DATA_Uncertainty_AK8PFchs.txt')
-        jecUncAK8 = ROOT.JetCorrectionUncertainty( jecParUncStrAK8 )    
-
-        
-    else :
-        print 'Getting L3 for AK4'
-        L3JetParAK4  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV6_MC_L3Absolute_AK4PFchs.txt");
-        print 'Getting L2 for AK4'
-        L2JetParAK4  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV6_MC_L2Relative_AK4PFchs.txt");
-        print 'Getting L1 for AK4'
-        L1JetParAK4  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV6_MC_L1FastJet_AK4PFchs.txt");
-        # for data only :
-        #ResJetParAK4 = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV6_MC_L2L3Residual_AK4PFchs.txt");
-
-        print 'Getting L3 for AK8'
-        L3JetParAK8  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV6_MC_L3Absolute_AK8PFchs.txt");
-        print 'Getting L2 for AK8'
-        L2JetParAK8  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV6_MC_L2Relative_AK8PFchs.txt");
-        print 'Getting L1 for AK8'
-        L1JetParAK8  = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV6_MC_L1FastJet_AK8PFchs.txt");
-        # for data only :
-        #ResJetParAK8 = ROOT.JetCorrectorParameters("JECs/Spring16_25nsV6_MC_L2L3Residual_AK8PFchs.txt"); 
-
-        #  Load the JetCorrectorParameter objects into a vector, IMPORTANT: THE ORDER MATTERS HERE !!!! 
-        vParJecAK4 = ROOT.vector('JetCorrectorParameters')()
-        vParJecAK4.push_back(L1JetParAK4)
-        vParJecAK4.push_back(L2JetParAK4)
-        vParJecAK4.push_back(L3JetParAK4)
-        # for data only :
-        #vParJecAK4.push_back(ResJetPar)
-
-        ak4JetCorrector = ROOT.FactorizedJetCorrector(vParJecAK4)
-
-        vParJecAK8 = ROOT.vector('JetCorrectorParameters')()
-        vParJecAK8.push_back(L1JetParAK8)
-        vParJecAK8.push_back(L2JetParAK8)
-        vParJecAK8.push_back(L3JetParAK8)
-        # for data only :
-        #vParJecAK8.push_back(ResJetPar)
-
-        ak8JetCorrector = ROOT.FactorizedJetCorrector(vParJecAK8)
-
-        jecParUncStrAK4 = ROOT.std.string('JECs/Spring16_25nsV6_MC_Uncertainty_AK4PFchs.txt')
-        jecUncAK4 = ROOT.JetCorrectionUncertainty( jecParUncStrAK4 )
-        jecParUncStrAK8 = ROOT.std.string('JECs/Spring16_25nsV6_MC_Uncertainty_AK8PFchs.txt')
-        jecUncAK8 = ROOT.JetCorrectionUncertainty( jecParUncStrAK8 )    
-
+    else:
+        jecAK4 = createJEC('JECs/Spring16_25nsV6_MC', ['L1FastJet', 'L2Relative', 'L3Absolute'], 'AK4PFchs')
+        jecAK8 = createJEC('JECs/Spring16_25nsV6_MC', ['L1FastJet', 'L2Relative', 'L3Absolute'], 'AK8PFchs')
+        jecUncAK4 = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/Spring16_25nsV6_MC_Uncertainty_AK4PFchs.txt'))
+        jecUncAK8 = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/Spring16_25nsV6_MC_Uncertainty_AK8PFchs.txt'))
 
     selectElectron = VIDElectronSelector(mvaEleID_Spring15_25ns_nonTrig_V1_wp80)
     selectElectron._VIDSelectorBase__instance.ignoreCut('GsfEleEffAreaPFIsoCut_0')
@@ -960,28 +910,10 @@ def b2gdas_fwlite(argv) :
                             break
 
 
+                def getJEC(jecSrc, uncSrc, jet, rho, nPV): # get JEC and uncertainty for an *uncorrected* jet
 
                 # Apply new JEC's
-                ak4JetCorrector.setJetEta( jetP4Raw.Eta() )
-                ak4JetCorrector.setJetPt ( jetP4Raw.Perp() )
-                ak4JetCorrector.setJetE  ( jetP4Raw.E() )
-                ak4JetCorrector.setJetA  ( jet.jetArea() )
-                ak4JetCorrector.setRho   ( rho )
-                ak4JetCorrector.setNPV   ( NPV )            
-                newJEC = ak4JetCorrector.getCorrection()
-                
-
-                # Get uncertainties
-                jecUncAK4.setJetPhi(  jetP4Raw.Phi()  )
-                jecUncAK4.setJetEta(  jetP4Raw.Eta()  )
-                jecUncAK4.setJetPt(   jetP4Raw.Perp() * newJEC    )
-                corrDn = 1. - jecUncAK4.getUncertainty(0)
-                jecUncAK4.setJetPhi(  jetP4Raw.Phi()  )
-                jecUncAK4.setJetEta(  jetP4Raw.Eta()  )
-                jecUncAK4.setJetPt(   jetP4Raw.Perp() * newJEC    )
-                corrUp = 1. + jecUncAK4.getUncertainty(1)
-
-
+                (newJEC, corrDn, corrUp) = getJEC(jecAK4, jecUncAK4, jetP4Raw, jet.jetArea(), rho, NPV)
 
                 # If MC, get jet energy resolution
                 ptsmear   = 1.0
@@ -1090,27 +1022,7 @@ def b2gdas_fwlite(argv) :
                 if not goodJet :
                     continue
 
-
-                # Apply new JEC's
-                ak8JetCorrector.setJetEta( jetP4Raw.Eta() )
-                ak8JetCorrector.setJetPt ( jetP4Raw.Perp() )
-                ak8JetCorrector.setJetE  ( jetP4Raw.E() )
-                ak8JetCorrector.setJetA  ( jet.jetArea() )
-                ak8JetCorrector.setRho   ( rho )
-                ak8JetCorrector.setNPV   ( NPV )            
-                newJEC = ak8JetCorrector.getCorrection()
-
-                # Get uncertainties
-                jecUncAK8.setJetPhi(  jetP4Raw.Phi()  )
-                jecUncAK8.setJetEta(  jetP4Raw.Eta()  )
-                jecUncAK8.setJetPt(   jetP4Raw.Perp() * newJEC   )
-                corrDn = 1. - jecUncAK8.getUncertainty(0)
-                jecUncAK8.setJetPhi(  jetP4Raw.Phi()  )
-                jecUncAK8.setJetEta(  jetP4Raw.Eta()  )
-                jecUncAK8.setJetPt(   jetP4Raw.Perp() * newJEC   )
-                corrUp = 1. + jecUncAK8.getUncertainty(1)
-
-
+                (newJEC, corrDn, corrUp) = getJEC(jecAK8, jecUncAK8, jetP4Raw, jet.jetArea(), rho, NPV)
 
                 # If MC, get jet energy resolution
                 ptsmear   = 1.0
