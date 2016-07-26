@@ -83,7 +83,7 @@ def getJER(jetEta, sysType):
 ############################################
 # Command line parsing
 
-def getUserOptions():
+def getUserOptions(argv):
     from optparse import OptionParser
     parser = OptionParser()
 
@@ -134,7 +134,8 @@ def getUserOptions():
     add_option('maxAK8Rapidity',     default=2.4,   type='float',
         help='Maximum AK8 rapidity')
 
-    (options, args) = parser.parse_args()
+    (options, args) = parser.parse_args(argv)
+    argv = []
 
     print '===== Command line options ====='
     print options
@@ -158,7 +159,7 @@ def getInputFiles(options):
     return result
 
 
-def b2gdas_fwlite():
+def b2gdas_fwlite(argv):
     ## _____________      __.____    .__  __             _________ __          _____  _____ 
     ## \_   _____/  \    /  \    |   |__|/  |_  ____    /   _____//  |_ __ ___/ ____\/ ____\
     ##  |    __) \   \/\/   /    |   |  \   __\/ __ \   \_____  \\   __\  |  \   __\\   __\ 
@@ -166,7 +167,7 @@ def b2gdas_fwlite():
     ##  \___  /    \__/\  / |_______ \__||__|  \___  > /_______  /|__| |____/ |__|   |__|   
     ##      \/          \/          \/             \/          \/                           
 
-    options = getUserOptions()
+    options = getUserOptions(argv)
     ROOT.gROOT.Macro("rootlogon.C")
 
     muons, muonLabel = Handle("std::vector<pat::Muon>"), "slimmedMuons"
@@ -224,6 +225,10 @@ def b2gdas_fwlite():
             tmp = array('i', [default])
             TreeSemiLept.Branch(name, tmp, '%s/I' % name)
             return tmp
+        def bookLongIntBranch(name, default):
+            tmp = array('l', [default])
+            TreeSemiLept.Branch(name, tmp, '%s/L' % name)
+            return tmp
 
         # Event weights
         GenWeight             = bookFloatBranch('GenWeight', 0.)
@@ -279,7 +284,7 @@ def b2gdas_fwlite():
         SemiLepNvtx           = bookIntBranch('SemiLepNvtx', -1)
         SemiLeptWeight        = bookFloatBranch('SemiLeptWeight', 0.)
         # Event information
-        SemiLeptEventNum      = bookIntBranch('SemiLeptEventNum', -1)
+        SemiLeptEventNum      = bookLongIntBranch('SemiLeptEventNum', -1)
         SemiLeptLumiNum       = bookIntBranch('SemiLeptLumiNum', -1)
         SemiLeptRunNum        = bookIntBranch('SemiLeptRunNum', -1)
 
@@ -781,9 +786,14 @@ def b2gdas_fwlite():
                 # ---------------------------------------
                 # JER
                 # ---------------------------------------
-                smear     = getJER( jetP4Raw.Eta(),  0) 
-                smearUp   = getJER( jetP4Raw.Eta(),  1) 
-                smearDn   = getJER( jetP4Raw.Eta(), -1) 
+                eta = jetP4Raw.Eta()
+                if eta>=5.0:
+                    eta=4.999
+                if eta<=-5.0:
+                    eta=-4.999
+                smear     = getJER( eta,  0) 
+                smearUp   = getJER( eta,  1) 
+                smearDn   = getJER( eta, -1) 
                 recopt    = jetP4Raw.Perp() * newJEC
                 if jet.genJet() != None:
                     genpt     = jet.genJet().pt()
@@ -889,9 +899,14 @@ def b2gdas_fwlite():
                 # ---------------------------------------
                 # JER
                 # ---------------------------------------
-                smear     = getJER( jetP4Raw.Eta(),  0) 
-                smearUp   = getJER( jetP4Raw.Eta(),  1) 
-                smearDn   = getJER( jetP4Raw.Eta(), -1) 
+                eta = jetP4Raw.Eta()
+                if eta>=5.0:
+                    eta=4.999
+                if eta<=-5.0:
+                    eta=-4.999
+                smear     = getJER( eta,  0) 
+                smearUp   = getJER( eta,  1) 
+                smearDn   = getJER( eta, -1) 
                 recopt    = jetP4Raw.Perp() * newJEC
                 if jet.genJet() != None:
                     genpt     = jet.genJet().pt()
@@ -1085,4 +1100,4 @@ def b2gdas_fwlite():
 
 
 if __name__ == "__main__":
-    b2gdas_fwlite()
+    b2gdas_fwlite(sys.argv)

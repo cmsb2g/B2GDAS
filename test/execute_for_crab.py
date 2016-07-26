@@ -8,7 +8,7 @@ for ifile in PSet.process.source.fileNames :
 
 outfile.close()
 
-sys.argv.append('--files')
+sys.argv.append('--input')
 sys.argv.append('filesToProcess.txt')
 sys.argv.append('--isCrabRun')
 sys.argv.append('--trigProc')
