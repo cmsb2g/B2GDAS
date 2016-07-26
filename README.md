@@ -25,4 +25,4 @@ To run :
 
 `voms-proxy-init`
 
-`python b2gdas_fwlite.py --files=inputfiles/rsgluon_ttbar_3TeV.txt --outname=rsgluon_ttbar_3TeV.root`
+`python b2gdas_fwlite.py --input=inputfiles/rsgluon_ttbar_2TeV.txt --output=rsgluon_ttbar_2TeV.root --maxevents 10000 --trigProc=HLT2`
