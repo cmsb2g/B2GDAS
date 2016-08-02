@@ -23,10 +23,10 @@ def plot_mttbar(argv) :
                       dest='file_out',
                       help='Output file')
     
-    parser.add_option('--isData', action='store_true',
-                      dest='isData',
-                      default = False,
-                      help='Is this Data?')
+    #parser.add_option('--isData', action='store_true',
+    #                  dest='isData',
+    #                  default = False,
+    #                  help='Is this Data?')
         
     (options, args) = parser.parse_args(argv)
     argv = []
@@ -52,8 +52,8 @@ def plot_mttbar(argv) :
     
     for itree,t in enumerate(trees) :
 
-        if options.isData : 
-            SemiLeptTrig        = array.array('i', [0]  )
+        #if options.isData : 
+        SemiLeptTrig        =  ROOT.vector('int')()
         SemiLeptWeight      = array.array('f', [0.] )
         PUWeight            = array.array('f', [0.] )
         GenWeight           = array.array('f', [0.] )
@@ -103,9 +103,8 @@ def plot_mttbar(argv) :
         SemiLeptEventNum      = array.array('f', [-1.])   
 
 
-
-        if options.isData : 
-            t.SetBranchAddress('SemiLeptTrig'        , SemiLeptTrig        )
+        #if options.isData : 
+        t.SetBranchAddress('SemiLeptTrig'        , SemiLeptTrig )
         t.SetBranchAddress('SemiLeptWeight'      , SemiLeptWeight      ) #Combined weight of all scale factors (lepton, PU, generator) relevant for the smeileptonic event selection
         t.SetBranchAddress('PUWeight'            , PUWeight            )
         t.SetBranchAddress('GenWeight'           , GenWeight               )
@@ -186,7 +185,6 @@ def plot_mttbar(argv) :
         entries = t.GetEntriesFast()
         print 'Processing tree ' + str(itree)
 
-
         eventsToRun = entries
         for jentry in xrange( eventsToRun ):
             if jentry % 100000 == 0 :
@@ -200,9 +198,10 @@ def plot_mttbar(argv) :
             if LeptonType[0] != 13 :
                 continue
 
-            # Muon triggers only for now
-            if options.isData and SemiLeptTrig[0] != 3  :
+            # Muon triggers only for now (use HLT_Mu45_eta2p1 with index 1)
+            if SemiLeptTrig[1] != 1  :
                 continue
+
 
             hadTopCandP4 = ROOT.TLorentzVector()
             hadTopCandP4.SetPtEtaPhiM( FatJetPt[0], FatJetEta[0], FatJetPhi[0], FatJetMass[0])

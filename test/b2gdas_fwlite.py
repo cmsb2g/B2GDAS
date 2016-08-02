@@ -214,8 +214,8 @@ def b2gdas_fwlite(argv):
     if not options.disableTree:
         TreeSemiLept = ROOT.TTree("TreeSemiLept", "TreeSemiLept")
 
-        SemiLeptTrig = ROOT.vector('bool')()
-        TreeSemiLept.Branch('SemiLeptTrig', "std::vector<bool>",  SemiLeptTrig)
+        SemiLeptTrig = ROOT.vector('int')()
+        TreeSemiLept.Branch('SemiLeptTrig', "std::vector<int>",  SemiLeptTrig)
 
         def bookFloatBranch(name, default):
             tmp = array('f', [default])
