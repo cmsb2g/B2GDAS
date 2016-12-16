@@ -11,11 +11,11 @@ To run :
 
 `setenv SCRAM_ARCH slc6_amd64_gcc530` *if using TCSH*
 
-`cmsrel CMSSW_8_0_11`
+`cmsrel CMSSW_8_0_20`
 
-`cd CMSSW_8_0_11/src`
+`cd CMSSW_8_0_20/src`
 
-`git clone https://github.com/cmsb2g/B2GDAS.git Analysis/B2GDAS`
+`git clone https://github.com/jmhogan/B2GDAS.git Analysis/B2GDAS`
 
 `cd Analysis/B2GDAS`
 
