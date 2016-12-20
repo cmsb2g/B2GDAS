@@ -3,24 +3,38 @@
 import ROOT, copy, sys, logging
 from array import array
 from DataFormats.FWLite import Events, Handle
-# Use the VID framework for the electron ID. Tight ID without the PF isolation cut. 
+# Use the VID framework for the electron ID. Tight ID without the PF isolation cut.
 from RecoEgamma.ElectronIdentification.VIDElectronSelector import VIDElectronSelector
-from RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_25ns_V1_cff import cutBasedElectronID_Spring15_25ns_V1_standalone_tight
+from RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff import cutBasedElectronID_Summer16_80X_V1_tight
+from RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_GeneralPurpose_V1_cff import mvaEleID_Spring16_GeneralPurpose_V1_wp80
+#from RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_25ns_V1_cff import cutBasedElectronID_Spring15_25ns_V1_standalone_tight
 from RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_nonTrig_V1_cff import mvaEleID_Spring15_25ns_nonTrig_V1_wp80
 
 ############################################
 # Jet Energy Corrections / Resolution tools
 
-jet_energy_resolution = [ # Values from https://twiki.cern.ch/twiki/bin/view/CMS/JetResolution
-    (0.0, 0.8, 1.061, 0.023),
-    (0.8, 1.3, 1.088, 0.029),
-    (1.3, 1.9, 1.106, 0.030),
-    (1.9, 2.5, 1.126, 0.094),
-    (2.5, 3.0, 1.343, 0.123),
-    (3.0, 3.2, 1.303, 0.111),
-    (3.2, 5.0, 1.320, 0.286),
+jet_energy_corrections = [ # Values from https://twiki.cern.ch/twiki/bin/view/CMS/JECDataMC
+    [1,276811,"Spring16_25nsV10BCD_DATA"],
+    [276831,277420,"Spring16_25nsV10E_DATA"],
+    [277772,278801,"Spring16_25nsV10F_DATA"],
+    [278802,float("inf"),"Spring16_25nsV10p2_DATA"]
 ]
 
+jet_energy_resolution = [ # Values from https://twiki.cern.ch/twiki/bin/view/CMS/JetResolution
+    (0.0, 0.5, 1.122, 0.026),
+    (0.5, 0.8, 1.167, 0.048),
+    (0.8, 1.1, 1.168, 0.046),
+    (1.1, 1.3, 1.029, 0.066),
+    (1.3, 1.7, 1.115, 0.030),
+    (1.7, 1.9, 1.041, 0.062),
+    (1.9, 2.1, 1.167, 0.086),
+    (2.1, 2.3, 1.094, 0.093),
+    (2.3, 2.5, 1.168, 0.120),
+    (2.5, 2.8, 1.266, 0.132),
+    (2.8, 3.0, 1.595, 0.175),
+    (3.0, 3.2, 0.998, 0.066),
+    (3.2, 4.7, 1.226, 0.145),
+]
 
 def createJEC(jecSrc, jecLevelList, jetAlgo):
     log = logging.getLogger('JEC')
@@ -79,6 +93,39 @@ def getJER(jetEta, sysType):
             else:
                 return scale_nom
     raise Exception('ERROR: Unable to get JER for jets at eta = %.3f!' % jetEta)
+
+class DataJEC:
+    JECList = []
+    def __init__(self,inputmap):
+        for minrun,maxrun,version in inputmap:
+            JECMap = {}
+            JECMap['jecAK4'] = createJEC('JECs/'+version, ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'], 'AK4PFchs')
+            JECMap['jecAK8'] = createJEC('JECs/'+version, ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'], 'AK8PFchs')
+            JECMap['jecUncAK4'] = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/'+version+'_Uncertainty_AK4PFchs.txt'))
+            JECMap['jecUncAK8'] = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/'+version+'_Uncertainty_AK8PFchs.txt'))
+            self.JECList.append([minrun, maxrun, JECMap])
+
+    def GetJECMap(self, run):
+        for minrun,maxrun,returnmap in self.JECList:
+            if run >= minrun and run <= maxrun:
+                return returnmap
+        raise Exception("Error! Run "+str(run)+" not found in run ranges")
+
+    def jecAK4(self, run):
+        JECMap = self.GetJECMap(run)
+        return JECMap["jecAK4"]
+
+    def jecAK8(self, run):
+        JECMap = self.GetJECMap(run)
+        return JECMap["jecAK8"]
+
+    def jecUncAK4(self, run):
+        JECMap = self.GetJECMap(run)
+        return JECMap["jecUncAK4"]
+
+    def jecUncAK8(self, run):
+        JECMap = self.GetJECMap(run)
+        return JECMap["jecUncAK8"]
 
 ############################################
 # Command line parsing
@@ -150,7 +197,8 @@ def getInputFiles(options):
             lfn = lfn.strip()
             if lfn:
                 if not options.isCrabRun:
-                    pfn = 'file:/pnfs/desy.de/cms/tier2/' + lfn
+                    #pfn = 'file:/pnfs/desy.de/cms/tier2/' + lfn
+                    pfn = 'root://cmsxrootd-site.fnal.gov/' + lfn
                 else:
                     #pfn = 'root://cmsxrootd-site.fnal.gov/' + lfn
                     pfn = 'root://xrootd-cms.infn.it/' + lfn
@@ -330,20 +378,17 @@ def b2gdas_fwlite(argv):
     ##               \/               \/                          \/     \/                    \/     \/ 
     ROOT.gSystem.Load('libCondFormatsJetMETObjects')
     if options.isData:
-        jecAK4 = createJEC('JECs/Spring16_25nsV6_DATA', ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'], 'AK4PFchs')
-        jecAK8 = createJEC('JECs/Spring16_25nsV6_DATA', ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'], 'AK8PFchs')
-        jecUncAK4 = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/Spring16_25nsV6_DATA_Uncertainty_AK4PFchs.txt'))
-        jecUncAK8 = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/Spring16_25nsV6_DATA_Uncertainty_AK8PFchs.txt'))
-
+        DataJECs = DataJEC(jet_energy_corrections)
     else:
-        jecAK4 = createJEC('JECs/Spring16_25nsV6_MC', ['L1FastJet', 'L2Relative', 'L3Absolute'], 'AK4PFchs')
-        jecAK8 = createJEC('JECs/Spring16_25nsV6_MC', ['L1FastJet', 'L2Relative', 'L3Absolute'], 'AK8PFchs')
-        jecUncAK4 = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/Spring16_25nsV6_MC_Uncertainty_AK4PFchs.txt'))
-        jecUncAK8 = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/Spring16_25nsV6_MC_Uncertainty_AK8PFchs.txt'))
+        jecAK4 = createJEC('JECs/Spring16_25nsV10_MC', ['L1FastJet', 'L2Relative', 'L3Absolute'], 'AK4PFchs')
+        jecAK8 = createJEC('JECs/Spring16_25nsV10_MC', ['L1FastJet', 'L2Relative', 'L3Absolute'], 'AK8PFchs')
+        jecUncAK4 = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/Spring16_25nsV10_MC_Uncertainty_AK4PFchs.txt'))
+        jecUncAK8 = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/Spring16_25nsV10_MC_Uncertainty_AK8PFchs.txt'))
 
+
+    #selectElectron = VIDElectronSelector(mvaEleID_Spring16_GeneralPurpose_V1_wp80)
     selectElectron = VIDElectronSelector(mvaEleID_Spring15_25ns_nonTrig_V1_wp80)
-    selectElectron._VIDSelectorBase__instance.ignoreCut('GsfEleEffAreaPFIsoCut_0')
-
+    #selectElectronvidelectron._VIDSelectorBase__instance.ignoreCut('GsfEleEffAreaPFIsoCut_0')
 
     ## __________.__.__                        __________                     .__       .__     __  .__                
     ## \______   \__|  |   ____  __ ________   \______   \ ______  _  __ ____ |__| ____ |  |___/  |_|__| ____    ____  
@@ -418,6 +463,7 @@ def b2gdas_fwlite(argv):
         # Perform trigger selection
         event.getByLabel(triggerBitLabel, triggerBits)
         event.getByLabel(metfiltBitLabel, metfiltBits)
+        runnumber = event.eventAuxiliary().run()
 
         if options.verbose:
             print "\nProcessing %d: run %6d, lumi %4d, event %12d" % (iev,event.eventAuxiliary().run(), event.eventAuxiliary().luminosityBlock(),event.eventAuxiliary().event())
@@ -776,7 +822,10 @@ def b2gdas_fwlite(argv):
                         break
 
             # Apply new JEC's
-            (newJEC, corrDn, corrUp) = getJEC(jecAK4, jecUncAK4, jetP4Raw, jet.jetArea(), rho, NPV)
+            if options.isData:
+                (newJEC, corrDn, corrUp) = getJEC(DataJECs.jecAK4(runnumber), DataJECs.jecUncAK4(runnumber), jetP4Raw, jet.jetArea(), rho, NPV)
+            else:
+                (newJEC, corrDn, corrUp) = getJEC(jecAK4, jecUncAK4, jetP4Raw, jet.jetArea(), rho, NPV)
 
             # If MC, get jet energy resolution
             ptsmear   = 1.0
@@ -845,6 +894,7 @@ def b2gdas_fwlite(argv):
         h_ptAK4.Fill( theLepJet.Perp(), evWeight )
         h_etaAK4.Fill( theLepJet.Eta(), evWeight )
         h_yAK4.Fill( theLepJet.Rapidity(), evWeight )
+        h_phiAK4.Fill( theLepJet.Phi(), evWeight )
         h_mAK4.Fill( theLepJet.M(), evWeight )
         h_BDiscAK4.Fill( theLepJetBDisc, evWeight )
         # Fill some plots related to the lepton, the MET, and the 2-d cut
@@ -889,7 +939,10 @@ def b2gdas_fwlite(argv):
             if not goodJet:
                 return
 
-            (newJEC, corrDn, corrUp) = getJEC(jecAK8, jecUncAK8, jetP4Raw, jet.jetArea(), rho, NPV)
+            if options.isData:
+                (newJEC, corrDn, corrUp) = getJEC(DataJECs.jecAK8(runnumber), DataJECs.jecUncAK8(runnumber), jetP4Raw, jet.jetArea(), rho, NPV)
+            else:
+                (newJEC, corrDn, corrUp) = getJEC(jecAK8, jecUncAK8, jetP4Raw, jet.jetArea(), rho, NPV)
 
             # If MC, get jet energy resolution
             ptsmear   = 1.0
@@ -946,6 +999,7 @@ def b2gdas_fwlite(argv):
 
 
         tJets = []
+
         for ijet,jet in enumerate(ak8JetsGood):
             if jet.pt() < options.minAK8Pt:
                 continue
@@ -959,6 +1013,7 @@ def b2gdas_fwlite(argv):
             h_ptAK8.Fill( jet.pt(), evWeight )
             h_etaAK8.Fill( jet.eta(), evWeight )
             h_yAK8.Fill( jet.rapidity(), evWeight )
+            h_phiAK8.Fill( jet.phi(), evWeight )
             h_mAK8.Fill( jet.mass(), evWeight )
             h_msoftdropAK8.Fill( mAK8Softdrop, evWeight )
             h_mprunedAK8.Fill( mAK8Pruned, evWeight )
