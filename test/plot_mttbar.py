@@ -23,10 +23,10 @@ def plot_mttbar(argv) :
                       dest='file_out',
                       help='Output file')
     
-    parser.add_option('--isData', action='store_true',
-                      dest='isData',
-                      default = False,
-                      help='Is this Data?')
+    #parser.add_option('--isData', action='store_true',
+    #                  dest='isData',
+    #                  default = False,
+    #                  help='Is this Data?')
         
     (options, args) = parser.parse_args(argv)
     argv = []
@@ -52,8 +52,8 @@ def plot_mttbar(argv) :
     
     for itree,t in enumerate(trees) :
 
-        if options.isData : 
-            SemiLeptTrig        = array.array('i', [0]  )
+        #if options.isData : 
+        SemiLeptTrig        =  ROOT.vector('int')()
         SemiLeptWeight      = array.array('f', [0.] )
         PUWeight            = array.array('f', [0.] )
         GenWeight           = array.array('f', [0.] )
@@ -67,8 +67,8 @@ def plot_mttbar(argv) :
         FatJetMassSoftDrop  = array.array('f', [-1.])
         FatJetTau32         = array.array('f', [-1.])
         FatJetTau21         = array.array('f', [-1.]) 
-        FatJetSDbdiscW      = array.array('f', [-1.])
-        FatJetSDbdiscB      = array.array('f', [-1.])
+        FatJetSDBDiscW      = array.array('f', [-1.])
+        FatJetSDBDiscB      = array.array('f', [-1.])
         FatJetSDsubjetWpt   = array.array('f', [-1.])
         FatJetSDsubjetWmass = array.array('f', [-1.])
         FatJetSDsubjetBpt   = array.array('f', [-1.])
@@ -88,8 +88,8 @@ def plot_mttbar(argv) :
         SemiLepMETpt        = array.array('f', [-1.])
         SemiLepMETphi       = array.array('f', [-1.])
         SemiLepNvtx         = array.array('f', [-1.])
-        DeltaPhiLepFat      = array.array('f', [-1.]) 
-        AK4bDisc            = array.array('f', [-1.])
+        FatJetDeltaPhiLep      = array.array('f', [-1.]) 
+        NearestAK4JetBDisc            = array.array('f', [-1.])
         NearestAK4JetPt     = array.array('f', [-1.])
         NearestAK4JetEta    = array.array('f', [-1.])
         NearestAK4JetPhi    = array.array('f', [-1.])
@@ -99,14 +99,13 @@ def plot_mttbar(argv) :
         NearestAK4JetJERUpSys = array.array('f', [-1.])
         NearestAK4JetJERDnSys = array.array('f', [-1.])
         SemiLeptRunNum        = array.array('f', [-1.])   
-        SemiLeptLumiBlock     = array.array('f', [-1.])   
+        SemiLeptLumiNum     = array.array('f', [-1.])   
         SemiLeptEventNum      = array.array('f', [-1.])   
 
 
-
-        if options.isData : 
-            t.SetBranchAddress('SemiLeptTrig'        , SemiLeptTrig        )
-        t.SetBranchAddress('SemiLeptWeight'      , SemiLeptWeight      )
+        #if options.isData : 
+        t.SetBranchAddress('SemiLeptTrig'        , SemiLeptTrig )
+        t.SetBranchAddress('SemiLeptWeight'      , SemiLeptWeight      ) #Combined weight of all scale factors (lepton, PU, generator) relevant for the smeileptonic event selection
         t.SetBranchAddress('PUWeight'            , PUWeight            )
         t.SetBranchAddress('GenWeight'           , GenWeight               )
         t.SetBranchAddress('FatJetPt'            , FatJetPt            )
@@ -119,8 +118,8 @@ def plot_mttbar(argv) :
         t.SetBranchAddress('FatJetMassSoftDrop'  , FatJetMassSoftDrop  )
         t.SetBranchAddress('FatJetTau32'         , FatJetTau32         )
         t.SetBranchAddress('FatJetTau21'         , FatJetTau21         )
-        t.SetBranchAddress('FatJetSDbdiscW'      , FatJetSDbdiscW      )
-        t.SetBranchAddress('FatJetSDbdiscB'      , FatJetSDbdiscB              )
+        t.SetBranchAddress('FatJetSDBDiscW'      , FatJetSDBDiscW      )
+        t.SetBranchAddress('FatJetSDBDiscB'      , FatJetSDBDiscB              )
         t.SetBranchAddress('FatJetSDsubjetWpt'   , FatJetSDsubjetWpt   )
         t.SetBranchAddress('FatJetSDsubjetWmass' , FatJetSDsubjetWmass )
         t.SetBranchAddress('FatJetSDsubjetBpt'   , FatJetSDsubjetBpt   )
@@ -140,8 +139,8 @@ def plot_mttbar(argv) :
         t.SetBranchAddress('SemiLepMETpt'        , SemiLepMETpt        )
         t.SetBranchAddress('SemiLepMETphi'       , SemiLepMETphi       )
         t.SetBranchAddress('SemiLepNvtx'         , SemiLepNvtx         )
-        t.SetBranchAddress('DeltaPhiLepFat'      , DeltaPhiLepFat      )
-        t.SetBranchAddress('AK4bDisc'            ,AK4bDisc             )
+        t.SetBranchAddress('FatJetDeltaPhiLep'      , FatJetDeltaPhiLep      )
+        t.SetBranchAddress('NearestAK4JetBDisc'            ,NearestAK4JetBDisc             )
         t.SetBranchAddress('NearestAK4JetPt'     ,NearestAK4JetPt      )
         t.SetBranchAddress('NearestAK4JetEta'    ,NearestAK4JetEta     )
         t.SetBranchAddress('NearestAK4JetPhi'    ,NearestAK4JetPhi     )
@@ -151,12 +150,14 @@ def plot_mttbar(argv) :
         t.SetBranchAddress('NearestAK4JetJERUpSys'      , NearestAK4JetJERUpSys)
         t.SetBranchAddress('NearestAK4JetJERDnSys'      , NearestAK4JetJERDnSys)
         t.SetBranchAddress('SemiLeptRunNum'         ,  SemiLeptRunNum       )
-        t.SetBranchAddress('SemiLeptLumiBlock'      ,  SemiLeptLumiBlock    )
+        t.SetBranchAddress('SemiLeptLumiNum'      ,  SemiLeptLumiNum    )
         t.SetBranchAddress('SemiLeptEventNum'       ,  SemiLeptEventNum     )
 
 
         t.SetBranchStatus ('*', 0)
+        t.SetBranchStatus ('SemiLeptWeight', 1)
         t.SetBranchStatus ('PUWeight', 1)
+        t.SetBranchStatus ('GenWeight', 1)
         t.SetBranchStatus ('FatJetPt', 1)
         t.SetBranchStatus ('FatJetEta', 1)
         t.SetBranchStatus ('FatJetPhi', 1)
@@ -164,7 +165,7 @@ def plot_mttbar(argv) :
         t.SetBranchStatus ('FatJetMassSoftDrop', 1)
         t.SetBranchStatus ('FatJetTau32', 1)
         t.SetBranchStatus ('SemiLeptTrig', 1)
-        t.SetBranchStatus ('AK4bDisc', 1)
+        t.SetBranchStatus ('NearestAK4JetBDisc', 1)
         t.SetBranchStatus ('NearestAK4JetPt'   ,1 )
         t.SetBranchStatus ('NearestAK4JetEta'  ,1 )
         t.SetBranchStatus ('NearestAK4JetPhi'  ,1 )
@@ -184,7 +185,6 @@ def plot_mttbar(argv) :
         entries = t.GetEntriesFast()
         print 'Processing tree ' + str(itree)
 
-
         eventsToRun = entries
         for jentry in xrange( eventsToRun ):
             if jentry % 100000 == 0 :
@@ -198,9 +198,10 @@ def plot_mttbar(argv) :
             if LeptonType[0] != 13 :
                 continue
 
-            # Muon triggers only for now
-            if options.isData and SemiLeptTrig[0] != 3  :
+            # Muon triggers only for now (use HLT_Mu45_eta2p1 with index 1)
+            if SemiLeptTrig[1] != 1  :
                 continue
+
 
             hadTopCandP4 = ROOT.TLorentzVector()
             hadTopCandP4.SetPtEtaPhiM( FatJetPt[0], FatJetEta[0], FatJetPhi[0], FatJetMass[0])
@@ -214,7 +215,7 @@ def plot_mttbar(argv) :
             
             tau32 = FatJetTau32[0]
             mass_sd = FatJetMassSoftDrop[0]
-            bdisc = AK4bDisc[0]
+            bdisc = NearestAK4JetBDisc[0]
 
             passKin = hadTopCandP4.Perp() > 400.
             passTopTag = tau32 < 0.6 and mass_sd > 110. and mass_sd < 250.
@@ -250,9 +251,10 @@ def plot_mttbar(argv) :
 
             ttbarCand = hadTopCandP4 + lepTopCandP4
             mttbar = ttbarCand.M()
-            h_mttbar.Fill( mttbar, PUWeight[0] )
-            h_mtopHadGroomed.Fill( mass_sd, PUWeight[0] )
-            h_mtopHad.Fill( hadTopCandP4.M(), PUWeight[0] )
+
+            h_mttbar.Fill( mttbar, SemiLeptWeight[0] )
+            h_mtopHadGroomed.Fill( mass_sd, SemiLeptWeight[0] )
+            h_mtopHad.Fill( hadTopCandP4.M(), SemiLeptWeight[0] )
             
 
     fout.cd()

@@ -55,6 +55,7 @@ def makepu_fwlite(argv) :
     ROOT.gROOT.Macro("rootlogon.C")
 
     vertices, vertexLabel = Handle("std::vector<reco::Vertex>"), "offlineSlimmedPrimaryVertices"
+    pileups, pileuplabel = Handle("std::vector<PileupSummaryInfo>"), "slimmedAddPileupInfo"
     
     ##   ___ ___ .__          __                                             
     ##  /   |   \|__| _______/  |_  ____   ________________    _____   ______
@@ -85,7 +86,7 @@ def makepu_fwlite(argv) :
     nevents = 0
     for ifile in filesraw :
         if len( ifile ) > 2 : 
-            s = 'root://cmsxrootd-site.fnal.gov/' + ifile.rstrip()
+            s = 'root://xrootd-cms.infn.it/' + ifile.rstrip()
             files.append( s )
             print 'Added ' + s
 
@@ -133,7 +134,16 @@ def makepu_fwlite(argv) :
                 PV = vertices.product()[0]
                 if options.verbose : 
                     print "PV at x,y,z = %+5.3f, %+5.3f, %+6.3f (ndof %.1f)" % (PV.x(), PV.y(), PV.z(), PV.ndof())
-            pileup.Fill( NPV )
+
+            event.getByLabel(pileuplabel, pileups)
+
+            TrueNumInteractions = 0
+            if len(pileups.product())>0 :
+                TrueNumInteractions = pileups.product()[0].getTrueNumInteractions()
+            else:
+                print 'Event has no pileup information, setting TrueNumInteractions to 0.'
+
+            pileup.Fill( TrueNumInteractions )
 
     ## _________ .__                                     
     ## \_   ___ \|  |   ____ _____    ____  __ ________  

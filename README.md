@@ -7,10 +7,13 @@ Beyond Two Generations Physics Analysis Group (B2G PAG)
 
 To run :
 
+`export SCRAM_ARCH=slc6_amd64_gcc530` *if using BASH*
 
-`cmsrel CMSSW_7_4_4`
+`setenv SCRAM_ARCH slc6_amd64_gcc530` *if using TCSH*
 
-`cd CMSSW_7_4_4/src`
+`cmsrel CMSSW_8_0_20`
+
+`cd CMSSW_8_0_20/src`
 
 `git clone https://github.com/cmsb2g/B2GDAS.git Analysis/B2GDAS`
 
@@ -22,4 +25,4 @@ To run :
 
 `voms-proxy-init`
 
-`python b2gdas_fwlite.py --files=rsgluon_ttbar_3TeV.txt --outname=rsgluon_ttbar_3TeV.root`
+`python b2gdas_fwlite.py --input=inputfiles/rsgluon_ttbar_2TeV.txt --output=rsgluon_ttbar_2TeV.root --maxevents 10000 --trigProc=HLT2`
