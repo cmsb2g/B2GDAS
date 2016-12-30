@@ -67,7 +67,7 @@ def makepu_fwlite(argv) :
     f = ROOT.TFile(options.outname, "RECREATE")
     f.cd()
     # and also make a few 1-d histograms
-    pileup = ROOT.TH1F("pileup", "Pileup", 50, 0, 50)
+    pileup = ROOT.TH1F("pileup", "Pileup", 100, 0, 100)
         
     ## ___________                    __    .____                         
     ## \_   _____/__  __ ____   _____/  |_  |    |    ____   ____ ______  
@@ -86,7 +86,8 @@ def makepu_fwlite(argv) :
     nevents = 0
     for ifile in filesraw :
         if len( ifile ) > 2 : 
-            s = 'root://xrootd-cms.infn.it/' + ifile.rstrip()
+            #s = 'root://xrootd-cms.infn.it/' + ifile.rstrip()
+            s = 'root://eoscms.cern.ch/' + ifile.rstrip()  #we know ttbar is at CERN
             files.append( s )
             print 'Added ' + s
 
