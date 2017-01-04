@@ -174,7 +174,7 @@ def getUserOptions(argv):
         help='Minimum PT for AK4 jets')
     add_option('maxAK4Rapidity',     default=2.4,   type='float',
         help='Maximum AK4 rapidity')
-    add_option('minAK8Pt',           default=400.,  type='float',
+    add_option('minAK8Pt',           default=170.,  type='float',
         help='Minimum PT for AK8 jets')
     add_option('maxAK8Rapidity',     default=2.4,   type='float',
         help='Maximum AK8 rapidity')
