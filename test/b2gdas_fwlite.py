@@ -160,11 +160,11 @@ def getUserOptions(argv):
 
     add_option('bdisc',              default='pfCombinedInclusiveSecondaryVertexV2BJetTags',
         help='Name of b jet discriminator')
-    add_option('bdiscMin',           default=0.679, type='float',
+    add_option('bdiscMin',           default=0.5426, type='float',
         help='Minimum b discriminator')
     add_option('minMuonPt',          default=45.,   type='float',
         help='Minimum PT for muons')
-    add_option('maxMuonEta',         default=2.1,   type='float',
+    add_option('maxMuonEta',         default=2.4,   type='float',
         help='Maximum muon pseudorapidity')
     add_option('minElectronPt',      default=45.,   type='float',
         help='Minimum PT for electrons')
