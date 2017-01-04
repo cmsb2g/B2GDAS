@@ -236,13 +236,8 @@ def b2gdas_fwlite(argv):
 
 
     trigsToRun = [
-        "HLT_IsoMu22_",
-        "HLT_Mu45_eta2p1",
-        "HLT_Mu50_",
-        "HLT_Mu40_eta2p1_PFJet200_PFJet50",
-        "HLT_Ele35_WPLoose_Gsf",
-        "HLT_Ele45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50",
-        "HLT_Ele105_CaloIdVT_GsfTrkIdT",
+        "HLT_Mu50",
+        "HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet165",
         "HLT_Ele115_CaloIdVT_GsfTrkIdT"
         ]
     
