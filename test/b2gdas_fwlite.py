@@ -12,10 +12,10 @@ from RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25n
 # Jet Energy Corrections / Resolution tools
 
 jet_energy_corrections = [ # Values from https://twiki.cern.ch/twiki/bin/view/CMS/JECDataMC
-    [1,276811,"Spring16_25nsV10BCD_DATA"],
-    [276831,277420,"Spring16_25nsV10E_DATA"],
-    [277772,278801,"Spring16_25nsV10F_DATA"],
-    [278802,float("inf"),"Spring16_25nsV10p2_DATA"]
+    [1,276811,"Spring16_23Sep2016BCDV2_DATA"],
+    [276831,278801,"Spring16_23Sep2016EFV2_DATA"],
+    [278802,280385,"Spring16_23Sep2016GV2_DATA"],
+    [280386,float("inf"),"Spring16_23Sep2016HV2_DATA"]
 ]
 
 jet_energy_resolution = [ # Values from https://twiki.cern.ch/twiki/bin/view/CMS/JetResolution
@@ -378,10 +378,10 @@ def b2gdas_fwlite(argv):
     if options.isData:
         DataJECs = DataJEC(jet_energy_corrections)
     else:
-        jecAK4 = createJEC('JECs/Spring16_25nsV10_MC', ['L1FastJet', 'L2Relative', 'L3Absolute'], 'AK4PFchs')
-        jecAK8 = createJEC('JECs/Spring16_25nsV10_MC', ['L1FastJet', 'L2Relative', 'L3Absolute'], 'AK8PFchs')
-        jecUncAK4 = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/Spring16_25nsV10_MC_Uncertainty_AK4PFchs.txt'))
-        jecUncAK8 = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/Spring16_25nsV10_MC_Uncertainty_AK8PFchs.txt'))
+        jecAK4 = createJEC('JECs/Spring16_23Sep2016V2_MC', ['L1FastJet', 'L2Relative', 'L3Absolute'], 'AK4PFchs')
+        jecAK8 = createJEC('JECs/Spring16_23Sep2016V2_MC', ['L1FastJet', 'L2Relative', 'L3Absolute'], 'AK8PFchs')
+        jecUncAK4 = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/Spring16_23Sep2016V2_MC_Uncertainty_AK4PFchs.txt'))
+        jecUncAK8 = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/Spring16_23Sep2016V2_MC_Uncertainty_AK8PFchs.txt'))
 
 
     selectElectron = VIDElectronSelector(mvaEleID_Spring15_25ns_nonTrig_V1_wp80)
