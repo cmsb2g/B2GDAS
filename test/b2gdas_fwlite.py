@@ -240,7 +240,8 @@ def b2gdas_fwlite(argv):
         # Triggers for the Spring16 Samples running with the wrong HLT
         'HLT_Ele35_CaloIdVT_GsfTrkIdT_PFJet150_PFJet50',
         'HLT_Ele45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50',
-        'HLT_Ele105_CaloIdVT_GsfTrkIdT'
+        'HLT_Ele105_CaloIdVT_GsfTrkIdT',
+        'digitisation_step',
         ]
     
     ##   ___ ___ .__          __                                             
