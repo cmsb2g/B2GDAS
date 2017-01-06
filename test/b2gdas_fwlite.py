@@ -19,19 +19,19 @@ jet_energy_corrections = [ # Values from https://twiki.cern.ch/twiki/bin/view/CM
 ]
 
 jet_energy_resolution = [ # Values from https://twiki.cern.ch/twiki/bin/view/CMS/JetResolution
-    (0.0, 0.5, 1.122, 0.026),
-    (0.5, 0.8, 1.167, 0.048),
-    (0.8, 1.1, 1.168, 0.046),
-    (1.1, 1.3, 1.029, 0.066),
-    (1.3, 1.7, 1.115, 0.030),
-    (1.7, 1.9, 1.041, 0.062),
-    (1.9, 2.1, 1.167, 0.086),
-    (2.1, 2.3, 1.094, 0.093),
-    (2.3, 2.5, 1.168, 0.120),
-    (2.5, 2.8, 1.266, 0.132),
-    (2.8, 3.0, 1.595, 0.175),
-    (3.0, 3.2, 0.998, 0.066),
-    (3.2, 4.7, 1.226, 0.145),
+    (0.0, 0.5, 1.109, 0.008),
+    (0.5, 0.8, 1.138, 0.013),
+    (0.8, 1.1, 1.114, 0.013),
+    (1.1, 1.3, 1.123, 0.024),
+    (1.3, 1.7, 1.084, 0.011),
+    (1.7, 1.9, 1.082, 0.035),
+    (1.9, 2.1, 1.140, 0.047),
+    (2.1, 2.3, 1.067, 0.053),
+    (2.3, 2.5, 1.177, 0.041),
+    (2.5, 2.8, 1.364, 0.039),
+    (2.8, 3.0, 1.857, 0.071),
+    (3.0, 3.2, 1.328, 0.022),
+    (3.2, 5.0, 1.160, 0.029),
 ]
 
 def createJEC(jecSrc, jecLevelList, jetAlgo):
@@ -233,12 +233,14 @@ def b2gdas_fwlite(argv):
     triggerBits, triggerBitLabel = Handle("edm::TriggerResults"), ("TriggerResults","", options.trigProc)
     metfiltBits, metfiltBitLabel = Handle("edm::TriggerResults"), ("TriggerResults","", options.trigProcMETFilters)
 
-
-
     trigsToRun = [
         "HLT_Mu50",
         "HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet165",
-        "HLT_Ele115_CaloIdVT_GsfTrkIdT"
+        "HLT_Ele115_CaloIdVT_GsfTrkIdT",
+        # Triggers for the Spring16 Samples running with the wrong HLT
+        'HLT_Ele35_CaloIdVT_GsfTrkIdT_PFJet150_PFJet50',
+        'HLT_Ele45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50',
+        'HLT_Ele105_CaloIdVT_GsfTrkIdT'
         ]
     
     ##   ___ ___ .__          __                                             
