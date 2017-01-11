@@ -34,16 +34,14 @@ def plot_mttbar(argv) :
 
 
     parser.add_option('--enable_top_tagging', type='bool', action='store_true',
-                     dest='enable_top_tagging', default=True,
+                     dest='enable_top_tagging', default=False,
                      help='Whether a cut is made based on top tagging')
 
-
-    
     parser.add_option('--isData', action='store_true',
                       dest='isData',
                       default = False,
                       help='Is this Data?')
-    
+
 
     (options, args) = parser.parse_args(argv)
     argv = []
