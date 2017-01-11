@@ -34,16 +34,14 @@ def plot_mttbar(argv) :
 
 
     parser.add_option('--enable_top_tagging', type='bool', action='store_true',
-                     dest='enable_top_tagging', default=True,
+                     dest='enable_top_tagging', default=False,
                      help='Whether a cut is made based on top tagging')
 
-
-    
     parser.add_option('--isData', action='store_true',
                       dest='isData',
                       default = False,
                       help='Is this Data?')
-    
+
 
     (options, args) = parser.parse_args(argv)
     argv = []
@@ -70,6 +68,7 @@ def plot_mttbar(argv) :
     from leptonic_nu_z_component import solve_nu_tmass, solve_nu
 
     fout= ROOT.TFile(options.file_out, "RECREATE")
+
     h_mttbar = ROOT.TH1F("mttbar"+options.origin"_"+leptonname"_"+sortofdata, ";m_{t#bar{t}} (GeV);Number", 100, 0, 5000)
     h_mtopHad = ROOT.TH1F("mtopHad"+options.origin"_"+leptonname"_"+sortofdata, ";m_{jet} (GeV);Number", 100, 0, 400)
     h_mtopHadGroomed = ROOT.TH1F("mtopHadGroomed"+options.origin"_"+leptonname"_"+sortofdata, ";Groomed m_{jet} (GeV);Number", 100, 0, 400)
@@ -77,6 +76,7 @@ def plot_mttbar(argv) :
     h_mfatjet = ROOT.TH1F("fatjetmass"+options.origin"_"+leptonname"_"+sortofdata, ";m (GeV);Number", 100, 0, 5000)
     h_fatjetphi = ROOT.TH1F("fatjetphi"+options.origin"_"+leptonname"_"+sortofdata, ";phi (GeV);Number", 100, 0, 5000)
     h_leppt = ROOT.TH1F("leppt"+options.origin"_"+leptonname"_"+sortofdata, ";pt (GeV);Number", 100, 0, 5000) 
+
     fin = ROOT.TFile.Open(options.file_in)
 
 
@@ -230,16 +230,17 @@ def plot_mttbar(argv) :
                 break
 
 
-
-            if options.is_bkg> 
-            # Muons only for now
-            if LeptonType[0] != 13 :
+            if options.is_electron and LeptonType[0] != 11:
+                continue
+            elif not options.is_electron and LeptonType[0] !=13:
                 continue
 
-            # Muon triggers only for now (use HLT_Mu45_eta2p1 with index 1)
-            if SemiLeptTrig[0] != 1  :
-                continue
-
+            if not options.is_bkg and options.is_electron:
+                if SemiLeptTrig[1] != 1 and SemiLeptTrig[2] != 1 :
+                    continue
+            elif not options.is_bkg and not options.is_electron:
+                if SemiLeptTrig[0] != 1  :
+                    continue
 
             hadTopCandP4 = ROOT.TLorentzVector()
             hadTopCandP4.SetPtEtaPhiM( FatJetPt[0], FatJetEta[0], FatJetPhi[0], FatJetMass[0])
@@ -298,7 +299,7 @@ def plot_mttbar(argv) :
             h_mtopHadGroomed.Fill( mass_sd, SemiLeptWeight[0] )
             h_mtopHad.Fill( hadTopCandP4.M(), SemiLeptWeight[0] )
 
-            h_fatjetpt.Fill(FatJetPt[0], SemiLeptWeight[0]) 
+            h_fatjetpt.Fill(FatJetPt[0], SemiLeptWeight[0])
             h_mfatjet.Fill(FatJetMass[0], SemiLeptWeight[0])
             h_fatjetphi.Fill(FatJetPhi[0], SemiLeptWeight[0])
             h_leppt.Fill(LeptonPt[0], SemiLeptWeight[0])
@@ -311,4 +312,3 @@ def plot_mttbar(argv) :
 
 if __name__ == "__main__" :
     plot_mttbar(sys.argv)
-
