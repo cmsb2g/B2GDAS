@@ -52,19 +52,34 @@ def plot_mttbar(argv) :
 
     import ROOT
 
+    if options.is_electron:
+        leptonname = E
+    
+    if not option.is_electron:
+        leptonname = M
+
+    if options.is_bkg:
+        sortofdata = bkg
+
+    if not options.is_bkg:
+        sortofdata = signal
+
+    
     from leptonic_nu_z_component import solve_nu_tmass, solve_nu
 
     fout= ROOT.TFile(options.file_out, "RECREATE")
-    h_mttbar = ROOT.TH1F("mttbar", ";m_{t#bar{t}} (GeV);Number", 100, 0, 5000)
-    h_mtopHad = ROOT.TH1F("mtopHad", ";m_{jet} (GeV);Number", 100, 0, 400)
-    h_mtopHadGroomed = ROOT.TH1F("mtopHadGroomed", ";Groomed m_{jet} (GeV);Number", 100, 0, 400)
-    h_fatjetpt = ROOT.TH1F("fatjetpt", ";pt (GeV);Number", 500, 0, 5000)
-    h_mfatjet = ROOT.TH1F("fatjetmass", ";m (GeV);Number", 100, 0, 5000)
-    h_fatjetphi = ROOT.TH1F("fatjetphi", ";phi (GeV);Number", 100, 0, 5000)
-    h_leppt = ROOT.TH1F("leppt", ";pt (GeV);Number", 100, 0, 5000)
+
+    h_mttbar = ROOT.TH1F("mttbar"+options.origin"_"+leptonname"_"+sortofdata, ";m_{t#bar{t}} (GeV);Number", 100, 0, 5000)
+    h_mtopHad = ROOT.TH1F("mtopHad"+options.origin"_"+leptonname"_"+sortofdata, ";m_{jet} (GeV);Number", 100, 0, 400)
+    h_mtopHadGroomed = ROOT.TH1F("mtopHadGroomed"+options.origin"_"+leptonname"_"+sortofdata, ";Groomed m_{jet} (GeV);Number", 100, 0, 400)
+    h_fatjetpt = ROOT.TH1F("fatjetpt"+options.origin"_"+leptonname"_"+sortofdata, ";pt (GeV);Number", 500, 0, 5000)
+    h_mfatjet = ROOT.TH1F("fatjetmass"+options.origin"_"+leptonname"_"+sortofdata, ";m (GeV);Number", 100, 0, 5000)
+    h_fatjetphi = ROOT.TH1F("fatjetphi"+options.origin"_"+leptonname"_"+sortofdata, ";phi (GeV);Number", 100, 0, 5000)
+    h_leppt = ROOT.TH1F("leppt"+options.origin"_"+leptonname"_"+sortofdata, ";pt (GeV);Number", 100, 0, 5000) 
+
     fin = ROOT.TFile.Open(options.file_in)
 
-\
+
     trees = [ fin.Get("TreeSemiLept") ]
 
 
@@ -205,6 +220,7 @@ def plot_mttbar(argv) :
         print 'Processing tree ' + str(itree)
 
         eventsToRun = entries
+
         for jentry in xrange( eventsToRun ):
             if jentry % 100000 == 0 :
                 print 'processing ' + str(jentry)
@@ -212,6 +228,7 @@ def plot_mttbar(argv) :
             ientry = t.GetEntry( jentry )
             if ientry < 0:
                 break
+
 
             if options.is_electron and LeptonType[0] != 11:
                 continue
