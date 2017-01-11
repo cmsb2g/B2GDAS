@@ -57,12 +57,16 @@ def plot_mttbar(argv) :
     from leptonic_nu_z_component import solve_nu_tmass, solve_nu
 
     fout= ROOT.TFile(options.file_out, "RECREATE")
-    h_mttbar = ROOT.TH1F("h_mttbar", ";m_{t#bar{t}} (GeV);Number", 100, 0, 5000)
-    h_mtopHad = ROOT.TH1F("h_mtopHad", ";m_{jet} (GeV);Number", 100, 0, 400)
-    h_mtopHadGroomed = ROOT.TH1F("h_mtopHadGroomed", ";Groomed m_{jet} (GeV);Number", 100, 0, 400)
+    h_mttbar = ROOT.TH1F("mttbar", ";m_{t#bar{t}} (GeV);Number", 100, 0, 5000)
+    h_mtopHad = ROOT.TH1F("mtopHad", ";m_{jet} (GeV);Number", 100, 0, 400)
+    h_mtopHadGroomed = ROOT.TH1F("mtopHadGroomed", ";Groomed m_{jet} (GeV);Number", 100, 0, 400)
+    h_fatjetpt = ROOT.TH1F("fatjetpt", ";pt (GeV);Number", 500, 0, 5000)
+    h_mfatjet = ROOT.TH1F("fatjetmass", ";m (GeV);Number", 100, 0, 5000)
+    h_fatjetphi = ROOT.TH1F("fatjetphi", ";phi (GeV);Number", 100, 0, 5000)
+    h_leppt = ROOT.TH1F("leppt", ";pt (GeV);Number", 100, 0, 5000) 
     fin = ROOT.TFile.Open(options.file_in)
 
-
+\
     trees = [ fin.Get("TreeSemiLept") ]
 
 
@@ -216,7 +220,7 @@ def plot_mttbar(argv) :
                 continue
 
             # Muon triggers only for now (use HLT_Mu45_eta2p1 with index 1)
-            if SemiLeptTrig[1] != 1  :
+            if SemiLeptTrig[0] != 1  :
                 continue
 
 
@@ -277,6 +281,12 @@ def plot_mttbar(argv) :
             h_mtopHadGroomed.Fill( mass_sd, SemiLeptWeight[0] )
             h_mtopHad.Fill( hadTopCandP4.M(), SemiLeptWeight[0] )
 
+            h_fatjetpt.Fill(FatJetPt[0], SemiLeptWeight[0]) 
+            h_mfatjet.Fill(FatJetMass[0], SemiLeptWeight[0])
+            h_fatjetphi.Fill(FatJetPhi[0], SemiLeptWeight[0])
+            h_leppt.Fill(LeptonPt[0], SemiLeptWeight[0])
+
+
 
     fout.cd()
     fout.Write()
@@ -284,3 +294,4 @@ def plot_mttbar(argv) :
 
 if __name__ == "__main__" :
     plot_mttbar(sys.argv)
+
