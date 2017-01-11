@@ -112,6 +112,13 @@ def plot_mttbar(argv) :
 
 
 
+
+    #letpon histogram
+    h_leppt = ROOT.TH1F("leppt"+options.origin"_"+leptonname"_"+sortofdata, ";pt (GeV);Number", 100, 0, 5000)
+    h_lepphi = ROOT.TH1F("fatjetphi"+options.origin"_"+leptonname"_"+sortofdata, ";#phi (rad);Number", .5, -4, 4)
+    h_lepeta = ROOT.TH1F("lepeta"+options.origin"_"+leptonname"_"+sortofdata, ";#phi (rad);Number", .5, -3, 3)
+    h_mlep = ROOT.TH1F("lepmass"+options.origin"_"+leptonname"_"+sortofdata, ";m (GeV);Number", 100, 0, 5000)
+
     fin = ROOT.TFile.Open(options.file_in)
 
 
