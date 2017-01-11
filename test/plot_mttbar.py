@@ -1,18 +1,18 @@
 #! /usr/bin/env python
 
 
-## _________                _____.__                            __  .__               
-## \_   ___ \  ____   _____/ ____\__| ____  __ ______________ _/  |_|__| ____   ____  
-## /    \  \/ /  _ \ /    \   __\|  |/ ___\|  |  \_  __ \__  \\   __\  |/  _ \ /    \ 
+## _________                _____.__                            __  .__
+## \_   ___ \  ____   _____/ ____\__| ____  __ ______________ _/  |_|__| ____   ____
+## /    \  \/ /  _ \ /    \   __\|  |/ ___\|  |  \_  __ \__  \\   __\  |/  _ \ /    \
 ## \     \___(  <_> )   |  \  |  |  / /_/  >  |  /|  | \// __ \|  | |  (  <_> )   |  \
 ##  \______  /\____/|___|  /__|  |__\___  /|____/ |__|  (____  /__| |__|\____/|___|  /
-##         \/            \/        /_____/                   \/                    \/ 
+##         \/            \/        /_____/                   \/                    \/
 import sys
 import array as array
 from optparse import OptionParser
 
 
-def plot_mttbar(argv) : 
+def plot_mttbar(argv) :
     parser = OptionParser()
 
     parser.add_option('--file_in', type='string', action='store',
@@ -22,12 +22,16 @@ def plot_mttbar(argv) :
     parser.add_option('--file_out', type='string', action='store',
                       dest='file_out',
                       help='Output file')
-    
+
+    parser.add_option('--enable_top_tagging', type='bool', action='store_true',
+                     dest='enable_top_tagging', default=True,
+                     help='Whether a cut is made based on top tagging')
+
     #parser.add_option('--isData', action='store_true',
     #                  dest='isData',
     #                  default = False,
     #                  help='Is this Data?')
-        
+
     (options, args) = parser.parse_args(argv)
     argv = []
 
@@ -49,10 +53,10 @@ def plot_mttbar(argv) :
     trees = [ fin.Get("TreeSemiLept") ]
 
 
-    
+
     for itree,t in enumerate(trees) :
 
-        #if options.isData : 
+        #if options.isData :
         SemiLeptTrig        =  ROOT.vector('int')()
         SemiLeptWeight      = array.array('f', [0.] )
         PUWeight            = array.array('f', [0.] )
@@ -66,7 +70,7 @@ def plot_mttbar(argv) :
         FatJetMass          = array.array('f', [-1.])
         FatJetMassSoftDrop  = array.array('f', [-1.])
         FatJetTau32         = array.array('f', [-1.])
-        FatJetTau21         = array.array('f', [-1.]) 
+        FatJetTau21         = array.array('f', [-1.])
         FatJetSDBDiscW      = array.array('f', [-1.])
         FatJetSDBDiscB      = array.array('f', [-1.])
         FatJetSDsubjetWpt   = array.array('f', [-1.])
@@ -88,7 +92,7 @@ def plot_mttbar(argv) :
         SemiLepMETpt        = array.array('f', [-1.])
         SemiLepMETphi       = array.array('f', [-1.])
         SemiLepNvtx         = array.array('f', [-1.])
-        FatJetDeltaPhiLep      = array.array('f', [-1.]) 
+        FatJetDeltaPhiLep      = array.array('f', [-1.])
         NearestAK4JetBDisc            = array.array('f', [-1.])
         NearestAK4JetPt     = array.array('f', [-1.])
         NearestAK4JetEta    = array.array('f', [-1.])
@@ -98,12 +102,12 @@ def plot_mttbar(argv) :
         NearestAK4JetJECDnSys = array.array('f', [-1.])
         NearestAK4JetJERUpSys = array.array('f', [-1.])
         NearestAK4JetJERDnSys = array.array('f', [-1.])
-        SemiLeptRunNum        = array.array('f', [-1.])   
-        SemiLeptLumiNum     = array.array('f', [-1.])   
-        SemiLeptEventNum      = array.array('f', [-1.])   
+        SemiLeptRunNum        = array.array('f', [-1.])
+        SemiLeptLumiNum     = array.array('f', [-1.])
+        SemiLeptEventNum      = array.array('f', [-1.])
 
 
-        #if options.isData : 
+        #if options.isData :
         t.SetBranchAddress('SemiLeptTrig'        , SemiLeptTrig )
         t.SetBranchAddress('SemiLeptWeight'      , SemiLeptWeight      ) #Combined weight of all scale factors (lepton, PU, generator) relevant for the smeileptonic event selection
         t.SetBranchAddress('PUWeight'            , PUWeight            )
@@ -211,8 +215,8 @@ def plot_mttbar(argv) :
             nuCandP4.SetPtEtaPhiM( SemiLepMETpt[0], 0, SemiLepMETphi[0], SemiLepMETpt[0] )
             theLepton = ROOT.TLorentzVector()
             theLepton.SetPtEtaPhiE( LeptonPt[0], LeptonEta[0], LeptonPhi[0], LeptonEnergy[0] ) # Assume massless
-            
-            
+
+
             tau32 = FatJetTau32[0]
             mass_sd = FatJetMassSoftDrop[0]
             bdisc = NearestAK4JetBDisc[0]
@@ -222,16 +226,20 @@ def plot_mttbar(argv) :
             pass2DCut = LeptonPtRel[0] > 55. or LeptonDRMin[0] > 0.4
             passBtag = bdisc > 0.7
 
-            if not passKin or not pass2DCut or not passBtag or not passTopTag :
-                continue
+            if options.enable_top_tagging:
+                if not passKin or not pass2DCut or not passBtag or not passTopTag :
+                    continue
+            else:
+                if not passKin or not pass2DCut or not passBtag:
+                    continue
 
 
-            ##  ____  __.__                              __  .__         __________                     
-            ## |    |/ _|__| ____   ____   _____ _____ _/  |_|__| ____   \______   \ ____   ____  ____  
-            ## |      < |  |/    \_/ __ \ /     \\__  \\   __\  |/ ___\   |       _// __ \_/ ___\/  _ \ 
+            ##  ____  __.__                              __  .__         __________
+            ## |    |/ _|__| ____   ____   _____ _____ _/  |_|__| ____   \______   \ ____   ____  ____
+            ## |      < |  |/    \_/ __ \ /     \\__  \\   __\  |/ ___\   |       _// __ \_/ ___\/  _ \
             ## |    |  \|  |   |  \  ___/|  Y Y  \/ __ \|  | |  \  \___   |    |   \  ___/\  \__(  <_> )
-            ## |____|__ \__|___|  /\___  >__|_|  (____  /__| |__|\___  >  |____|_  /\___  >\___  >____/ 
-            ##         \/       \/     \/      \/     \/             \/          \/     \/     \/       
+            ## |____|__ \__|___|  /\___  >__|_|  (____  /__| |__|\___  >  |____|_  /\___  >\___  >____/
+            ##         \/       \/     \/      \/     \/             \/          \/     \/     \/
 
             # Now we do our kinematic calculation based on the categories of the
             # number of top and bottom tags
@@ -255,7 +263,7 @@ def plot_mttbar(argv) :
             h_mttbar.Fill( mttbar, SemiLeptWeight[0] )
             h_mtopHadGroomed.Fill( mass_sd, SemiLeptWeight[0] )
             h_mtopHad.Fill( hadTopCandP4.M(), SemiLeptWeight[0] )
-            
+
 
     fout.cd()
     fout.Write()
@@ -263,5 +271,3 @@ def plot_mttbar(argv) :
 
 if __name__ == "__main__" :
     plot_mttbar(sys.argv)
-
-
