@@ -19,15 +19,27 @@ def plot_mttbar(argv) :
                       dest='file_in',
                       help='Input file')
 
-    parser.add_option('--file_out', type='string', action='store',
-                      dest='file_out',
+    parser.add_option('--is_electron', type='bool', action='store_true',
+                      dest='is_electron',default = False,
+                      help='flag sets code to use electron rather than muon')
+
+    parser.add_option('--is_bkg', type='bool', action='store_true',
+                      dest='is_bkg', default = False,
+                      help='is this a background data rather than signal')
+
+
+    parser.add_option('--origin', type='string', action='store',
+                      dest='origin',
                       help='Output file')
     
-    #parser.add_option('--isData', action='store_true',
-    #                  dest='isData',
-    #                  default = False,
-    #                  help='Is this Data?')
-        
+    parser.add_option('--isData', action='store_true',
+                      dest='isData',
+                      default = False,
+                      help='Is this Data?')
+    
+    parser.add_option('--file_in', type='string', action='store',
+                      dest='file_in',
+                      help='I    
     (options, args) = parser.parse_args(argv)
     argv = []
 
@@ -252,7 +264,7 @@ def plot_mttbar(argv) :
             ttbarCand = hadTopCandP4 + lepTopCandP4
             mttbar = ttbarCand.M()
 
-            h_mttbar.Fill( mttbar, SemiLeptWeight[0] )
+            h_mttbar.Fill( mttbar+origin, SemiLeptWeight[0] )
             h_mtopHadGroomed.Fill( mass_sd, SemiLeptWeight[0] )
             h_mtopHad.Fill( hadTopCandP4.M(), SemiLeptWeight[0] )
             
