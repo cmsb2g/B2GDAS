@@ -153,7 +153,7 @@ def plot_mttbar(argv) :
 
     #cutflow histogram
 
-    h_cutflow = ROOT.TH1F("cutflow"+options.origin"_"+leptonname"_"+sortofdata, "cuts impemented", 1,0,5)
+    h_cutflow = ROOT.TH1F("cutflow"+options.origin"_"+leptonname"_"+sortofdata, "cuts impemented", 5,0,5)
     h_cutflow.sumw2()
 
 
