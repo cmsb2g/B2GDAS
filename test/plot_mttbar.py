@@ -114,25 +114,25 @@ def plot_mttbar(argv) :
     h_mtopHad.Sumw2()
     h_mtopHadGroomed = ROOT.TH1F("mtopHadGroomed"+"_"+leptonname+"_"+sortofdata, ";Groomed m_{jet} (GeV);Number", 100, 0, 400)
     h_mtopHadGroomed.Sumw2()
-    h_mfatjet = ROOT.TH1F("fatjetmass"+"_"+leptonname+"_"+sortofdata, ";m (GeV);Number", 100, 0, 5000)
+    h_mfatjet = ROOT.TH1F("fatjetmass"+"_"+leptonname+"_"+sortofdata, ";m_{fatjet} (GeV);Number", 100, 0, 5000)
     h_mfatjet.Sumw2()
-    h_mlep = ROOT.TH1F("lepmass"+"_"+leptonname+"_"+sortofdata, ";m (GeV);Number", 100, 0, 5000)
+    h_mlep = ROOT.TH1F("lepmass"+"_"+leptonname+"_"+sortofdata, ";m_{lep} (GeV);Number", 100, 0, 5000)
     h_mlep.Sumw2()
-    h_mAK4Jet = ROOT.TH1F("AK4Jetmass"+"_"+leptonname+"_"+sortofdata, ";m (GeV);Number", 100, 0, 5000)
+    h_mAK4Jet = ROOT.TH1F("AK4Jetmass"+"_"+leptonname+"_"+sortofdata, ";m_{AK4 jet} (GeV);Number", 100, 0, 5000)
     h_mAK4Jet.Sumw2()
     h_mlepTop = ROOT.TH1F("lepTopmass"+"_"+leptonname+"_"+sortofdata, ";m (GeV);Number", 100, 0, 5000)
     h_mlepTop.Sumw2()
 
     #pt histograms
-    h_fatjetpt = ROOT.TH1F("fatjetpt"+"_"+leptonname+"_"+sortofdata, ";pt (GeV);Number", 500, 0, 5000)
+    h_fatjetpt = ROOT.TH1F("fatjetpt"+"_"+leptonname+"_"+sortofdata, ";p_{T} (GeV);Number", 500, 0, 5000)
     h_fatjetpt.Sumw2()
-    h_leppt = ROOT.TH1F("leppt"+"_"+leptonname+"_"+sortofdata, ";pt (GeV);Number", 100, 0, 5000)
+    h_leppt = ROOT.TH1F("leppt"+"_"+leptonname+"_"+sortofdata, ";p_{T} (GeV);Number", 100, 0, 5000)
     h_leppt.Sumw2()
-    h_AK4Jetpt = ROOT.TH1F("AK4Jetpt"+"_"+leptonname+"_"+sortofdata, ";pt (GeV);Number", 100, 0, 5000)
+    h_AK4Jetpt = ROOT.TH1F("AK4Jetpt"+"_"+leptonname+"_"+sortofdata, ";p_{T} (GeV);Number", 100, 0, 5000)
     h_AK4Jetpt.Sumw2()
-    h_lepTop = ROOT.TH1F("lepTop"+"_"+leptonname+"_"+sortofdata, ";pt (GeV);Number", 100, 0, 5000)
+    h_lepTop = ROOT.TH1F("lepTop"+"_"+leptonname+"_"+sortofdata, ";p_{T} (GeV);Number", 100, 0, 5000)
     h_lepTop.Sumw2()
-    h_ttbarpt = ROOT.TH1F("ttbarPt"+"_"+leptonname+"_"+sortofdata, ";pt (GeV);Number", 100, 0, 5000)
+    h_ttbarpt = ROOT.TH1F("ttbarPt"+"_"+leptonname+"_"+sortofdata, ";p_{T} (GeV);Number", 100, 0, 5000)
     h_ttbarpt.Sumw2()
 
     #eta histograms
@@ -169,9 +169,9 @@ def plot_mttbar(argv) :
 
 
     #other histograms
-    h_fatjettau32 = ROOT.TH1F("fatjettau32"+"_"+leptonname+"_"+sortofdata, ": );Number", 100, 0,10 )
+    h_fatjettau32 = ROOT.TH1F("fatjettau32"+"_"+leptonname+"_"+sortofdata, ":#tau_{3}/#tau_{2} ;Number", 100, 0,10 )
     h_fatjettau32.Sumw2()
-    h_fatjettau21 = ROOT.TH1F("fatjettau21"+"_"+leptonname+"_"+sortofdata, "; ;Number", 100, 0, 10)
+    h_fatjettau21 = ROOT.TH1F("fatjettau21"+"_"+leptonname+"_"+sortofdata, ";#tau_{2}/#tau_{1} ;Number", 100, 0, 10)
     h_fatjettau21.Sumw2()
     h_deltaRfatjetvslepTop = ROOT.TH1F("deltaRfatjetvslepTop"+"_"+leptonname+"_"+sortofdata, ";#Delta R;Number", 100, 0,5 )
     h_deltaRfatjetvslepTop.Sumw2()
@@ -367,7 +367,6 @@ def plot_mttbar(argv) :
             pass2DCut = LeptonPtRel[0] > 55. or LeptonDRMin[0] > 0.4
             passBtag = bdisc > 0.7
 
-            if options.enable_top_tagging:
                 h_cutflow.Fill(1,SemiLeptWeight[0])
                 if not passKin:
                     continue
@@ -375,26 +374,26 @@ def plot_mttbar(argv) :
                 if not pass2DCut:
                     continue
                 h_cutflow.Fill(3,SemiLeptWeight[0])
-                if not passBtag:
-                    continue
-                h_cutflow.Fill(4,SemiLeptWeight[0])
-                if not passTopTag :
-                    continue
-                h_cutflow.Fill(5,SemiLeptWeight[0])
-            else:
-                h_cutflow.Fill(1,SemiLeptWeight[0])
-                if not passKin:
-                    continue
-                h_cutflow.Fill(2,SemiLeptWeight[0])
-                if not pass2DCut:
-                    continue
-                h_cutflow.Fill(3,SemiLeptWeight[0])
-                if not passBtag:
-                    continue
-                h_cutflow.Fill(4,SemiLeptWeight[0])
-                if passTopTag :
-                    continue
-                h_cutflow.Fill(5,SemiLeptWeight[0])
+                
+
+                if options.enable_b_tagging:
+                    if not passBtag:
+                        continue
+                    h_cutflow.Fill(4,SemiLeptWeight[0])
+                if not options.enable_b_tagging:
+                    if passBtag:
+                        continue
+                    h_cutflow.Fill(4,SemiLeptWeight[0])
+
+                if options.enable_top_tagging:
+                    if not passTopTag :
+                        continue
+                    h_cutflow.Fill(5,SemiLeptWeight[0])
+                if not options.enable_top_tagging:
+                    if passTopTag:
+                        continue
+                    h_cutflow.Fill(5,SemiLeptWeight[0])
+
             ##  ____  __.__                              __  .__         __________
             ## |    |/ _|__| ____   ____   _____ _____ _/  |_|__| ____   \______   \ ____   ____  ____
             ## |      < |  |/    \_/ __ \ /     \\__  \\   __\  |/ ___\   |       _// __ \_/ ___\/  _ \
