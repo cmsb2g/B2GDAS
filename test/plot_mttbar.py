@@ -110,7 +110,9 @@ def plot_mttbar(argv) :
     h_deltaRfatjetvslepTop = ROOT.TH1F("deltaRfatjetvslepTop"+options.origin"_"+leptonname"_"+sortofdata, ";#Delta R;Number", 1, 0,5 )    
     h_btag = ROOT.TH1F("btag"+options.origin"_"+leptonname"_"+sortofdata, ";disc;Number", .1, 0, 1)
 
+    #cutflow histogram
 
+    h_cutflow = ROOT.TH1F("cutflow"+options.origin"_"+leptonname"_"+sortofdata, "cuts impemented", 1,0,5)
 
 
     #letpon histogram
@@ -164,8 +166,8 @@ def plot_mttbar(argv) :
         SemiLepMETpt        = array.array('f', [-1.])
         SemiLepMETphi       = array.array('f', [-1.])
         SemiLepNvtx         = array.array('f', [-1.])
-        FatJetDeltaPhiLep      = array.array('f', [-1.])
-        NearestAK4JetBDisc            = array.array('f', [-1.])
+        FatJetDeltaPhiLep   = array.array('f', [-1.])
+        NearestAK4JetBDisc  = array.array('f', [-1.])
         NearestAK4JetPt     = array.array('f', [-1.])
         NearestAK4JetEta    = array.array('f', [-1.])
         NearestAK4JetPhi    = array.array('f', [-1.])
@@ -176,8 +178,8 @@ def plot_mttbar(argv) :
         NearestAK4JetJERDnSys = array.array('f', [-1.])
         SemiLeptRunNum        = array.array('f', [-1.])
         SemiLeptLumiNum     = array.array('f', [-1.])
-        SemiLeptEventNum      = array.array('f', [-1.])
-
+        SemiLeptEventNum    = array.array('f', [-1.])
+       
 
         #if options.isData :
         t.SetBranchAddress('SemiLeptTrig'        , SemiLeptTrig )
@@ -283,7 +285,7 @@ def plot_mttbar(argv) :
             elif not options.is_bkg and not options.is_electron:
                 if SemiLeptTrig[0] != 1  :
                     continue
-
+            
             hadTopCandP4 = ROOT.TLorentzVector()
             hadTopCandP4.SetPtEtaPhiM( FatJetPt[0], FatJetEta[0], FatJetPhi[0], FatJetMass[0])
             bJetCandP4 = ROOT.TLorentzVector()
@@ -304,13 +306,30 @@ def plot_mttbar(argv) :
             passBtag = bdisc > 0.7
 
             if options.enable_top_tagging:
-                if not passKin or not pass2DCut or not passBtag or not passTopTag :
+               h_cutflow.Fill(1,SemiLeptWeight[0])
+                if not passKin:
                     continue
+                h_cutflow.Fill(2,SemiLeptWeight[0])
+                if not pass2DCut:
+                    continue
+                h_cutflow.Fill(3,SemiLeptWeight[0])
+                if not passBtag:
+                    continue
+                h_cutflow.Fill(4,SemiLeptWeight[0])
+                if not passTopTag :
+                    continue
+                h_cutflow.Fill(5,SemiLeptWeight[0])
             else:
-                if not passKin or not pass2DCut or not passBtag:
+                h_cutflow.Fill(1,SemiLeptWeight[0])
+                if not passKin:
                     continue
-
-
+                h_cutflow.Fill(2,SemiLeptWeight[0])
+                if not pass2DCut:
+                    continue
+                h_cutflow.Fill(3,SemiLeptWeight[0])
+                if not passBtag:
+                    continue
+                h_cutflow.Fill(4,SemiLeptWeight[0])
             ##  ____  __.__                              __  .__         __________
             ## |    |/ _|__| ____   ____   _____ _____ _/  |_|__| ____   \______   \ ____   ____  ____
             ## |      < |  |/    \_/ __ \ /     \\__  \\   __\  |/ ___\   |       _// __ \_/ ___\/  _ \
@@ -339,7 +358,7 @@ def plot_mttbar(argv) :
             # Fill Histograms
             
             #Mass histograms
-            h_mttbar.Fill( mttbar+origin, SemiLeptWeight[0] )
+            h_mttbar.Fill( mttbar, SemiLeptWeight[0] )
             h_mtopHadGroomed.Fill( mass_sd, SemiLeptWeight[0] )
             h_mtopHad.Fill( hadTopCandP4.M(), SemiLeptWeight[0] )
             h_mfatjet.Fill(FatJetMass[0], SemiLeptWeight[0])
@@ -376,8 +395,6 @@ def plot_mttbar(argv) :
             h_etattbar.Fill()
             h_deltaRfatjetvslepTop.Fill(LeptonDRMin[0],SemiLeptWeight[0])
             h_btag.Fill(bdisc,SemiLeptWeight[0])
-
-
 
 
 
