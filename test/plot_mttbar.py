@@ -145,8 +145,8 @@ def plot_mttbar(argv) :
     h_leppt.Sumw2()
     h_AK4Jetpt = ROOT.TH1F("AK4Jetpt"+"_"+leptonname+"_"+sortofdata, ";p_{T} (GeV);Number", 100, 0, 5000)
     h_AK4Jetpt.Sumw2()
-    h_lepTop = ROOT.TH1F("lepTop"+"_"+leptonname+"_"+sortofdata, ";p_{T} (GeV);Number", 100, 0, 5000)
-    h_lepTop.Sumw2()
+    h_lepToppt = ROOT.TH1F("lepToppt"+"_"+leptonname+"_"+sortofdata, ";p_{T} (GeV);Number", 100, 0, 5000)
+    h_lepToppt.Sumw2()
     h_ttbarpt = ROOT.TH1F("ttbarPt"+"_"+leptonname+"_"+sortofdata, ";p_{T} (GeV);Number", 100, 0, 5000)
     h_ttbarpt.Sumw2()
 
@@ -364,11 +364,11 @@ def plot_mttbar(argv) :
                     continue
 
             hadTopCandP4 = ROOT.TLorentzVector()
-            hadTopCandP4.SetPtEtaPhiM( FatJetPt[0], FatJetEta[0], FatJetPhi[0], FatJetMass[0])
+            hadTopCandP4.SetPtEtaPhiM( FatJetPt[0], FatJetEta[0], FatJetPhi[0], FatJetMassSoftDrop[0])
             bJetCandP4 = ROOT.TLorentzVector()
             bJetCandP4.SetPtEtaPhiM( NearestAK4JetPt[0], NearestAK4JetEta[0], NearestAK4JetPhi[0], NearestAK4JetMass[0])
             nuCandP4 = ROOT.TLorentzVector( )
-            nuCandP4.SetPtEtaPhiM( SemiLepMETpt[0], 0, SemiLepMETphi[0], SemiLepMETpt[0] )
+            nuCandP4.SetPtEtaPhiM( SemiLepMETpt[0], 0, SemiLepMETphi[0], 0 )
             theLepton = ROOT.TLorentzVector()
             theLepton.SetPtEtaPhiE( LeptonPt[0], LeptonEta[0], LeptonPhi[0], LeptonEnergy[0] ) # Assume massless
 
@@ -446,33 +446,33 @@ def plot_mttbar(argv) :
             h_mtopHadGroomed.Fill( mass_sd, SemiLeptWeight[0] )
             h_mtopHad.Fill( hadTopCandP4.M(), SemiLeptWeight[0] )
             h_mfatjet.Fill(FatJetMass[0], SemiLeptWeight[0])
-
+            h_mlep.Fill(theLepton.M(),SemiLeptWeight[0])
             h_mAK4Jet.Fill(NearestAK4JetMass[0],SemiLeptWeight[0])
-            h_mlepTop.Fill(ttbarCand[3])
+            h_mlepTop.Fill(ttbarCand.M())
 
             #pt histograms
             h_fatjetpt.Fill(FatJetPt[0], SemiLeptWeight[0])
             h_leppt.Fill(LeptonPt[0], SemiLeptWeight[0])
             h_AK4Jetpt.Fill(NearestAK4JetPt[0],SemiLeptWeight[0])
 
-            h_lepTop.Fill(lepTopCandP4[0],SemiLeptWeight[0])
-            h_ttbarpt.Fill(ttbarCand[0],SemiLeptWeight[0])
+            h_lepToppt.Fill(lepTopCandP4.Pt(),SemiLeptWeight[0])
+            h_ttbarpt.Fill(ttbarCand.Pt(),SemiLeptWeight[0])
 
             #eta histograms
             h_fatjeteta.Fill(FatJetEta[0],SemiLeptWeight[0])
             h_lepeta.Fill(LeptonEta[0],SemiLeptWeight[0])
             h_AK4Jeteta.Fill(NearestAK4JetEta[0],SemiLeptWeight[0])
 
-            h_lepTopeta.Fill(lepTopCandP4[1],SemiLeptWeight[0])
-            h_ttbareta.Fill(ttbarCand[1],SemiLeptWeight[0])
+            h_lepTopeta.Fill(lepTopCandP4.Eta(),SemiLeptWeight[0])
+            h_ttbareta.Fill(ttbarCand.Eta(),SemiLeptWeight[0])
 
             #phi histograms
             h_fatjetphi.Fill(FatJetPhi[0], SemiLeptWeight[0])
             h_lepphi.Fill(LeptonPhi[0],SemiLeptWeight[0])
             h_AK4Jetphi.Fill(NearestAK4JetPhi[0],SemiLeptWeight[0])
 
-            h_lepTopphi.Fill(lepTopCandP4[2],SemiLeptWeight[0])
-            h_ttbarphi.Fill(ttbarCand[2],SemiLeptWeight[0])
+            h_lepTopphi.Fill(lepTopCandP4.Phi(),SemiLeptWeight[0])
+            h_ttbarphi.Fill(ttbarCand.Phi(),SemiLeptWeight[0])
 
             #MET histograms
             h_MET.Fill(SemiLepMETpt[0],SemiLeptWeight[0])
