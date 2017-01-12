@@ -392,6 +392,9 @@ def plot_mttbar(argv) :
                 if not passBtag:
                     continue
                 h_cutflow.Fill(4,SemiLeptWeight[0])
+                if passTopTag :
+                    continue
+                h_cutflow.Fill(5,SemiLeptWeight[0])
             ##  ____  __.__                              __  .__         __________
             ## |    |/ _|__| ____   ____   _____ _____ _/  |_|__| ____   \______   \ ____   ____  ____
             ## |      < |  |/    \_/ __ \ /     \\__  \\   __\  |/ ___\   |       _// __ \_/ ___\/  _ \
