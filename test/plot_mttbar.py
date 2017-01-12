@@ -20,11 +20,11 @@ def trigweight(LeptonType,LeptonPt) :
     if LeptonType == "11":
         for i in range(0,len(ELbins)):
             if LeptonPt > ELbins[i] and LeptonPt < ELbins[i+1]: return ELweight[i]
-            
+
     else:
         for i in range(0, len(MUbins)):
             if LeptonPt > MUbins[i] and LeptonPt < MUbins[i+1]: return MUweight[i]
-                    
+
 
 
 def plot_mttbar(argv) :
@@ -394,8 +394,8 @@ def plot_mttbar(argv) :
             if not pass2DCut:
                 continue
             h_cutflow.Fill(3,SemiLeptWeight[0])
-            
-            
+
+
             if options.enable_b_tagging:
                 if not passBtag:
                     continue
@@ -404,7 +404,7 @@ def plot_mttbar(argv) :
                 if passBtag:
                     continue
                 h_cutflow.Fill(4,SemiLeptWeight[0])
-                
+
             if options.enable_top_tagging:
                 if not passTopTag :
                     continue
@@ -413,7 +413,7 @@ def plot_mttbar(argv) :
                 if passTopTag:
                     continue
                 h_cutflow.Fill(5,SemiLeptWeight[0])
-                            
+
             ##  ____  __.__                              __  .__         __________
             ## |    |/ _|__| ____   ____   _____ _____ _/  |_|__| ____   \______   \ ____   ____  ____
             ## |      < |  |/    \_/ __ \ /     \\__  \\   __\  |/ ___\   |       _// __ \_/ ___\/  _ \
