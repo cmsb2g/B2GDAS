@@ -46,11 +46,6 @@ def plot_mttbar(argv) :
                       default = False,
                       help='Is this Data?')
 
-    parser.add_option('--hist_name', type='string', action='store',
-                      dest='signal',
-                      help='Output file')
-
-
     (options, args) = parser.parse_args(argv)
     argv = []
 
@@ -117,8 +112,8 @@ def plot_mttbar(argv) :
 
     #other histograms
     h_fatjettau32 = ROOT.TH1F("fatjettau32"+options.origin+"_"+leptonname+"_"+sortofdata, ": );Number", 100, 0,10 )
-    h_fatjettau21 = ROOT.TH1F("fatjettau21"+options.origin+"_"+leptonname+"_"+sortofdata, "; ;Number", 100, 0, 10)    
-    h_deltaRfatjetvslepTop = ROOT.TH1F("deltaRfatjetvslepTop"+options.origin+"_"+leptonname+"_"+sortofdata, ";#Delta R;Number", 100, 0,5 )    
+    h_fatjettau21 = ROOT.TH1F("fatjettau21"+options.origin+"_"+leptonname+"_"+sortofdata, "; ;Number", 100, 0, 10)
+    h_deltaRfatjetvslepTop = ROOT.TH1F("deltaRfatjetvslepTop"+options.origin+"_"+leptonname+"_"+sortofdata, ";#Delta R;Number", 100, 0,5 )
     h_btag = ROOT.TH1F("btag"+options.origin+"_"+leptonname+"_"+sortofdata, ";disc;Number", 100, 0, 1)
 
     #cutflow histogram
@@ -183,7 +178,7 @@ def plot_mttbar(argv) :
         SemiLeptRunNum        = array.array('f', [-1.])
         SemiLeptLumiNum     = array.array('f', [-1.])
         SemiLeptEventNum    = array.array('f', [-1.])
-       
+
 
         #if options.isData :
         t.SetBranchAddress('SemiLeptTrig'        , SemiLeptTrig )
@@ -289,7 +284,7 @@ def plot_mttbar(argv) :
             elif not options.is_bkg and not options.is_electron:
                 if SemiLeptTrig[0] != 1  :
                     continue
-            
+
             hadTopCandP4 = ROOT.TLorentzVector()
             hadTopCandP4.SetPtEtaPhiM( FatJetPt[0], FatJetEta[0], FatJetPhi[0], FatJetMass[0])
             bJetCandP4 = ROOT.TLorentzVector()
