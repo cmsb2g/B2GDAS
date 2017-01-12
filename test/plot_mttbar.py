@@ -391,6 +391,7 @@ def plot_mttbar(argv) :
             h_fatjeteta.Fill(FatJetEta[0],SemiLeptWeight[0])
             h_lepeta.Fill(LeptonEta[0],SemiLeptWeight[0])
             h_AK4Jeteta.Fill(NearestAK4JetEta[0],SemiLeptWeight[0])
+
             h_lepTopeta.Fill(lepTopCandP4[1],SemiLeptWeight[0])
             h_ttbareta.Fill(ttbarCand[1],SemiLeptWeight[0])
 
@@ -399,12 +400,12 @@ def plot_mttbar(argv) :
             h_lepphi.Fill(LeptonPhi[0],SemiLeptWeight[0])
             h_AK4Jetphi.Fill(NearestAK4JetPhi[0],SemiLeptWeight[0])
 
-            h_lepTopphi.Fill(lepTopCandP4[1],SemiLeptWeight[0])
+            h_lepTopphi.Fill(lepTopCandP4[2],SemiLeptWeight[0])
             h_ttbarphi.Fill(ttbarCand[2],SemiLeptWeight[0])
 
             #MET histograms
             h_MET.Fill(SemiLepMETpt[0],SemiLeptWeight[0])
-            h_METphi.Fill(semiLepMETphi[0],SemiLeptWeight[0])
+            h_METphi.Fill(SemiLepMETphi[0],SemiLeptWeight[0])
 
             #other histograms
             h_fatjettau32.Fill(FatJetTau32[0],SemiLeptWeight[0])
