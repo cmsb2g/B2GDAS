@@ -381,9 +381,11 @@ def plot_mttbar(argv) :
             passTopTag = tau32 < 0.6 and mass_sd > 110. and mass_sd < 250.
             pass2DCut = LeptonPtRel[0] > 55. or LeptonDRMin[0] > 0.4
             passBtag = bdisc > 0.7
+            
 
-            trigWeight = trigweight(LeptonType[0],LeptonPt[0])
-            SemiLeptWeight[0]*= trigWeight
+            if not options.isData:
+                trigWeight = trigweight(LeptonType[0],LeptonPt[0])
+                SemiLeptWeight[0]*= trigWeight
 
             h_cutflow.Fill(1,SemiLeptWeight[0])
             if not passKin:
