@@ -35,6 +35,10 @@ def plot_mttbar(argv) :
                      dest='enable_top_tagging', default=False,
                      help='Whether a cut is made based on top tagging')
 
+    parser.add_option('--enable_b_tagging', action='store_true',
+                     dest='enable_b_tagging', default=False,
+                     help='Whether a cut is made based on b tagging')
+
     parser.add_option('--isData', action='store_true',
                       dest='isData',
                       default = False,
