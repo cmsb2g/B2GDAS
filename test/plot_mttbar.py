@@ -61,11 +61,48 @@ def plot_mttbar(argv) :
     if not options.is_electron:
         leptonname = "M"
 
-    if options.is_bkg:
-        sortofdata = "bkg"
-
-    if not options.is_bkg:
-        sortofdata = "signal"
+    if options.file_in.lower().find("rsgluon750.root")  != -1:
+        sortofdata = "rsGluon750_MC"
+    elif options.file_in.lower().find("rsgluon1250.root") != -1:
+        sortofdata = "rsGluon1250_MC"
+    elif options.file_in.lower().find("rsgluon1500.root") != -1:
+        sortofdata = "rsGluon1500_MC"
+    elif options.file_in.lower().find("rsgluon2000.root") != -1:
+        sortofdata = "rsGluon2000_MC"
+    elif options.file_in.lower().find("rsgluon2500.root") != -1:
+        sortofdata = "rsGluon2500_MC"
+    elif options.file_in.lower().find("rsgluon3000.root") != -1:
+        sortofdata = "rsGluon3000_MC"
+    elif options.file_in.lower().find("rsgluon3500.root") != -1:
+        sortofdata = "rsGluon3500_MC"
+    elif options.file_in.lower().find("rsgluon4000.root") != -1:
+        sortofdata = "rsGluon4000_MC"
+    elif options.file_in.lower().find("output_singleelectron.root") != -1:
+        sortofdata = "sElectron_data"
+    elif options.file_in.lower().find("output_singlemuon.root") != -1:
+        sortofdata = "sMuon_data"
+    elif options.file_in.lower().find("ST_s-channel_4f_leptonDecays.root") != -1:
+        sortofdata = "ST_s-channel_4f_leptonDecays_MC"
+    elif options.file_in.lower().find("ST_t-channel_antitop_4f_leptonDecays.root") != -1:
+        sortofdata = "ST_t-channel_antitop_4f_leptonDecays_MC"
+    elif options.file_in.lower().find("ST_t-channel_top_4f_leptonDecays.root") != -1:
+        sortofdata = "ST_t-channel_top_4f_leptonDecays_MC"
+    elif options.file_in.lower().find("ST_tW_antitop_5f_inclusiveDecays.root") != -1:
+        sortofdata = "ST_tW_antitop_5f_inclusiveDecays_MC"
+    elif options.file_in.lower().find("ST_tW_top_5f_inclusiveDecays.root") != -1:
+        sortofdata = "ST_tW_top_5f_inclusiveDecays_MC"
+    elif options.file_in.lower().find("ttbar.root") != -1:
+        sortofdata = "TTbar_MC"
+    elif options.file_in.lower().find("WJetsToLNu_Pt-100To250.root") != -1:
+        sortofdata = "WJetsToLNu_Pt-100To250_MC"
+    elif options.file_in.lower().find("WJetsToLNu_Pt-250To400.root") != -1:
+        sortofdata = "WJetsToLNu_Pt-250To400_MC"
+    elif options.file_in.lower().find("WJetsToLNu_Pt-400To600.root") != -1:
+        sortofdata = "WJetsToLNu_Pt-400To600_MC"
+    elif options.file_in.lower().find("WJetsToLNu_Pt-600ToInf.root") != -1:
+        sortofdata = "JetsToLNu_Pt-600ToInf_MC"
+    else:
+        sortofdata = ""
 
 
     from leptonic_nu_z_component import solve_nu_tmass, solve_nu
@@ -74,51 +111,51 @@ def plot_mttbar(argv) :
 
     #mass histograms
 
-    h_mttbar = ROOT.TH1F("mttbar"+options.origin+"_"+leptonname+"_"+sortofdata, ";m_{t#bar{t}} (GeV);Number", 100, 0, 5000)
-    h_mtopHad = ROOT.TH1F("mtopHad"+options.origin+"_"+leptonname+"_"+sortofdata, ";m_{jet} (GeV);Number", 100, 0, 400)
-    h_mtopHadGroomed = ROOT.TH1F("mtopHadGroomed"+options.origin+"_"+leptonname+"_"+sortofdata, ";Groomed m_{jet} (GeV);Number", 100, 0, 400)
-    h_mfatjet = ROOT.TH1F("fatjetmass"+options.origin+"_"+leptonname+"_"+sortofdata, ";m (GeV);Number", 100, 0, 5000)
-    h_mlep = ROOT.TH1F("lepmass"+options.origin+"_"+leptonname+"_"+sortofdata, ";m (GeV);Number", 100, 0, 5000)
-    h_mAK4Jet = ROOT.TH1F("AK4Jetmass"+options.origin+"_"+leptonname+"_"+sortofdata, ";m (GeV);Number", 100, 0, 5000)
-    h_mlepTop = ROOT.TH1F("lepTopmass"+options.origin+"_"+leptonname+"_"+sortofdata, ";m (GeV);Number", 100, 0, 5000)
+    h_mttbar = ROOT.TH1F("mttbar"+"_"+leptonname+"_"+sortofdata+options.origin, ";m_{t#bar{t}} (GeV);Number", 100, 0, 5000)
+    h_mtopHad = ROOT.TH1F("mtopHad"+"_"+leptonname+"_"+sortofdata+options.origin, ";m_{jet} (GeV);Number", 100, 0, 400)
+    h_mtopHadGroomed = ROOT.TH1F("mtopHadGroomed"+"_"+leptonname+"_"+sortofdata+options.origin, ";Groomed m_{jet} (GeV);Number", 100, 0, 400)
+    h_mfatjet = ROOT.TH1F("fatjetmass"+"_"+leptonname+"_"+sortofdata+options.origin, ";m (GeV);Number", 100, 0, 5000)
+    h_mlep = ROOT.TH1F("lepmass"+"_"+leptonname+"_"+sortofdata+options.origin, ";m (GeV);Number", 100, 0, 5000)
+    h_mAK4Jet = ROOT.TH1F("AK4Jetmass"+"_"+leptonname+"_"+sortofdata+options.origin, ";m (GeV);Number", 100, 0, 5000)
+    h_mlepTop = ROOT.TH1F("lepTopmass"+"_"+leptonname+"_"+sortofdata+options.origin, ";m (GeV);Number", 100, 0, 5000)
 
     #pt histograms
-    h_fatjetpt = ROOT.TH1F("fatjetpt"+options.origin+"_"+leptonname+"_"+sortofdata, ";pt (GeV);Number", 500, 0, 5000)
-    h_leppt = ROOT.TH1F("leppt"+options.origin+"_"+leptonname+"_"+sortofdata, ";pt (GeV);Number", 100, 0, 5000)
-    h_AK4Jetpt = ROOT.TH1F("AK4Jetpt"+options.origin+"_"+leptonname+"_"+sortofdata, ";pt (GeV);Number", 100, 0, 5000)
-    h_lepTop = ROOT.TH1F("lepTop"+options.origin+"_"+leptonname+"_"+sortofdata, ";pt (GeV);Number", 100, 0, 5000)
-    h_ttbarpt = ROOT.TH1F("ttbarPt"+options.origin+"_"+leptonname+"_"+sortofdata, ";pt (GeV);Number", 100, 0, 5000)
+    h_fatjetpt = ROOT.TH1F("fatjetpt"+"_"+leptonname+"_"+sortofdata+options.origin, ";pt (GeV);Number", 500, 0, 5000)
+    h_leppt = ROOT.TH1F("leppt"+"_"+leptonname+"_"+sortofdata+options.origin, ";pt (GeV);Number", 100, 0, 5000)
+    h_AK4Jetpt = ROOT.TH1F("AK4Jetpt"+"_"+leptonname+"_"+sortofdata+options.origin, ";pt (GeV);Number", 100, 0, 5000)
+    h_lepTop = ROOT.TH1F("lepTop"+"_"+leptonname+"_"+sortofdata+options.origin, ";pt (GeV);Number", 100, 0, 5000)
+    h_ttbarpt = ROOT.TH1F("ttbarPt"+"_"+leptonname+"_"+sortofdata+options.origin, ";pt (GeV);Number", 100, 0, 5000)
 
     #eta histograms
-    h_fatjeteta = ROOT.TH1F("fatjeteta"+options.origin+"_"+leptonname+"_"+sortofdata, ";#eta;Number", 500, -3, 3)
-    h_lepeta = ROOT.TH1F("lepeta"+options.origin+"_"+leptonname+"_"+sortofdata, ";#eta;Number", 500, -3, 3)
-    h_AK4Jeteta = ROOT.TH1F("AK4Jeteta"+options.origin+"_"+leptonname+"_"+sortofdata, ";#eta;Number", 500, -3, 3)
-    h_lepTopeta = ROOT.TH1F("lepTopeta"+options.origin+"_"+leptonname+"_"+sortofdata, ";#eta;Number", 500, -3, 3)
-    h_ttbareta =  ROOT.TH1F("ttbarEta"+options.origin+"_"+leptonname+"_"+sortofdata, ";#eta;Number", 500, -3, 3)
+    h_fatjeteta = ROOT.TH1F("fatjeteta"+"_"+leptonname+"_"+sortofdata+options.origin, ";#eta;Number", 100, -3, 3)
+    h_lepeta = ROOT.TH1F("lepeta"+"_"+leptonname+"_"+sortofdata+options.origin, ";#eta;Number", 100, -3, 3)
+    h_AK4Jeteta = ROOT.TH1F("AK4Jeteta"+"_"+leptonname+"_"+sortofdata+options.origin, ";#eta;Number", 100, -3, 3)
+    h_lepTopeta = ROOT.TH1F("lepTopeta"+"_"+leptonname+"_"+sortofdata+options.origin, ";#eta;Number", 100, -3, 3)
+    h_ttbareta =  ROOT.TH1F("ttbarEta"+"_"+leptonname+"_"+sortofdata+options.origin, ";#eta;Number", 100, -3, 3)
 
 
     #phi histograms
-    h_fatjetphi = ROOT.TH1F("fatjetphi"+options.origin+"_"+leptonname+"_"+sortofdata, ";#phi (rad);Number", 500, -4, 4)
-    h_lepphi = ROOT.TH1F("lepphi"+options.origin+"_"+leptonname+"_"+sortofdata, ";#phi (rad);Number", 500, -4, 4)
-    h_AK4Jetphi = ROOT.TH1F("AK4Jetphi"+options.origin+"_"+leptonname+"_"+sortofdata, ";#phi (rad);Number", 500, -4, 4)
-    h_lepTopphi = ROOT.TH1F("lepTopphi"+options.origin+"_"+leptonname+"_"+sortofdata, ";#phi (rad);Number", 500, -4, 4)
-    h_ttbarphi = ROOT.TH1F("ttbarphi"+options.origin+"_"+leptonname+"_"+sortofdata, ";#phi (rad);Number", 500, -4, 4)
+    h_fatjetphi = ROOT.TH1F("fatjetphi"+"_"+leptonname+"_"+sortofdata+options.origin, ";#phi (rad);Number", 100, -4, 4)
+    h_lepphi = ROOT.TH1F("lepphi"+"_"+leptonname+"_"+sortofdata+options.origin, ";#phi (rad);Number", 100, -4, 4)
+    h_AK4Jetphi = ROOT.TH1F("AK4Jetphi"+"_"+leptonname+"_"+sortofdata+options.origin, ";#phi (rad);Number", 100, -4, 4)
+    h_lepTopphi = ROOT.TH1F("lepTopphi"+"_"+leptonname+"_"+sortofdata+options.origin, ";#phi (rad);Number", 100, -4, 4)
+    h_ttbarphi = ROOT.TH1F("ttbarphi"+"_"+leptonname+"_"+sortofdata+options.origin, ";#phi (rad);Number", 100, -4, 4)
 
 
     #MET histograms
-    h_MET = ROOT.TH1F("MET"+options.origin+"_"+leptonname+"_"+sortofdata, ";MET (GeV);Number", 100, 0, 5000)
-    h_METphi = ROOT.TH1F("METphi"+options.origin+"_"+leptonname+"_"+sortofdata, ";#phi (rad);Number", 500, -4, 4)
+    h_MET = ROOT.TH1F("MET"+"_"+leptonname+"_"+sortofdata+options.origin, ";MET (GeV);Number", 100, 0, 5000)
+    h_METphi = ROOT.TH1F("METphi"+"_"+leptonname+"_"+sortofdata+options.origin, ";#phi (rad);Number", 100, -4, 4)
 
 
     #other histograms
-    h_fatjettau32 = ROOT.TH1F("fatjettau32"+options.origin+"_"+leptonname+"_"+sortofdata, ": );Number", 100, 0,10 )
-    h_fatjettau21 = ROOT.TH1F("fatjettau21"+options.origin+"_"+leptonname+"_"+sortofdata, "; ;Number", 100, 0, 10)
-    h_deltaRfatjetvslepTop = ROOT.TH1F("deltaRfatjetvslepTop"+options.origin+"_"+leptonname+"_"+sortofdata, ";#Delta R;Number", 100, 0,5 )
-    h_btag = ROOT.TH1F("btag"+options.origin+"_"+leptonname+"_"+sortofdata, ";disc;Number", 100, 0, 1)
+    h_fatjettau32 = ROOT.TH1F("fatjettau32"+"_"+leptonname+"_"+sortofdata+options.origin, ": );Number", 100, 0,10 )
+    h_fatjettau21 = ROOT.TH1F("fatjettau21"+"_"+leptonname+"_"+sortofdata+options.origin, "; ;Number", 100, 0, 10)
+    h_deltaRfatjetvslepTop = ROOT.TH1F("deltaRfatjetvslepTop"+"_"+leptonname+"_"+sortofdata+options.origin, ";#Delta R;Number", 100, 0,5 )
+    h_btag = ROOT.TH1F("btag"+"_"+leptonname+"_"+sortofdata+options.origin, ";disc;Number", 100, 0, 1)
 
     #cutflow histogram
 
-    h_cutflow = ROOT.TH1F("cutflow"+options.origin+"_"+leptonname+"_"+sortofdata, "cuts impemented", 1,0,5)
+    h_cutflow = ROOT.TH1F("cutflow"+"_"+leptonname+"_"+sortofdata+options.origin, "cuts impemented", 1,0,5)
 
     fin = ROOT.TFile.Open(options.file_in)
 
