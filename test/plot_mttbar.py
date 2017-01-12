@@ -367,7 +367,6 @@ def plot_mttbar(argv) :
             pass2DCut = LeptonPtRel[0] > 55. or LeptonDRMin[0] > 0.4
             passBtag = bdisc > 0.7
 
-            if options.enable_top_tagging:
                 h_cutflow.Fill(1,SemiLeptWeight[0])
                 if not passKin:
                     continue
@@ -375,26 +374,26 @@ def plot_mttbar(argv) :
                 if not pass2DCut:
                     continue
                 h_cutflow.Fill(3,SemiLeptWeight[0])
-                if not passBtag:
-                    continue
-                h_cutflow.Fill(4,SemiLeptWeight[0])
-                if not passTopTag :
-                    continue
-                h_cutflow.Fill(5,SemiLeptWeight[0])
-            else:
-                h_cutflow.Fill(1,SemiLeptWeight[0])
-                if not passKin:
-                    continue
-                h_cutflow.Fill(2,SemiLeptWeight[0])
-                if not pass2DCut:
-                    continue
-                h_cutflow.Fill(3,SemiLeptWeight[0])
-                if not passBtag:
-                    continue
-                h_cutflow.Fill(4,SemiLeptWeight[0])
-                if passTopTag :
-                    continue
-                h_cutflow.Fill(5,SemiLeptWeight[0])
+                
+
+                if options.enable_b_tagging:
+                    if not passBtag:
+                        continue
+                    h_cutflow.Fill(4,SemiLeptWeight[0])
+                if not options.enable_b_tagging:
+                    if passBtag:
+                        continue
+                    h_cutflow.Fill(4,SemiLeptWeight[0])
+
+                if options.enable_top_tagging:
+                    if not passTopTag :
+                        continue
+                    h_cutflow.Fill(5,SemiLeptWeight[0])
+                if not options.enable_top_tagging:
+                    if passTopTag:
+                        continue
+                    h_cutflow.Fill(5,SemiLeptWeight[0])
+
             ##  ____  __.__                              __  .__         __________
             ## |    |/ _|__| ____   ____   _____ _____ _/  |_|__| ____   \______   \ ____   ____  ____
             ## |      < |  |/    \_/ __ \ /     \\__  \\   __\  |/ ___\   |       _// __ \_/ ___\/  _ \
