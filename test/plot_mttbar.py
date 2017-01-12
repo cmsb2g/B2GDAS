@@ -116,23 +116,14 @@ def plot_mttbar(argv) :
 
 
     #other histograms
-    h_fatjettau32 = ROOT.TH1F("fatjettau32"+options.origin"_"+leptonname"_"+sortofdata, ": );Number", 1, 0,10 )
-    h_fatjettau21 = ROOT.TH1F("fatjettau21"+options.origin"_"+leptonname"_"+sortofdata, "; ;Number", 1, 0, 10)    
-    h_etattbar = ROOT.TH1F("etattbar"+options.origin"_"+leptonname"_"+sortofdata, ";#eta (rad);Number", .5, -3, 3)
-    h_deltaRfatjetvslepTop = ROOT.TH1F("deltaRfatjetvslepTop"+options.origin"_"+leptonname"_"+sortofdata, ";#Delta R;Number", 1, 0,5 )    
-    h_btag = ROOT.TH1F("btag"+options.origin"_"+leptonname"_"+sortofdata, ";disc;Number", .1, 0, 1)
+    h_fatjettau32 = ROOT.TH1F("fatjettau32"+options.origin+"_"+leptonname+"_"+sortofdata, ": );Number", 100, 0,10 )
+    h_fatjettau21 = ROOT.TH1F("fatjettau21"+options.origin+"_"+leptonname+"_"+sortofdata, "; ;Number", 100, 0, 10)    
+    h_deltaRfatjetvslepTop = ROOT.TH1F("deltaRfatjetvslepTop"+options.origin+"_"+leptonname+"_"+sortofdata, ";#Delta R;Number", 100, 0,5 )    
+    h_btag = ROOT.TH1F("btag"+options.origin+"_"+leptonname+"_"+sortofdata, ";disc;Number", 100, 0, 1)
 
     #cutflow histogram
 
-    h_cutflow = ROOT.TH1F("cutflow"+options.origin"_"+leptonname"_"+sortofdata, "cuts impemented", 1,0,5)
-
-
-    #letpon histogram
-    h_leppt = ROOT.TH1F("leppt"+options.origin"_"+leptonname"_"+sortofdata, ";pt (GeV);Number", 100, 0, 5000)
-    h_lepphi = ROOT.TH1F("fatjetphi"+options.origin"_"+leptonname"_"+sortofdata, ";#phi (rad);Number", .5, -4, 4)
-    h_lepeta = ROOT.TH1F("lepeta"+options.origin"_"+leptonname"_"+sortofdata, ";#phi (rad);Number", .5, -3, 3)
-    h_mlep = ROOT.TH1F("lepmass"+options.origin"_"+leptonname"_"+sortofdata, ";m (GeV);Number", 100, 0, 5000)
-
+    h_cutflow = ROOT.TH1F("cutflow"+options.origin+"_"+leptonname+"_"+sortofdata, "cuts impemented", 1,0,5)
 
     fin = ROOT.TFile.Open(options.file_in)
 
@@ -319,7 +310,7 @@ def plot_mttbar(argv) :
             passBtag = bdisc > 0.7
 
             if options.enable_top_tagging:
-               h_cutflow.Fill(1,SemiLeptWeight[0])
+                h_cutflow.Fill(1,SemiLeptWeight[0])
                 if not passKin:
                     continue
                 h_cutflow.Fill(2,SemiLeptWeight[0])
