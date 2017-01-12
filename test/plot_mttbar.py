@@ -12,6 +12,21 @@ import array as array
 from optparse import OptionParser
 
 
+def trigweight(LeptonType,LeptonPt) :
+    MUbins = [45,50,60,1000000]
+    ELbins = [45,50,60,70,80,90,100,120,1000000]
+    ELweight = [0.078, 0.737,0.8567,0.867,0.86388, 0.86497,0.888894,0.968965]
+    MUweight = [0.0526, 0.8785, 0.9387]
+    if LeptonType == "11":
+        for i in range(0,len(ELbins)):
+            if LeptonPt > ELbins[i] and LeptonPt < ELbins[i+1]: return ELweight[i]
+            
+    else:
+        for i in range(0, len(MUbins)):
+            if LeptonPt > MUbins[i] and LeptonPt < MUbins[i+1]: return MUweight[i]
+                    
+
+
 def plot_mttbar(argv) :
     parser = OptionParser()
 
@@ -366,6 +381,9 @@ def plot_mttbar(argv) :
             passTopTag = tau32 < 0.6 and mass_sd > 110. and mass_sd < 250.
             pass2DCut = LeptonPtRel[0] > 55. or LeptonDRMin[0] > 0.4
             passBtag = bdisc > 0.7
+
+            trigWeight = trigweight(LeptonType[0],LeptonPt[0])
+            SemiLeptWeight[0]*= trigWeight
 
             h_cutflow.Fill(1,SemiLeptWeight[0])
             if not passKin:
