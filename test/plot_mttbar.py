@@ -140,15 +140,15 @@ def plot_mttbar(argv) :
 
 
     #other histograms
-    h_fatjettau32 = ROOT.TH1F("fatjettau32"+options.origin"_"+leptonname"_"+sortofdata, ": );Number", 1, 0,10 )
+    h_fatjettau32 = ROOT.TH1F("fatjettau32"+options.origin+"_"+leptonname+"_"+sortofdata, ": );Number", 100, 0,10 )
     h_fatjettau32.sumw2()
-    h_fatjettau21 = ROOT.TH1F("fatjettau21"+options.origin"_"+leptonname"_"+sortofdata, "; ;Number", 1, 0, 10)    
+    h_fatjettau21 = ROOT.TH1F("fatjettau21"+options.origin+"_"+leptonname+"_"+sortofdata, "; ;Number", 100, 0, 10)    
     h_fatjettau21.sumw2()
     h_etattbar = ROOT.TH1F("etattbar"+options.origin"_"+leptonname"_"+sortofdata, ";#eta (rad);Number", .5, -3, 3)
     h_etattbar.sumw2()
-    h_deltaRfatjetvslepTop = ROOT.TH1F("deltaRfatjetvslepTop"+options.origin"_"+leptonname"_"+sortofdata, ";#Delta R;Number", 1, 0,5 )    
+    h_deltaRfatjetvslepTop = ROOT.TH1F("deltaRfatjetvslepTop"+options.origin+"_"+leptonname+"_"+sortofdata, ";#Delta R;Number", 100, 0,5 )    
     h_deltaRfatjetvslepTop.sumw2()
-    h_btag = ROOT.TH1F("btag"+options.origin"_"+leptonname"_"+sortofdata, ";disc;Number", .1, 0, 1)
+    h_btag = ROOT.TH1F("btag"+options.origin+"_"+leptonname+"_"+sortofdata, ";disc;Number", 100, 0, 1)
     h_btag.sumw2()
 
     #cutflow histogram
@@ -167,6 +167,8 @@ def plot_mttbar(argv) :
     h_mlep = ROOT.TH1F("lepmass"+options.origin"_"+leptonname"_"+sortofdata, ";m (GeV);Number", 100, 0, 5000)
     h_mlep.sumw2()
 
+    #cutflow histogram
+    h_cutflow = ROOT.TH1F("cutflow"+options.origin+"_"+leptonname+"_"+sortofdata, "cuts impemented", 5,0,5)
 
     fin = ROOT.TFile.Open(options.file_in)
 
@@ -353,7 +355,7 @@ def plot_mttbar(argv) :
             passBtag = bdisc > 0.7
 
             if options.enable_top_tagging:
-               h_cutflow.Fill(1,SemiLeptWeight[0])
+                h_cutflow.Fill(1,SemiLeptWeight[0])
                 if not passKin:
                     continue
                 h_cutflow.Fill(2,SemiLeptWeight[0])
@@ -425,20 +427,21 @@ def plot_mttbar(argv) :
             h_fatjeteta.Fill(FatJetEta[0],SemiLeptWeight[0])
             h_lepeta.Fill(LeptonEta[0],SemiLeptWeight[0])
             h_AK4Jeteta.Fill(NearestAK4JetEta[0],SemiLeptWeight[0])
+
             h_lepTopeta.Fill(lepTopCandP4[1],SemiLeptWeight[0])
             h_ttbareta.Fill(ttbarCand[1],SemiLeptWeight[0])
 
             #phi histograms
             h_fatjetphi.Fill(FatJetPhi[0], SemiLeptWeight[0])
             h_lepphi.Fill(LeptonPhi[0],SemiLeptWeight[0])
-            h_AK4Jetphi.Fill(NearestAK4JetEta[0],SemiLeptWeight[0])
+            h_AK4Jetphi.Fill(NearestAK4JetPhi[0],SemiLeptWeight[0])
 
-            h_lepTopphi.Fill(lepTopCandP4[1],SemiLeptWeight[0])
+            h_lepTopphi.Fill(lepTopCandP4[2],SemiLeptWeight[0])
             h_ttbarphi.Fill(ttbarCand[2],SemiLeptWeight[0])
 
             #MET histograms
             h_MET.Fill(SemiLepMETpt[0],SemiLeptWeight[0])
-            # h_METphi.Fill(semiLepMETphi[0],SemiLeptWeight[0])
+            h_METphi.Fill(SemiLepMETphi[0],SemiLeptWeight[0])
 
             #other histograms
             h_fatjettau32.Fill(FatJetTau32[0],SemiLeptWeight[0])
