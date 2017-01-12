@@ -80,95 +80,79 @@ def plot_mttbar(argv) :
     #mass histograms
 
     h_mttbar = ROOT.TH1F("mttbar"+options.origin+"_"+leptonname+"_"+sortofdata, ";m_{t#bar{t}} (GeV);Number", 100, 0, 5000)
-    h_mttbar.sumw2()
+    h_mttbar.Sumw2()
     h_mtopHad = ROOT.TH1F("mtopHad"+options.origin+"_"+leptonname+"_"+sortofdata, ";m_{jet} (GeV);Number", 100, 0, 400)
-    h_mtopHad.sumw2()
+    h_mtopHad.Sumw2()
     h_mtopHadGroomed = ROOT.TH1F("mtopHadGroomed"+options.origin+"_"+leptonname+"_"+sortofdata, ";Groomed m_{jet} (GeV);Number", 100, 0, 400)
-    h_mtopHadGroomed.sumw2()
+    h_mtopHadGroomed.Sumw2()
     h_mfatjet = ROOT.TH1F("fatjetmass"+options.origin+"_"+leptonname+"_"+sortofdata, ";m (GeV);Number", 100, 0, 5000)
-    h_mfatjet.sumw2()
+    h_mfatjet.Sumw2()
     h_mlep = ROOT.TH1F("lepmass"+options.origin+"_"+leptonname+"_"+sortofdata, ";m (GeV);Number", 100, 0, 5000)
-    h_mlep.sumw2()
+    h_mlep.Sumw2()
     h_mAK4Jet = ROOT.TH1F("AK4Jetmass"+options.origin+"_"+leptonname+"_"+sortofdata, ";m (GeV);Number", 100, 0, 5000)
-    h_mAK4Jet.sumw2()
+    h_mAK4Jet.Sumw2()
     h_mlepTop = ROOT.TH1F("lepTopmass"+options.origin+"_"+leptonname+"_"+sortofdata, ";m (GeV);Number", 100, 0, 5000)
-    h_mlepTop.sumw2()
+    h_mlepTop.Sumw2()
 
     #pt histograms
     h_fatjetpt = ROOT.TH1F("fatjetpt"+options.origin+"_"+leptonname+"_"+sortofdata, ";pt (GeV);Number", 500, 0, 5000)
-    h_fatjetpt.sumw2()
+    h_fatjetpt.Sumw2()
     h_leppt = ROOT.TH1F("leppt"+options.origin+"_"+leptonname+"_"+sortofdata, ";pt (GeV);Number", 100, 0, 5000)
-    h_leppt.sumw2()
+    h_leppt.Sumw2()
     h_AK4Jetpt = ROOT.TH1F("AK4Jetpt"+options.origin+"_"+leptonname+"_"+sortofdata, ";pt (GeV);Number", 100, 0, 5000)
-    h_AK4Jetpt.sumw2()
+    h_AK4Jetpt.Sumw2()
     h_lepTop = ROOT.TH1F("lepTop"+options.origin+"_"+leptonname+"_"+sortofdata, ";pt (GeV);Number", 100, 0, 5000)
-    h_lepTop.sumw2()
+    h_lepTop.Sumw2()
     h_ttbarpt = ROOT.TH1F("ttbarPt"+options.origin+"_"+leptonname+"_"+sortofdata, ";pt (GeV);Number", 100, 0, 5000)
-    h_ttbarpt.sumw2()
+    h_ttbarpt.Sumw2()
 
     #eta histograms
     h_fatjeteta = ROOT.TH1F("fatjeteta"+options.origin+"_"+leptonname+"_"+sortofdata, ";#eta;Number", 500, -3, 3)
-    h_fatjeteta.sumw2()
+    h_fatjeteta.Sumw2()
     h_lepeta = ROOT.TH1F("lepeta"+options.origin+"_"+leptonname+"_"+sortofdata, ";#eta;Number", 500, -3, 3)
-    h_lepeta.sumw2()
+    h_lepeta.Sumw2()
     h_AK4Jeteta = ROOT.TH1F("AK4Jeteta"+options.origin+"_"+leptonname+"_"+sortofdata, ";#eta;Number", 500, -3, 3)
-    h_AK4Jeteta.sumw2()
+    h_AK4Jeteta.Sumw2()
     h_lepTopeta = ROOT.TH1F("lepTopeta"+options.origin+"_"+leptonname+"_"+sortofdata, ";#eta;Number", 500, -3, 3)
-    h_lepTopeta.sumw2()
+    h_lepTopeta.Sumw2()
     h_ttbareta =  ROOT.TH1F("ttbarEta"+options.origin+"_"+leptonname+"_"+sortofdata, ";#eta;Number", 500, -3, 3)
-    h_ttbareta.sumw2()
+    h_ttbareta.Sumw2()
 
 
     #phi histograms
     h_fatjetphi = ROOT.TH1F("fatjetphi"+options.origin+"_"+leptonname+"_"+sortofdata, ";#phi (rad);Number", 500, -4, 4)
-    h_fatjetphi.sumw2()
+    h_fatjetphi.Sumw2()
     h_lepphi = ROOT.TH1F("lepphi"+options.origin+"_"+leptonname+"_"+sortofdata, ";#phi (rad);Number", 500, -4, 4)
-    h_lepphi.sumw2()
+    h_lepphi.Sumw2()
     h_AK4Jetphi = ROOT.TH1F("AK4Jetphi"+options.origin+"_"+leptonname+"_"+sortofdata, ";#phi (rad);Number", 500, -4, 4)
-    h_AK4Jetphi.sumw2()
+    h_AK4Jetphi.Sumw2()
     h_lepTopphi = ROOT.TH1F("lepTopphi"+options.origin+"_"+leptonname+"_"+sortofdata, ";#phi (rad);Number", 500, -4, 4)
-    h_lepTopphi.sumw2()
+    h_lepTopphi.Sumw2()
     h_ttbarphi = ROOT.TH1F("ttbarphi"+options.origin+"_"+leptonname+"_"+sortofdata, ";#phi (rad);Number", 500, -4, 4)
-    h_ttbarphi.sumw2()
+    h_ttbarphi.Sumw2()
 
 
     #MET histograms
     h_MET = ROOT.TH1F("MET"+options.origin+"_"+leptonname+"_"+sortofdata, ";MET (GeV);Number", 100, 0, 5000)
-    h_MET.sumw2()
+    h_MET.Sumw2()
     h_METphi = ROOT.TH1F("METphi"+options.origin+"_"+leptonname+"_"+sortofdata, ";#phi (rad);Number", 500, -4, 4)
-    h_METphi.sumw2()
+    h_METphi.Sumw2()
 
 
     #other histograms
     h_fatjettau32 = ROOT.TH1F("fatjettau32"+options.origin+"_"+leptonname+"_"+sortofdata, ": );Number", 100, 0,10 )
-    h_fatjettau32.sumw2()
+    h_fatjettau32.Sumw2()
     h_fatjettau21 = ROOT.TH1F("fatjettau21"+options.origin+"_"+leptonname+"_"+sortofdata, "; ;Number", 100, 0, 10)    
-    h_fatjettau21.sumw2()
-    h_etattbar = ROOT.TH1F("etattbar"+options.origin"_"+leptonname"_"+sortofdata, ";#eta (rad);Number", .5, -3, 3)
-    h_etattbar.sumw2()
+    h_fatjettau21.Sumw2()
     h_deltaRfatjetvslepTop = ROOT.TH1F("deltaRfatjetvslepTop"+options.origin+"_"+leptonname+"_"+sortofdata, ";#Delta R;Number", 100, 0,5 )    
-    h_deltaRfatjetvslepTop.sumw2()
+    h_deltaRfatjetvslepTop.Sumw2()
     h_btag = ROOT.TH1F("btag"+options.origin+"_"+leptonname+"_"+sortofdata, ";disc;Number", 100, 0, 1)
-    h_btag.sumw2()
+    h_btag.Sumw2()
 
     #cutflow histogram
 
-    h_cutflow = ROOT.TH1F("cutflow"+options.origin"_"+leptonname"_"+sortofdata, "cuts impemented", 5,0,5)
-    h_cutflow.sumw2()
-
-
-    #letpon histogram
-    h_leppt = ROOT.TH1F("leppt"+options.origin"_"+leptonname"_"+sortofdata, ";pt (GeV);Number", 100, 0, 5000)
-    h_leppt.sumw2()
-    h_lepphi = ROOT.TH1F("fatjetphi"+options.origin"_"+leptonname"_"+sortofdata, ";#phi (rad);Number", .5, -4, 4)
-    h_lepphi.sumw2()
-    h_lepeta = ROOT.TH1F("lepeta"+options.origin"_"+leptonname"_"+sortofdata, ";#phi (rad);Number", .5, -3, 3)
-    h_lepeta.sumw2()
-    h_mlep = ROOT.TH1F("lepmass"+options.origin"_"+leptonname"_"+sortofdata, ";m (GeV);Number", 100, 0, 5000)
-    h_mlep.sumw2()
-
-    #cutflow histogram
     h_cutflow = ROOT.TH1F("cutflow"+options.origin+"_"+leptonname+"_"+sortofdata, "cuts impemented", 5,0,5)
+    h_cutflow.Sumw2()
 
     fin = ROOT.TFile.Open(options.file_in)
 
