@@ -46,11 +46,6 @@ def plot_mttbar(argv) :
                       default = False,
                       help='Is this Data?')
 
-    parser.add_option('--hist_name', type='string', action='store',
-                      dest='signal',
-                      help='Output file')
-
-
     (options, args) = parser.parse_args(argv)
     argv = []
 
@@ -66,11 +61,48 @@ def plot_mttbar(argv) :
     if not options.is_electron:
         leptonname = "M"
 
-    if options.is_bkg:
-        sortofdata = "bkg"
-
-    if not options.is_bkg:
-        sortofdata = "signal"
+    if options.file_in.lower().find("rsgluon750.root")  != -1:
+        sortofdata = "rsGluon750_MC"
+    elif options.file_in.lower().find("rsgluon1250.root") != -1:
+        sortofdata = "rsGluon1250_MC"
+    elif options.file_in.lower().find("rsgluon1500.root") != -1:
+        sortofdata = "rsGluon1500_MC"
+    elif options.file_in.lower().find("rsgluon2000.root") != -1:
+        sortofdata = "rsGluon2000_MC"
+    elif options.file_in.lower().find("rsgluon2500.root") != -1:
+        sortofdata = "rsGluon2500_MC"
+    elif options.file_in.lower().find("rsgluon3000.root") != -1:
+        sortofdata = "rsGluon3000_MC"
+    elif options.file_in.lower().find("rsgluon3500.root") != -1:
+        sortofdata = "rsGluon3500_MC"
+    elif options.file_in.lower().find("rsgluon4000.root") != -1:
+        sortofdata = "rsGluon4000_MC"
+    elif options.file_in.lower().find("output_singleelectron.root") != -1:
+        sortofdata = "sElectron_data"
+    elif options.file_in.lower().find("output_singlemuon.root") != -1:
+        sortofdata = "sMuon_data"
+    elif options.file_in.lower().find("ST_s-channel_4f_leptonDecays.root") != -1:
+        sortofdata = "ST_s-channel_4f_leptonDecays_MC"
+    elif options.file_in.lower().find("ST_t-channel_antitop_4f_leptonDecays.root") != -1:
+        sortofdata = "ST_t-channel_antitop_4f_leptonDecays_MC"
+    elif options.file_in.lower().find("ST_t-channel_top_4f_leptonDecays.root") != -1:
+        sortofdata = "ST_t-channel_top_4f_leptonDecays_MC"
+    elif options.file_in.lower().find("ST_tW_antitop_5f_inclusiveDecays.root") != -1:
+        sortofdata = "ST_tW_antitop_5f_inclusiveDecays_MC"
+    elif options.file_in.lower().find("ST_tW_top_5f_inclusiveDecays.root") != -1:
+        sortofdata = "ST_tW_top_5f_inclusiveDecays_MC"
+    elif options.file_in.lower().find("ttbar.root") != -1:
+        sortofdata = "TTbar_MC"
+    elif options.file_in.lower().find("WJetsToLNu_Pt-100To250.root") != -1:
+        sortofdata = "WJetsToLNu_Pt-100To250_MC"
+    elif options.file_in.lower().find("WJetsToLNu_Pt-250To400.root") != -1:
+        sortofdata = "WJetsToLNu_Pt-250To400_MC"
+    elif options.file_in.lower().find("WJetsToLNu_Pt-400To600.root") != -1:
+        sortofdata = "WJetsToLNu_Pt-400To600_MC"
+    elif options.file_in.lower().find("WJetsToLNu_Pt-600ToInf.root") != -1:
+        sortofdata = "JetsToLNu_Pt-600ToInf_MC"
+    else:
+        sortofdata = ""
 
 
     from leptonic_nu_z_component import solve_nu_tmass, solve_nu
@@ -142,9 +174,9 @@ def plot_mttbar(argv) :
     #other histograms
     h_fatjettau32 = ROOT.TH1F("fatjettau32"+options.origin+"_"+leptonname+"_"+sortofdata, ": );Number", 100, 0,10 )
     h_fatjettau32.Sumw2()
-    h_fatjettau21 = ROOT.TH1F("fatjettau21"+options.origin+"_"+leptonname+"_"+sortofdata, "; ;Number", 100, 0, 10)    
+    h_fatjettau21 = ROOT.TH1F("fatjettau21"+options.origin+"_"+leptonname+"_"+sortofdata, "; ;Number", 100, 0, 10)
     h_fatjettau21.Sumw2()
-    h_deltaRfatjetvslepTop = ROOT.TH1F("deltaRfatjetvslepTop"+options.origin+"_"+leptonname+"_"+sortofdata, ";#Delta R;Number", 100, 0,5 )    
+    h_deltaRfatjetvslepTop = ROOT.TH1F("deltaRfatjetvslepTop"+options.origin+"_"+leptonname+"_"+sortofdata, ";#Delta R;Number", 100, 0,5 )
     h_deltaRfatjetvslepTop.Sumw2()
     h_btag = ROOT.TH1F("btag"+options.origin+"_"+leptonname+"_"+sortofdata, ";disc;Number", 100, 0, 1)
     h_btag.Sumw2()
@@ -212,7 +244,7 @@ def plot_mttbar(argv) :
         SemiLeptRunNum        = array.array('f', [-1.])
         SemiLeptLumiNum     = array.array('f', [-1.])
         SemiLeptEventNum    = array.array('f', [-1.])
-       
+
 
         #if options.isData :
         t.SetBranchAddress('SemiLeptTrig'        , SemiLeptTrig )
@@ -318,7 +350,7 @@ def plot_mttbar(argv) :
             elif not options.is_bkg and not options.is_electron:
                 if SemiLeptTrig[0] != 1  :
                     continue
-            
+
             hadTopCandP4 = ROOT.TLorentzVector()
             hadTopCandP4.SetPtEtaPhiM( FatJetPt[0], FatJetEta[0], FatJetPhi[0], FatJetMass[0])
             bJetCandP4 = ROOT.TLorentzVector()
