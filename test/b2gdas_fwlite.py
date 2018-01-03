@@ -196,8 +196,8 @@ def getInputFiles(options):
             if lfn:
                 if not options.isCrabRun:
                     #pfn = 'file:/pnfs/desy.de/cms/tier2/' + lfn
-                    #pfn = 'root://cmsxrootd-site.fnal.gov/' + lfn
-                    pfn = 'root://cmseos.fnal.gov/' + lfn
+                    pfn = 'root://cmsxrootd.fnal.gov/' + lfn
+                    #pfn = 'root://cmseos.fnal.gov/' + lfn
                 else:
                     #pfn = 'root://cmsxrootd-site.fnal.gov/' + lfn
                     pfn = 'root://xrootd-cms.infn.it/' + lfn
@@ -375,10 +375,10 @@ def b2gdas_fwlite(argv):
     if options.isData:
         DataJECs = DataJEC(jet_energy_corrections)
     else:
-        jecAK4 = createJEC('JECs/80X_mcRun2_asymptotic_2016_TrancheIV_v8', ['L1FastJet', 'L2Relative', 'L3Absolute'], 'AK4PFchs')
-        jecAK8 = createJEC('JECs/80X_mcRun2_asymptotic_2016_TrancheIV_v8', ['L1FastJet', 'L2Relative', 'L3Absolute'], 'AK8PFchs')
-        jecUncAK4 = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/80X_mcRun2_asymptotic_2016_TrancheIV_v8_Uncertainty_AK4PFchs.txt'))
-        jecUncAK8 = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/80X_mcRun2_asymptotic_2016_TrancheIV_v8_Uncertainty_AK8PFchs.txt'))
+        jecAK4 = createJEC('JECs/Spring16_23Sep2016V2_MC', ['L1FastJet', 'L2Relative', 'L3Absolute'], 'AK4PFchs')
+        jecAK8 = createJEC('JECs/Spring16_23Sep2016V2_MC', ['L1FastJet', 'L2Relative', 'L3Absolute'], 'AK8PFchs')
+        jecUncAK4 = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/Spring16_23Sep2016V2_MC_Uncertainty_AK4PFchs.txt'))
+        jecUncAK8 = ROOT.JetCorrectionUncertainty(ROOT.std.string('JECs/Spring16_23Sep2016V2_MC_Uncertainty_AK8PFchs.txt'))
 
 
     selectElectron = VIDElectronSelector(mvaEleID_Spring15_25ns_nonTrig_V1_wp80)
