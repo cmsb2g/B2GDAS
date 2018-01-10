@@ -23,6 +23,16 @@ def plot_mttbar(argv) :
     parser.add_option('--file_out', type='string', action='store',
                       dest='file_out',
                       help='Output file')
+
+    parser.add_option('--jer', type='string', action='store',
+                      dest='jer',
+                      default = None,
+                      help='Output file')
+
+    parser.add_option('--jec', type='string', action='store',
+                      dest='jec',
+                      default = None,
+                      help='Output file')
     
     #parser.add_option('--isData', action='store_true',
     #                  dest='isData',
@@ -153,6 +163,14 @@ def plot_mttbar(argv) :
         t.SetBranchAddress('SemiLeptRunNum'         ,  SemiLeptRunNum       )
         t.SetBranchAddress('SemiLeptLumiNum'      ,  SemiLeptLumiNum    )
         t.SetBranchAddress('SemiLeptEventNum'       ,  SemiLeptEventNum     )
+        t.SetBranchAddress('FatJetJECUpSys' , FatJetJECUpSys )
+        t.SetBranchAddress('FatJetJECDnSys' , FatJetJECDnSys )
+        t.SetBranchAddress('FatJetJERUpSys' , FatJetJERUpSys )
+        t.SetBranchAddress('FatJetJERDnSys' ,  FatJetJERDnSys )
+        t.SetBranchAddress('NearestAK4JetJECUpSys', NearestAK4JetJECUpSys)
+        t.SetBranchAddress('NearestAK4JetJECDnSys', NearestAK4JetJECDnSys)
+        t.SetBranchAddress('NearestAK4JetJERUpSys' = array.array('f', [-1.])
+        t.SetBranchAddress('NearestAK4JetJERDnSys' = array.array('f', [-1.])
 
 
         t.SetBranchStatus ('*', 0)
