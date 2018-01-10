@@ -68,6 +68,10 @@ def plot_mttbar(argv) :
     h_AK4M     = ROOT.TH1F("h_AK4M",";ak4jet_{mass};Number", 100, 0, 400)
     h_AK4Bdisc = ROOT.TH1F("h_AK4Bdisc",";ak4jet_{bdisc};Number", 100, 0, 1.0)
 
+    h_drAK4AK8    = ROOT.TH1F("h_drAK4AK8",";#DeltaR_{AK4, AK8} ;Number", 50, 0, 5)
+#    h_drLepAK8    = ROOT.TH1F("h_drLepAK8",";{#delta r}_{lep, AK8} ;Number", 100, 0, 1500)
+    h_drLepAK4    = ROOT.TH1F("h_drLepAK4",";#DeltaR_{lep, AK4} ;Number", 50, 0, 5)
+
     fin = ROOT.TFile.Open(options.file_in)
 
     trees = [ fin.Get("TreeSemiLept") ]
@@ -112,8 +116,8 @@ def plot_mttbar(argv) :
         SemiLepMETpt        = array.array('f', [-1.])
         SemiLepMETphi       = array.array('f', [-1.])
         SemiLepNvtx         = array.array('f', [-1.])
-        FatJetDeltaPhiLep      = array.array('f', [-1.]) 
-        NearestAK4JetBDisc            = array.array('f', [-1.])
+        FatJetDeltaPhiLep   = array.array('f', [-1.]) 
+        NearestAK4JetBDisc  = array.array('f', [-1.])
         NearestAK4JetPt     = array.array('f', [-1.])
         NearestAK4JetEta    = array.array('f', [-1.])
         NearestAK4JetPhi    = array.array('f', [-1.])
@@ -313,6 +317,10 @@ def plot_mttbar(argv) :
             h_AK4Phi.Fill( NearestAK4JetPhi[0] )
             h_AK4M.Fill( NearestAK4JetMass[0] )
             h_AK4Bdisc.Fill( NearestAK4JetBDisc[0] )
+      
+            #dr's
+            h_drAK4AK8.Fill(bJetCandP4.DeltaR(bJetCandP4))
+            h_drLepAK4.Fill(theLepton.DeltaR(hadTopCandP4))
 
     fout.cd()
     fout.Write()
@@ -320,14 +328,6 @@ def plot_mttbar(argv) :
 
 if __name__ == "__main__" :
     import os
-    files = []
-    path = '/eos/uscms/store/user/cmsdas/2018/long_exercises/B2GTTbar/'
-    temps = os.listdir(path)
-    for file in temps:
-        if file.startswith("single"):
-            files.append('/eos/uscms/store/user/cmsdas/2018/long_exercises/B2GTTbar/'+file)
-    print files
-
-    #plot_mttbar(sys.argv)
+    plot_mttbar(sys.argv)
 
 
