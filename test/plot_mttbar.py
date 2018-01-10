@@ -26,22 +26,22 @@ def plot_mttbar(argv) :
     parser.add_option('--jer', type='string', action='store',
                       dest='jer',
                       default = None,
-                      help='JER')
+                      help='Choice of up and down for Jet Energy Resolution (only set jer or jec')
 
     parser.add_option('--jec', type='string', action='store',
                       dest='jec',
                       default = None,
-                      help='JEC')
+                      help='Choice of up and down for Jet Energy Correction (only set jer or jec')
     
     parser.add_option('--lepton', type='string', action='store',
 	                  dest='lepton',
 					  default='mu',
                       help='Choice of lepton (mu or ele)')
 					  
-    #parser.add_option('--isData', action='store_true',
-    #                  dest='isData',
-    #                  default = False,
-    #                  help='Is this Data?')
+    parser.add_option('--isData', action='store_true',
+                      dest='isData',
+                      default = False,
+                      help='Is this Data?')
         
     (options, args) = parser.parse_args(argv)
     argv = []
@@ -318,34 +318,48 @@ def plot_mttbar(argv) :
 
             ttbarCand = hadTopCandP4 + lepTopCandP4
             mttbar = ttbarCand.M()
-            
-            h_mttbar.Fill( mttbar, SemiLeptWeight[0] )
-            h_mtopHadGroomed.Fill( mass_sd, SemiLeptWeight[0] )
-            h_mtopHad.Fill( hadTopCandP4.M(), SemiLeptWeight[0] )
 			
-            h_AK4Pt.Fill( NearestAK4JetPt[0] )
-            h_AK4Eta.Fill( NearestAK4JetEta[0] )
-            h_AK4Phi.Fill( NearestAK4JetPhi[0] )
-            h_AK4M.Fill( NearestAK4JetMass[0] )
-            h_AK4Bdisc.Fill( NearestAK4JetBDisc[0] )
+            #Weights
+            weight = 1
+            if options.jec =='up':
+                weight = 1*NearestAK4JetJECUpSys*FatJetJECUpSys
+            if options.jec =='down':
+                weight = 1*NearestAK4JetJECDnSys*FatJetJECDnSys
+            if options.jer =='up':
+                weight = 1*NearestAK4JetJERUpSys*FatJetJECUpSys
+            if options.jer =='down':
+                weight = 1*NearestAK4JetJERDnSys*FatJetJECDnSys
+
+            print weight
+
+            # Filling plots
+            h_mttbar.Fill( mttbar, weight )
+            h_mtopHadGroomed.Fill( mass_sd, weight )
+            h_mtopHad.Fill( hadTopCandP4.M(), weight )
             
             #fill lepton histos
-            h_lepPt.Fill(LeptonPt[0])
-            h_lepEta.Fill(LeptonEta[0])
-            h_lepPhi.Fill(LeptonPhi[0])
+            h_lepPt.Fill(LeptonPt[0], weight )
+            h_lepEta.Fill(LeptonEta[0], weight )
+            h_lepPhi.Fill(LeptonPhi[0], weight )
 
             #fill Jet histos
-            h_AK8Pt.Fill(FatJetPt[0])
-            h_AK8Eta.Fill(FatJetEta[0])
-            h_AK8Phi.Fill(FatJetPhi[0])
-            h_AK8Tau32.Fill(FatJetTau32[0])
-            h_AK8Tau21.Fill(FatJetTau21[0])
+            h_AK8Pt.Fill(FatJetPt[0], weight )
+            h_AK8Eta.Fill(FatJetEta[0], weight )
+            h_AK8Phi.Fill(FatJetPhi[0], weight )
+            h_AK8Tau32.Fill(FatJetTau32[0], weight )
+            h_AK8Tau21.Fill(FatJetTau21[0], weight )
 
-            #dr's
-            h_drAK4AK8.Fill(bJetCandP4.DeltaR(bJetCandP4))
-            h_drLepAK4.Fill(theLepton.DeltaR(hadTopCandP4))
+            h_AK4Pt.Fill( NearestAK4JetPt[0], weight )
+            h_AK4Eta.Fill( NearestAK4JetEta[0], weight )
+            h_AK4Phi.Fill( NearestAK4JetPhi[0], weight )
+            h_AK4M.Fill( NearestAK4JetMass[0], weight )
+            h_AK4Bdisc.Fill( NearestAK4JetBDisc[0], weight )
+			
+			#dr's
+            h_drAK4AK8.Fill(bJetCandP4.DeltaR(bJetCandP4), weight )
+            h_drLepAK4.Fill(theLepton.DeltaR(hadTopCandP4), weight )
 
-            h_dPhiLepAK8.Fill(FatJetDeltaPhiLep[0])
+            h_dPhiLepAK8.Fill(FatJetDeltaPhiLep[0], weight )
 
     fout.cd()
     fout.Write()
