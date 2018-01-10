@@ -55,26 +55,32 @@ def plot_mttbar(argv) :
 
     from leptonic_nu_z_component import solve_nu_tmass, solve_nu  #load Z_momentum with these functions
 
+    histogramSuffix = ''
     #Adding name change to histograms based on --jec options and --jer options
-    histogramSuffix = '';
+    if options.lepton == 'ele':
+        histogramSuffix = '__el'
+    if options.lepton == 'mu':
+        histogramSuffix = '__mu'
 
     if options.jec is not None and options.jet is not None:
         print 'You are trying to do two systematics at once! Please fix your input options'
     
     if options.jec == 'up' :
-        histogramSuffix = '_jec_up'
+        histogramSuffix += '_jec_Up'
 
     if options.jec == 'down' :
-	    histogramSuffix = '_jec_down'
+	    histogramSuffix += '_jec_Down'
 
     if options.jer == 'up' :
-        histogramSuffix = '_jer_up'
+        histogramSuffix += '_jer_Up'
 
     if options.jer == 'down' :
-	    histogramSuffix = '_jer_down'
+	    histogramSuffix += '_jer_Down'
+
+    histogramSuffix = ''
 	    
     fout= ROOT.TFile(options.file_out, "RECREATE")
-
+    h_cuts = ROOT.TH1F("Cut_flow", "", 4,0,4)
     h_mttbar = ROOT.TH1F("h_mttbar"+histogramSuffix, ";m_{t#bar{t}} (GeV);Number", 100, 0, 5000)#invariant ttbar mass
     h_mtopHad = ROOT.TH1F("h_mtopHad"+histogramSuffix, ";m_{jet} (GeV);Number", 100, 0, 400)
     h_mtopHadGroomed = ROOT.TH1F("h_mtopHadGroomed"+histogramSuffix, ";Groomed m_{jet} (GeV);Number", 100, 0, 400)
@@ -323,9 +329,9 @@ def plot_mttbar(argv) :
             #print weight
             
             #preselection histos            
-            h_AK4BdiscPreSel.Fill( NearestAK4JetBDisc[0], weight )
-            h_AK8Tau32PreSel.Fill(FatJetTau32[0], weight )
-            h_AK8Tau21PreSel.Fill(FatJetTau21[0], weight )
+            #h_AK4BdiscPreSel.Fill( NearestAK4JetBDisc[0], weight )
+            #h_AK8Tau32PreSel.Fill(FatJetTau32[0], weight )
+            #h_AK8Tau21PreSel.Fill(FatJetTau21[0], weight )
 
             passKin = hadTopCandP4.Perp() > 100.
             passTopTag = tau32 < 0.8 and mass_sd > 110. and mass_sd < 250.
