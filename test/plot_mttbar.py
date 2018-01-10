@@ -23,15 +23,25 @@ def plot_mttbar(argv) :
                       dest='file_out',
                       help='Output file')
 
+    parser.add_option('--jer', type='string', action='store',
+                      dest='jer',
+                      default = None,
+                      help='Choice of up and down for Jet Energy Resolution (only set jer or jec')
+
+    parser.add_option('--jec', type='string', action='store',
+                      dest='jec',
+                      default = None,
+                      help='Choice of up and down for Jet Energy Correction (only set jer or jec')
+    
     parser.add_option('--lepton', type='string', action='store',
 	                  dest='lepton',
 					  default='mu',
                       help='Choice of lepton (mu or ele)')
 					  
-    #parser.add_option('--isData', action='store_true',
-    #                  dest='isData',
-    #                  default = False,
-    #                  help='Is this Data?')
+    parser.add_option('--isData', action='store_true',
+                      dest='isData',
+                      default = False,
+                      help='Is this Data?')
         
     (options, args) = parser.parse_args(argv)
     argv = []
@@ -180,6 +190,7 @@ def plot_mttbar(argv) :
         t.SetBranchAddress('SemiLeptRunNum'         ,  SemiLeptRunNum       )
         t.SetBranchAddress('SemiLeptLumiNum'      ,  SemiLeptLumiNum    )
         t.SetBranchAddress('SemiLeptEventNum'       ,  SemiLeptEventNum     )
+        
 
 
         t.SetBranchStatus ('*', 0)
@@ -208,6 +219,14 @@ def plot_mttbar(argv) :
         t.SetBranchStatus ('LeptonIso'           , 1)
         t.SetBranchStatus ('LeptonPtRel'         , 1)
         t.SetBranchStatus ('LeptonDRMin'         , 1)
+        t.SetBranchStatus ('FatJetJECUpSys'      , 1)
+        t.SetBranchStatus ('FatJetJECDnSys'      , 1)
+        t.SetBranchStatus ('FatJetJERUpSys'      , 1)
+        t.SetBranchStatus ('FatJetJERDnSys'      , 1)
+        t.SetBranchStatus ('NearestAK4JetJECUpSys', 1)
+        t.SetBranchStatus ('NearestAK4JetJECDnSys' , 1)
+        t.SetBranchStatus ('NearestAK4JetJERUpSys' , 1)
+        t.SetBranchStatus ('NearestAK4JetJERDnSys' , 1)
 
 
         entries = t.GetEntriesFast()
@@ -298,19 +317,33 @@ def plot_mttbar(argv) :
             ttbarCand = hadTopCandP4 + lepTopCandP4
             mttbar = ttbarCand.M()
 
-            h_mttbar.Fill( mttbar, SemiLeptWeight[0] )
-            h_mtopHadGroomed.Fill( mass_sd, SemiLeptWeight[0] )
-            h_mtopHad.Fill( hadTopCandP4.M(), SemiLeptWeight[0] )
+            #Weights
+            weight = 1
+            if options.jec =='up':
+                weight = 1*NearestAK4JetJECUpSys*FatJetJECUpSys
+            if options.jec =='down':
+                weight = 1*NearestAK4JetJECDnSys*FatJetJECDnSys
+            if options.jer =='up':
+                weight = 1*NearestAK4JetJERUpSys*FatJetJECUpSys
+            if options.jer =='down':
+                weight = 1*NearestAK4JetJERDnSys*FatJetJECDnSys
+
+            print weight
+
+            # Filling plots
+            h_mttbar.Fill( mttbar, weight )
+            h_mtopHadGroomed.Fill( mass_sd, weight )
+            h_mtopHad.Fill( hadTopCandP4.M(), weight )
             
             #fill lepton histos
-            h_lepPt.Fill(LeptonPt[0])
-            h_lepEta.Fill(LeptonEta[0])
-            h_lepPhi.Fill(LeptonPhi[0])
+            h_lepPt.Fill(LeptonPt[0], weight )
+            h_lepEta.Fill(LeptonEta[0], weight )
+            h_lepPhi.Fill(LeptonPhi[0], weight )
 
             #fill Jet histos
-            h_AK8Pt.Fill(FatJetPt[0])
-            h_AK8Eta.Fill(FatJetEta[0])
-            h_AK8Phi.Fill(FatJetPhi[0])
+            h_AK8Pt.Fill(FatJetPt[0], weight )
+            h_AK8Eta.Fill(FatJetEta[0], weight )
+            h_AK8Phi.Fill(FatJetPhi[0], weight )
     
             h_AK4Pt.Fill( NearestAK4JetPt[0] )
             h_AK4Eta.Fill( NearestAK4JetEta[0] )
@@ -327,7 +360,6 @@ def plot_mttbar(argv) :
     fout.Close()
 
 if __name__ == "__main__" :
-    import os
     plot_mttbar(sys.argv)
 
 
