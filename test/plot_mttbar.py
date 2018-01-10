@@ -11,8 +11,9 @@ import sys
 import array as array
 from optparse import OptionParser
 
+    
+def plot_mttbar(argv) : 
 
-def plot_mttbar(argv) :
     parser = OptionParser()
 
     parser.add_option('--file_in', type='string', action='store',
@@ -186,6 +187,7 @@ def plot_mttbar(argv) :
         print 'Processing tree ' + str(itree)
 
         eventsToRun = entries
+        print entries
         for jentry in xrange( eventsToRun ):
             if jentry % 100000 == 0 :
                 print 'processing ' + str(jentry)
@@ -202,13 +204,16 @@ def plot_mttbar(argv) :
             if SemiLeptTrig[1] != 1  :
                 continue
 
-
+            # Hadronic top
             hadTopCandP4 = ROOT.TLorentzVector()
             hadTopCandP4.SetPtEtaPhiM( FatJetPt[0], FatJetEta[0], FatJetPhi[0], FatJetMass[0])
+            # Leptonic top, b jet
             bJetCandP4 = ROOT.TLorentzVector()
             bJetCandP4.SetPtEtaPhiM( NearestAK4JetPt[0], NearestAK4JetEta[0], NearestAK4JetPhi[0], NearestAK4JetMass[0])
+            # MET
             nuCandP4 = ROOT.TLorentzVector( )
             nuCandP4.SetPtEtaPhiM( SemiLepMETpt[0], 0, SemiLepMETphi[0], SemiLepMETpt[0] )
+            # Leptoon
             theLepton = ROOT.TLorentzVector()
             theLepton.SetPtEtaPhiE( LeptonPt[0], LeptonEta[0], LeptonPhi[0], LeptonEnergy[0] ) # Assume massless
             
@@ -262,6 +267,15 @@ def plot_mttbar(argv) :
     fout.Close()
 
 if __name__ == "__main__" :
-    plot_mttbar(sys.argv)
+    import os
+    files = []
+    path = '/eos/uscms/store/user/cmsdas/2018/long_exercises/B2GTTbar/'
+    temps = os.listdir(path)
+    for file in temps:
+        if file.startswith("single"):
+            files.append('/eos/uscms/store/user/cmsdas/2018/long_exercises/B2GTTbar/'+file)
+    print files
+
+    #plot_mttbar(sys.argv)
 
 
