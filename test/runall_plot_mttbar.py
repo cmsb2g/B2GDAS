@@ -10,6 +10,7 @@
 import sys
 import array as array
 from plot_mttbar import plot_mttbar
+import subprocess
 
 import os
 
@@ -36,14 +37,17 @@ outnames = {
 	'singletop' : []
 }
 
+
 # Extract file names
 for name in filenames.keys():
 	files, outfiles = [], []
-	temps = os.listdir(path)
-	for file in temps:
-	    if file.startswith(name):
-	    	filenames[name].append(path+file)
-	    	outnames[name].append(file[0:-5])
+	batcmd="xrdfs root://cmseos.fnal.gov ls -u /store/user/cmsdas/2018/long_exercises/B2GTTbar/"
+	temps = subprocess.check_output(batcmd, shell=True)
+	for file in temps.split("\n"):
+	    #print file.split("/")
+	    if file.split("/")[-1].startswith(name) :
+	        filenames[name].append(file)
+	        outnames[name].append(file.split("/")[-1][0:-5])
 
 # Compile function inputs
 ins = []
@@ -54,7 +58,9 @@ for leptype in ['mu', 'ele']:
 			out_file = outnames[typ][i]+"_plots_"+leptype+".root"
 			ins.append(["--file_in", in_file, "--file_out", out_file, "--lepton", leptype])  # can include --jer up/down or --jec up/down
 
+#plot_mttbar(ins[0])
+
 # Run in parallel
 from multiprocessing import Pool
 p = Pool(10)
-print(p.map(plot_mttbar, ins))
+p.map(plot_mttbar, ins)
