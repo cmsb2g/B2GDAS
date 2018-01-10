@@ -61,27 +61,27 @@ def plot_mttbar(argv) :
 
     #ele plots
     h_lepPt  = ROOT.TH1F("h_lepPt", "; lep_{pt}(GeV);Number", 100, 0, 1200)
-    h_lepEta = ROOT.TH1F("h_lepEta", ";lep_{#eta};Number", 50, -2.5, 2.5)
-    h_lepPhi = ROOT.TH1F("h_lepPhi", ";lep_{#phi};Number", 50, -3.2, 3.2)
+    h_lepEta = ROOT.TH1F("h_lepEta", ";lep_{#eta};Number", 100, -2.5, 2.5)
+    h_lepPhi = ROOT.TH1F("h_lepPhi", ";lep_{#phi};Number", 100, -3.5, 3.5)
 
     #AK8
     h_AK8Pt = ROOT.TH1F("h_AK8Pt"  , ";AK8_{pt} (GeV);Number", 100, 400, 2500)
-    h_AK8Eta = ROOT.TH1F("h_AK8Eta", ";AK8_{#eta} ;Number", 50, -2.5, 2.5)
-    h_AK8Phi = ROOT.TH1F("h_AK8Phi", ";AK8_{#phi} ;Number", 50, -3.2, 3.2)
+    h_AK8Eta = ROOT.TH1F("h_AK8Eta", ";AK8_{#eta} ;Number", 100, -2.5, 2.5)
+    h_AK8Phi = ROOT.TH1F("h_AK8Phi", ";AK8_{#phi} ;Number", 100, -3.5, 3.5)
     h_AK8Tau32 = ROOT.TH1F("h_AK8Tau32",";AK8_{#tau_{32}};Number", 50, 0.0, 1.0)
     h_AK8Tau21 = ROOT.TH1F("h_AK8Tau21",";AK8_{#tau_{21}};Number", 50, 0.0, 1.0)
     
 	#AK8
     h_AK4Pt    = ROOT.TH1F("h_AK4Pt",";ak4jet_{pT} (GeV);Number", 100, 0, 1500)
-    h_AK4Eta   = ROOT.TH1F("h_AK4Eta",";ak4jet_{#eta};Number", 50, -2.5, 2.5)
-    h_AK4Phi   = ROOT.TH1F("h_AK4Phi",";ak4jet_{#phi};Number", 50, -3.2, 3.2)
+    h_AK4Eta   = ROOT.TH1F("h_AK4Eta",";ak4jet_{#eta};Number", 100, -2.5, 2.5)
+    h_AK4Phi   = ROOT.TH1F("h_AK4Phi",";ak4jet_{#phi};Number", 100, -3.5, 3.5)
     h_AK4M     = ROOT.TH1F("h_AK4M",";ak4jet_{mass};Number", 100, 0, 400)
     h_AK4Bdisc = ROOT.TH1F("h_AK4Bdisc",";ak4jet_{bdisc};Number", 100, 0, 1.0)
 
-    h_drAK4AK8    = ROOT.TH1F("h_drAK4AK8",";#DeltaR_{AK4, AK8} ;Number", 50, 0, 5)
+    h_drAK4AK8    = ROOT.TH1F("h_drAK4AK8",";#DeltaR_{AK4, AK8} ;Number", 100, 0, 5)
 #    h_drLepAK8    = ROOT.TH1F("h_drLepAK8",";{#delta r}_{lep, AK8} ;Number", 100, 0, 1500)
-    h_drLepAK4    = ROOT.TH1F("h_drLepAK4",";#DeltaR_{lep, AK4} ;Number", 50, 0, 5)
-    h_dPhiLepAK8 = ROOT.TH1F("h_dPhiLepAK8",";#Delta#phi_{l,AK8};Number", 50, 0.0, 1.0)
+    h_drLepAK4    = ROOT.TH1F("h_drLepAK4",";#DeltaR_{lep, AK4} ;Number", 100, 0, 5)
+    h_dPhiLepAK8 = ROOT.TH1F("h_dPhiLepAK8",";#Delta#phi_{l,AK8};Number", 100, 0.0, 1.0)
     
     fin = ROOT.TFile.Open(options.file_in)
 
@@ -253,7 +253,7 @@ def plot_mttbar(argv) :
                     continue
 
                 # Muon triggers only for now (use HLT_Mu50 with index 0)
-                if SemiLeptTrig[0] != 0  :
+                if SemiLeptTrig[0] == 0  :
                     continue
 
             if options.lepton=='ele' :
@@ -261,8 +261,8 @@ def plot_mttbar(argv) :
                 if LeptonType[0] != 11 :
                     continue
 
-                # Muon triggers only for now (use HLT_Ele50)caloIdVT_GsfTrkIdT_PFJet165 with index 1 and HLT_Ele115_CaloIdVT_GsfTrkIdT with index 2)
-                if SemiLeptTrig[1] != 0 or SemiLeptTrig[2] != 0 :
+                # Muon triggers only for now (use HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet165 with index 1 and HLT_Ele115_CaloIdVT_GsfTrkIdT with index 2)
+                if SemiLeptTrig[1] == 0 or SemiLeptTrig[2] == 0 :
                     continue
 
             # Hadronic top
