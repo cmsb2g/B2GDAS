@@ -49,7 +49,7 @@ for name in filenames.keys():
 ins = []
 for leptype in ['mu', 'ele']:
 	for typ in filenames.keys(): 
-		for i, n in enumerate(filenames[typ][1:2]):
+		for i, n in enumerate(filenames[typ]):
 			in_file = filenames[typ][i]
 			out_file = names[typ][i]+"_plots_"+leptype+".root"
 			ins.append(["--file_in", in_file, "--file_out", out_file, "--lepton", leptype])  # can include --jer up/down or --jec up/down
