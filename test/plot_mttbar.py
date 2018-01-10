@@ -26,12 +26,12 @@ def plot_mttbar(argv) :
     parser.add_option('--jer', type='string', action='store',
                       dest='jer',
                       default = None,
-                      help='Output file')
+                      help='JER')
 
     parser.add_option('--jec', type='string', action='store',
                       dest='jec',
                       default = None,
-                      help='Output file')
+                      help='JEC')
     
     parser.add_option('--lepton', type='string', action='store',
 	                  dest='lepton',
@@ -186,14 +186,7 @@ def plot_mttbar(argv) :
         t.SetBranchAddress('SemiLeptRunNum'         ,  SemiLeptRunNum       )
         t.SetBranchAddress('SemiLeptLumiNum'      ,  SemiLeptLumiNum    )
         t.SetBranchAddress('SemiLeptEventNum'       ,  SemiLeptEventNum     )
-        t.SetBranchAddress('FatJetJECUpSys' , FatJetJECUpSys )
-        t.SetBranchAddress('FatJetJECDnSys' , FatJetJECDnSys )
-        t.SetBranchAddress('FatJetJERUpSys' , FatJetJERUpSys )
-        t.SetBranchAddress('FatJetJERDnSys' ,  FatJetJERDnSys )
-        t.SetBranchAddress('NearestAK4JetJECUpSys', NearestAK4JetJECUpSys)
-        t.SetBranchAddress('NearestAK4JetJECDnSys', NearestAK4JetJECDnSys)
-        t.SetBranchAddress('NearestAK4JetJERUpSys' = array.array('f', [-1.])
-        t.SetBranchAddress('NearestAK4JetJERDnSys' = array.array('f', [-1.])
+        
 
 
         t.SetBranchStatus ('*', 0)
@@ -222,6 +215,14 @@ def plot_mttbar(argv) :
         t.SetBranchStatus ('LeptonIso'           , 1)
         t.SetBranchStatus ('LeptonPtRel'         , 1)
         t.SetBranchStatus ('LeptonDRMin'         , 1)
+        t.SetBranchStatus ('FatJetJECUpSys'      , 1)
+        t.SetBranchStatus ('FatJetJECDnSys'      , 1)
+        t.SetBranchStatus ('FatJetJERUpSys'      , 1)
+        t.SetBranchStatus ('FatJetJERDnSys'      , 1)
+        t.SetBranchStatus ('NearestAK4JetJECUpSys', 1)
+        t.SetBranchStatus ('NearestAK4JetJECDnSys' , 1)
+        t.SetBranchStatus ('NearestAK4JetJERUpSys' , 1)
+        t.SetBranchStatus ('NearestAK4JetJERDnSys' , 1)
 
 
         entries = t.GetEntriesFast()
