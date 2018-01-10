@@ -70,6 +70,8 @@ def plot_mttbar(argv) :
     h_AK8Phi = ROOT.TH1F("h_AK8Phi", ";AK8_{#phi} ;Number", 100, -3.5, 3.5)
     h_AK8Tau32 = ROOT.TH1F("h_AK8Tau32",";AK8_{#tau_{32}};Number", 50, 0.0, 1.0)
     h_AK8Tau21 = ROOT.TH1F("h_AK8Tau21",";AK8_{#tau_{21}};Number", 50, 0.0, 1.0)
+    h_AK8Tau32PreSel = ROOT.TH1F("h_AK8Tau32PreSel",";AK8_{#tau_{32}};Number", 50, 0.0, 1.0)
+    h_AK8Tau21PreSel = ROOT.TH1F("h_AK8Tau21PreSel",";AK8_{#tau_{21}};Number", 50, 0.0, 1.0)
     
 	#AK8
     h_AK4Pt    = ROOT.TH1F("h_AK4Pt",";ak4jet_{pT} (GeV);Number", 100, 0, 1500)
@@ -77,9 +79,9 @@ def plot_mttbar(argv) :
     h_AK4Phi   = ROOT.TH1F("h_AK4Phi",";ak4jet_{#phi};Number", 100, -3.5, 3.5)
     h_AK4M     = ROOT.TH1F("h_AK4M",";ak4jet_{mass};Number", 100, 0, 400)
     h_AK4Bdisc = ROOT.TH1F("h_AK4Bdisc",";ak4jet_{bdisc};Number", 100, 0, 1.0)
+    h_AK4BdiscPreSel = ROOT.TH1F("h_AK4BdiscPreSel",";ak4jet_{bdisc};Number", 100, 0, 1.0)
 
     h_drAK4AK8    = ROOT.TH1F("h_drAK4AK8",";#DeltaR_{AK4, AK8} ;Number", 100, 0, 5)
-#    h_drLepAK8    = ROOT.TH1F("h_drLepAK8",";{#delta r}_{lep, AK8} ;Number", 100, 0, 1500)
     h_drLepAK4    = ROOT.TH1F("h_drLepAK4",";#DeltaR_{lep, AK4} ;Number", 100, 0, 5)
     h_dPhiLepAK8 = ROOT.TH1F("h_dPhiLepAK8",";#Delta#phi_{l,AK8};Number", 100, 0.0, 1.0)
     
@@ -281,11 +283,28 @@ def plot_mttbar(argv) :
             # Leptoon
             theLepton = ROOT.TLorentzVector()
             theLepton.SetPtEtaPhiE( LeptonPt[0], LeptonEta[0], LeptonPhi[0], LeptonEnergy[0] ) # Assume massless
-            
-            
+
             tau32 = FatJetTau32[0]
             mass_sd = FatJetMassSoftDrop[0]
             bdisc = NearestAK4JetBDisc[0]
+            
+            #Weights
+            weight = 1
+            if options.jec =='up':
+                weight = 1*NearestAK4JetJECUpSys[0]*FatJetJECUpSys[0]
+            if options.jec =='down':
+                weight = 1*NearestAK4JetJECDnSys[0]*FatJetJECDnSys[0]
+            if options.jer =='up':
+                weight = 1*NearestAK4JetJERUpSys[0]*FatJetJECUpSys[0]
+            if options.jer =='down':
+                weight = 1*NearestAK4JetJERDnSys[0]*FatJetJECDnSys[0]
+
+            #print weight
+            
+            #preselection histos            
+            h_AK4BdiscPreSel.Fill( NearestAK4JetBDisc[0], weight )
+            h_AK8Tau32PreSel.Fill(FatJetTau32[0], weight )
+            h_AK8Tau21PreSel.Fill(FatJetTau21[0], weight )
 
             passKin = hadTopCandP4.Perp() > 100.
             passTopTag = tau32 < 0.8 and mass_sd > 110. and mass_sd < 250.
@@ -322,18 +341,6 @@ def plot_mttbar(argv) :
             ttbarCand = hadTopCandP4 + lepTopCandP4
             mttbar = ttbarCand.M()
 			
-            #Weights
-            weight = 1
-            if options.jec =='up':
-                weight = 1*NearestAK4JetJECUpSys[0]*FatJetJECUpSys[0]
-            if options.jec =='down':
-                weight = 1*NearestAK4JetJECDnSys[0]*FatJetJECDnSys[0]
-            if options.jer =='up':
-                weight = 1*NearestAK4JetJERUpSys[0]*FatJetJECUpSys[0]
-            if options.jer =='down':
-                weight = 1*NearestAK4JetJERDnSys[0]*FatJetJECDnSys[0]
-
-            #print weight
 
             # Filling plots
             count +=1
@@ -351,15 +358,15 @@ def plot_mttbar(argv) :
             h_AK8Eta.Fill(FatJetEta[0], weight )
             h_AK8Phi.Fill(FatJetPhi[0], weight )
     
-            h_AK4Pt.Fill( NearestAK4JetPt[0] )
-            h_AK4Eta.Fill( NearestAK4JetEta[0] )
-            h_AK4Phi.Fill( NearestAK4JetPhi[0] )
-            h_AK4M.Fill( NearestAK4JetMass[0] )
-            h_AK4Bdisc.Fill( NearestAK4JetBDisc[0] )
+            h_AK4Pt.Fill( NearestAK4JetPt[0], weight )
+            h_AK4Eta.Fill( NearestAK4JetEta[0], weight )
+            h_AK4Phi.Fill( NearestAK4JetPhi[0], weight )
+            h_AK4M.Fill( NearestAK4JetMass[0], weight )
+            h_AK4Bdisc.Fill( NearestAK4JetBDisc[0], weight )
       
             #dr's
-            h_drAK4AK8.Fill(bJetCandP4.DeltaR(bJetCandP4))
-            h_drLepAK4.Fill(theLepton.DeltaR(hadTopCandP4))
+            h_drAK4AK8.Fill(bJetCandP4.DeltaR(bJetCandP4), weight)
+            h_drLepAK4.Fill(theLepton.DeltaR(hadTopCandP4), weight)
             h_AK8Tau32.Fill(FatJetTau32[0], weight )
             h_AK8Tau21.Fill(FatJetTau21[0], weight )
 
