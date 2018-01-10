@@ -37,12 +37,24 @@ def plot_mttbar(argv) :
 
     import ROOT
 
-    from leptonic_nu_z_component import solve_nu_tmass, solve_nu
+    from leptonic_nu_z_component import solve_nu_tmass, solve_nu  #load Z_momentum with these functions
 
     fout= ROOT.TFile(options.file_out, "RECREATE")
-    h_mttbar = ROOT.TH1F("h_mttbar", ";m_{t#bar{t}} (GeV);Number", 100, 0, 5000)
+    h_mttbar = ROOT.TH1F("h_mttbar", ";m_{t#bar{t}} (GeV);Number", 100, 0, 5000)#invariant ttbar mass
     h_mtopHad = ROOT.TH1F("h_mtopHad", ";m_{jet} (GeV);Number", 100, 0, 400)
     h_mtopHadGroomed = ROOT.TH1F("h_mtopHadGroomed", ";Groomed m_{jet} (GeV);Number", 100, 0, 400)
+    
+    #ele plots
+    h_lepPt  = ROOT.TH1F("h_lepPt", "; lep_{pt}(GeV);Number", 100, 0, 3000)
+    h_lepEta = ROOT.TH1F("h_lepEta", ";lep_{#eta};Number", 100, -4, 4)
+    h_lepPhi = ROOT.TH1F("h_lepPhi", ";lep_{#phi};Number", 100, -4, 4)
+
+    #AK8
+    h_AK8Pt = ROOT.TH1F("h_AK8Pt"  , ";AK8_{pt} (GeV);Number", 100, 0, 3000)
+    h_AK8Eta = ROOT.TH1F("h_AK8Eta", ";AK8_{#eta} ;Number", 100, -4, 4)
+    h_AK8Phi = ROOT.TH1F("h_AK8Phi", ";AK8_{#phi} ;Number", 100, -4, 4)
+    
+
     fin = ROOT.TFile.Open(options.file_in)
 
 
@@ -199,12 +211,12 @@ def plot_mttbar(argv) :
                 continue
 
             # Muon triggers only for now (use HLT_Mu45_eta2p1 with index 1)
-            if SemiLeptTrig[1] != 1  :
+            if SemiLeptTrig[1] != 0  : #0 mu, 1,2 ele, 3 jet
                 continue
 
 
             hadTopCandP4 = ROOT.TLorentzVector()
-            hadTopCandP4.SetPtEtaPhiM( FatJetPt[0], FatJetEta[0], FatJetPhi[0], FatJetMass[0])
+            hadTopCandP4.SetPtEtaPhiM( FatJetPt[0], FatJetEta[0], FatJetPhi[0], FatJetMass[0])#set up with lead Ak8 jet in event
             bJetCandP4 = ROOT.TLorentzVector()
             bJetCandP4.SetPtEtaPhiM( NearestAK4JetPt[0], NearestAK4JetEta[0], NearestAK4JetPhi[0], NearestAK4JetMass[0])
             nuCandP4 = ROOT.TLorentzVector( )
@@ -256,6 +268,16 @@ def plot_mttbar(argv) :
             h_mtopHadGroomed.Fill( mass_sd, SemiLeptWeight[0] )
             h_mtopHad.Fill( hadTopCandP4.M(), SemiLeptWeight[0] )
             
+            #fill lepton histos
+            h_lepPt.Fill(LeptonPt[0])
+            h_lepEta.Fill(LeptonEta[0])
+            h_lepPhi.Fill(LeptonPhi[0])
+
+            #fill Jet histos
+            h_AK8Pt.Fill(FatJetPt[0])
+            h_AK8Eta.Fill(FatJetEta[0])
+            h_AK8Phi.Fill(FatJetPhi[0])
+    
 
     fout.cd()
     fout.Write()
