@@ -322,15 +322,15 @@ def plot_mttbar(argv) :
             #Weights
             weight = 1
             if options.jec =='up':
-                weight = 1*NearestAK4JetJECUpSys*FatJetJECUpSys
+                weight = 1*NearestAK4JetJECUpSys[0]*FatJetJECUpSys[0]
             if options.jec =='down':
-                weight = 1*NearestAK4JetJECDnSys*FatJetJECDnSys
+                weight = 1*NearestAK4JetJECDnSys[0]*FatJetJECDnSys[0]
             if options.jer =='up':
-                weight = 1*NearestAK4JetJERUpSys*FatJetJECUpSys
+                weight = 1*NearestAK4JetJERUpSys[0]*FatJetJECUpSys[0]
             if options.jer =='down':
-                weight = 1*NearestAK4JetJERDnSys*FatJetJECDnSys
+                weight = 1*NearestAK4JetJERDnSys[0]*FatJetJECDnSys[0]
 
-            print weight
+            #print weight
 
             # Filling plots
             h_mttbar.Fill( mttbar, weight )
