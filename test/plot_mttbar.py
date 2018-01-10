@@ -47,6 +47,9 @@ def plot_mttbar(argv) :
     (options, args) = parser.parse_args(argv)
     argv = []
 
+    #write to temp file
+    fh = open("num.txt", "a")
+
     #print '===== Command line options ====='
     #print options
     #print '================================'
@@ -428,6 +431,11 @@ def plot_mttbar(argv) :
 
     print options.file_out, " : ", count, "/", tot_entries, ", Percentage:", round(float(count)/(float(tot_entries+1))*100,3), "%", \
      "Cut_flow: [", cut1, cut2, cut3, cut4, "]"
+
+    fh.write(options.file_in)
+    fh.write("  "+str(count))
+    fh.write('\n')
+    fh.close
 
     fout.cd()
     fout.Write()
