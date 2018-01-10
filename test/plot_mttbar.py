@@ -46,6 +46,9 @@ def plot_mttbar(argv) :
     (options, args) = parser.parse_args(argv)
     argv = []
 
+    #write to temp file
+    fh = open("num.txt", "a")
+
     #print '===== Command line options ====='
     #print options
     #print '================================'
@@ -374,6 +377,11 @@ def plot_mttbar(argv) :
             h_dPhiLepAK8.Fill(FatJetDeltaPhiLep[0], weight )
 
     print options.file_out, " : ", count, "/", tot_entries, ", Percentage:", round(float(count)/(float(tot_entries+1))*100,3), "%"
+
+    fh.write(options.file_in)
+    fh.write("  "+str(count))
+    fh.write('\n')
+    fh.close
 
     fout.cd()
     fout.Write()
