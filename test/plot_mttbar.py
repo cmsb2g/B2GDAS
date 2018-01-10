@@ -68,10 +68,10 @@ def plot_mttbar(argv) :
     h_AK8Pt = ROOT.TH1F("h_AK8Pt"  , ";AK8_{pt} (GeV);Number", 100, 400, 2500)
     h_AK8Eta = ROOT.TH1F("h_AK8Eta", ";AK8_{#eta} ;Number", 50, -2.5, 2.5)
     h_AK8Phi = ROOT.TH1F("h_AK8Phi", ";AK8_{#phi} ;Number", 50, -3.2, 3.2)
+    h_AK8Tau32 = ROOT.TH1F("h_AK8Tau32",";AK8_{#tau_{32}};Number", 50, 0.0, 1.0)
+    h_AK8Tau21 = ROOT.TH1F("h_AK8Tau21",";AK8_{#tau_{21}};Number", 50, 0.0, 1.0)
     
-    #Kelvin added histograms
-
-	#For ak4jet kinematic variables (b-jet)
+	#AK8
     h_AK4Pt    = ROOT.TH1F("h_AK4Pt",";ak4jet_{pT} (GeV);Number", 100, 0, 1500)
     h_AK4Eta   = ROOT.TH1F("h_AK4Eta",";ak4jet_{#eta};Number", 50, -2.5, 2.5)
     h_AK4Phi   = ROOT.TH1F("h_AK4Phi",";ak4jet_{#phi};Number", 50, -3.2, 3.2)
@@ -81,7 +81,8 @@ def plot_mttbar(argv) :
     h_drAK4AK8    = ROOT.TH1F("h_drAK4AK8",";#DeltaR_{AK4, AK8} ;Number", 50, 0, 5)
 #    h_drLepAK8    = ROOT.TH1F("h_drLepAK8",";{#delta r}_{lep, AK8} ;Number", 100, 0, 1500)
     h_drLepAK4    = ROOT.TH1F("h_drLepAK4",";#DeltaR_{lep, AK4} ;Number", 50, 0, 5)
-
+    h_dPhiLepAK8 = ROOT.TH1F("h_dPhiLepAK8",";#Delta#phi_{l,AK8};Number", 50, 0.0, 1.0)
+    
     fin = ROOT.TFile.Open(options.file_in)
 
     trees = [ fin.Get("TreeSemiLept") ]
@@ -203,6 +204,7 @@ def plot_mttbar(argv) :
         t.SetBranchStatus ('FatJetMass', 1)
         t.SetBranchStatus ('FatJetMassSoftDrop', 1)
         t.SetBranchStatus ('FatJetTau32', 1)
+        t.SetBranchStatus ('FatJetTau21', 1)
         t.SetBranchStatus ('SemiLeptTrig', 1)
         t.SetBranchStatus ('NearestAK4JetBDisc', 1)
         t.SetBranchStatus ('NearestAK4JetPt'   ,1 )
@@ -316,19 +318,19 @@ def plot_mttbar(argv) :
 
             ttbarCand = hadTopCandP4 + lepTopCandP4
             mttbar = ttbarCand.M()
-
+			
             #Weights
             weight = 1
             if options.jec =='up':
-                weight = 1*NearestAK4JetJECUpSys*FatJetJECUpSys
+                weight = 1*NearestAK4JetJECUpSys[0]*FatJetJECUpSys[0]
             if options.jec =='down':
-                weight = 1*NearestAK4JetJECDnSys*FatJetJECDnSys
+                weight = 1*NearestAK4JetJECDnSys[0]*FatJetJECDnSys[0]
             if options.jer =='up':
-                weight = 1*NearestAK4JetJERUpSys*FatJetJECUpSys
+                weight = 1*NearestAK4JetJERUpSys[0]*FatJetJECUpSys[0]
             if options.jer =='down':
-                weight = 1*NearestAK4JetJERDnSys*FatJetJECDnSys
+                weight = 1*NearestAK4JetJERDnSys[0]*FatJetJECDnSys[0]
 
-            print weight
+            #print weight
 
             # Filling plots
             h_mttbar.Fill( mttbar, weight )
@@ -354,6 +356,11 @@ def plot_mttbar(argv) :
             #dr's
             h_drAK4AK8.Fill(bJetCandP4.DeltaR(bJetCandP4))
             h_drLepAK4.Fill(theLepton.DeltaR(hadTopCandP4))
+            h_AK8Tau32.Fill(FatJetTau32[0], weight )
+            h_AK8Tau21.Fill(FatJetTau21[0], weight )
+
+
+            h_dPhiLepAK8.Fill(FatJetDeltaPhiLep[0], weight )
 
     fout.cd()
     fout.Write()
@@ -361,5 +368,3 @@ def plot_mttbar(argv) :
 
 if __name__ == "__main__" :
     plot_mttbar(sys.argv)
-
-
