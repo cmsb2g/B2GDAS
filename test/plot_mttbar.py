@@ -10,6 +10,7 @@
 import sys
 import array as array
 from optparse import OptionParser
+import numpy as np
 
 
 def plot_mttbar(argv) :
@@ -73,6 +74,7 @@ def plot_mttbar(argv) :
 	    histogramSuffix = '_jer_down'
 	    
     fout= ROOT.TFile(options.file_out, "RECREATE")
+
     h_mttbar = ROOT.TH1F("h_mttbar"+histogramSuffix, ";m_{t#bar{t}} (GeV);Number", 100, 0, 5000)#invariant ttbar mass
     h_mtopHad = ROOT.TH1F("h_mtopHad"+histogramSuffix, ";m_{jet} (GeV);Number", 100, 0, 400)
     h_mtopHadGroomed = ROOT.TH1F("h_mtopHadGroomed"+histogramSuffix, ";Groomed m_{jet} (GeV);Number", 100, 0, 400)
@@ -108,7 +110,8 @@ def plot_mttbar(argv) :
     trees = [ fin.Get("TreeSemiLept") ]
 
     tot_entries, count = 0, 0
-    cut_counts = []   
+    cut1, cut2, cut3, cut4 = 0 ,0 ,0 ,0
+
     for itree,t in enumerate(trees) :
 
         #if options.isData : 
@@ -329,8 +332,23 @@ def plot_mttbar(argv) :
             pass2DCut = LeptonPtRel[0] > 20. or LeptonDRMin[0] > 0.4
             passBtag = bdisc > 0.7
 
-            if not passKin or not pass2DCut or not passBtag or not passTopTag :
+            # Applying and counting cuts
+            if not passKin: 
                 continue
+            else:
+                cut1 +=1
+            if not pass2DCut: 
+                continue
+            else:
+                cut2 +=1
+            if not passBtag: 
+                continue                
+            else:
+                cut3 +=1
+            if not passTopTag: 
+                continue                
+            else:
+                cut4 +=1
 
 
             ##  ____  __.__                              __  .__         __________                     
@@ -391,7 +409,19 @@ def plot_mttbar(argv) :
 
             h_dPhiLepAK8.Fill(FatJetDeltaPhiLep[0], weight )
 
-    print options.file_out, " : ", count, "/", tot_entries, ", Percentage:", round(float(count)/(float(tot_entries+1))*100,3), "%"
+    # Fill cut-flow
+    h_cuts.SetBinContent(1, cut1)
+    h_cuts.SetBinContent(2, cut2)
+    h_cuts.SetBinContent(3, cut3)
+    h_cuts.SetBinContent(4, cut4)
+    h_cuts.GetXaxis().SetBinLabel(1, "passKin")
+    h_cuts.GetXaxis().SetBinLabel(2, "pass2DCut" )
+    h_cuts.GetXaxis().SetBinLabel(3, "passBtag")
+    h_cuts.GetXaxis().SetBinLabel(4, "passTopTag")
+
+
+    print options.file_out, " : ", count, "/", tot_entries, ", Percentage:", round(float(count)/(float(tot_entries+1))*100,3), "%", \
+     "Cut_flow: [", cut1, cut2, cut3, cut4, "]"
 
     fout.cd()
     fout.Write()
