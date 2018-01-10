@@ -55,10 +55,12 @@ for leptype in ['mu', 'ele']:
 	for typ in filenames.keys(): 
 		for i, n in enumerate(filenames[typ]):
 			in_file = filenames[typ][i]
-			out_file = outnames[typ][i]+"_plots_"+leptype+".root"
+			out_file = "roots/"+outnames[typ][i]+"_plots_"+leptype+".root"
 			ins.append(["--file_in", in_file, "--file_out", out_file, "--lepton", leptype])  # can include --jer up/down or --jec up/down
+
+#plot_mttbar(ins[0])
 
 # Run in parallel
 from multiprocessing import Pool
 p = Pool(10)
-print(p.map(plot_mttbar, ins))
+p.map(plot_mttbar, ins)
