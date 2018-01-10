@@ -262,7 +262,7 @@ def plot_mttbar(argv) :
                     continue
 
             # Hadronic top
-            adTopCandP4 = ROOT.TLorentzVector()
+            hadTopCandP4 = ROOT.TLorentzVector()
             hadTopCandP4.SetPtEtaPhiM( FatJetPt[0], FatJetEta[0], FatJetPhi[0], FatJetMass[0])#set up with lead Ak8 jet in event
             bJetCandP4 = ROOT.TLorentzVector()
             bJetCandP4.SetPtEtaPhiM( NearestAK4JetPt[0], NearestAK4JetEta[0], NearestAK4JetPhi[0], NearestAK4JetMass[0])
