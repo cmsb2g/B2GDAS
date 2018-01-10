@@ -10,8 +10,10 @@
 import sys
 import array as array
 from optparse import OptionParser
+
     
 def plot_mttbar(argv) : 
+
     parser = OptionParser()
 
     parser.add_option('--file_in', type='string', action='store',
@@ -265,6 +267,15 @@ def plot_mttbar(argv) :
     fout.Close()
 
 if __name__ == "__main__" :
-    plot_mttbar(sys.argv)
+    import os
+    files = []
+    path = '/eos/uscms/store/user/cmsdas/2018/long_exercises/B2GTTbar/'
+    temps = os.listdir(path)
+    for file in temps:
+        if file.startswith("single"):
+            files.append('/eos/uscms/store/user/cmsdas/2018/long_exercises/B2GTTbar/'+file)
+    print files
+
+    #plot_mttbar(sys.argv)
 
 
