@@ -54,36 +54,54 @@ def plot_mttbar(argv) :
 
     from leptonic_nu_z_component import solve_nu_tmass, solve_nu  #load Z_momentum with these functions
 
+    #Adding name change to histograms based on --jec options and --jer options
+    histogramSuffix = '';
+
+    if options.jec is not None and options.jet is not None:
+        print 'You are trying to do two systematics at once! Please fix your input options'
+    
+    if options.jec == 'up' :
+        histogramSuffix = '_jec_up'
+
+    if options.jec == 'down' :
+	    histogramSuffix = '_jec_down'
+
+    if options.jer == 'up' :
+        histogramSuffix = '_jer_up'
+
+    if options.jer == 'down' :
+	    histogramSuffix = '_jer_down'
+	    
     fout= ROOT.TFile(options.file_out, "RECREATE")
-    h_mttbar = ROOT.TH1F("h_mttbar", ";m_{t#bar{t}} (GeV);Number", 100, 0, 5000)#invariant ttbar mass
-    h_mtopHad = ROOT.TH1F("h_mtopHad", ";m_{jet} (GeV);Number", 100, 0, 400)
-    h_mtopHadGroomed = ROOT.TH1F("h_mtopHadGroomed", ";Groomed m_{jet} (GeV);Number", 100, 0, 400)
+    h_mttbar = ROOT.TH1F("h_mttbar"+histogramSuffix, ";m_{t#bar{t}} (GeV);Number", 100, 0, 5000)#invariant ttbar mass
+    h_mtopHad = ROOT.TH1F("h_mtopHad"+histogramSuffix, ";m_{jet} (GeV);Number", 100, 0, 400)
+    h_mtopHadGroomed = ROOT.TH1F("h_mtopHadGroomed"+histogramSuffix, ";Groomed m_{jet} (GeV);Number", 100, 0, 400)
 
     #ele plots
-    h_lepPt  = ROOT.TH1F("h_lepPt", "; lep_{pt}(GeV);Number", 100, 0, 1200)
-    h_lepEta = ROOT.TH1F("h_lepEta", ";lep_{#eta};Number", 100, -2.5, 2.5)
-    h_lepPhi = ROOT.TH1F("h_lepPhi", ";lep_{#phi};Number", 100, -3.5, 3.5)
+    h_lepPt  = ROOT.TH1F("h_lepPt"+histogramSuffix, "; lep_{pt}(GeV);Number", 100, 0, 1200)
+    h_lepEta = ROOT.TH1F("h_lepEta"+histogramSuffix, ";lep_{#eta};Number", 100, -2.5, 2.5)
+    h_lepPhi = ROOT.TH1F("h_lepPhi"+histogramSuffix, ";lep_{#phi};Number", 100, -3.5, 3.5)
 
     #AK8
-    h_AK8Pt = ROOT.TH1F("h_AK8Pt"  , ";AK8_{pt} (GeV);Number", 100, 400, 2500)
-    h_AK8Eta = ROOT.TH1F("h_AK8Eta", ";AK8_{#eta} ;Number", 100, -2.5, 2.5)
-    h_AK8Phi = ROOT.TH1F("h_AK8Phi", ";AK8_{#phi} ;Number", 100, -3.5, 3.5)
-    h_AK8Tau32 = ROOT.TH1F("h_AK8Tau32",";AK8_{#tau_{32}};Number", 50, 0.0, 1.0)
-    h_AK8Tau21 = ROOT.TH1F("h_AK8Tau21",";AK8_{#tau_{21}};Number", 50, 0.0, 1.0)
-    h_AK8Tau32PreSel = ROOT.TH1F("h_AK8Tau32PreSel",";AK8_{#tau_{32}};Number", 50, 0.0, 1.0)
-    h_AK8Tau21PreSel = ROOT.TH1F("h_AK8Tau21PreSel",";AK8_{#tau_{21}};Number", 50, 0.0, 1.0)
+
+    h_AK8Pt = ROOT.TH1F("h_AK8Pt"+histogramSuffix  , ";AK8_{pt} (GeV);Number", 100, 400, 2500)
+    h_AK8Eta = ROOT.TH1F("h_AK8Eta"+histogramSuffix, ";AK8_{#eta} ;Number", 100, -2.5, 2.5)
+    h_AK8Phi = ROOT.TH1F("h_AK8Phi"+histogramSuffix, ";AK8_{#phi} ;Number", 100, -3.5, 3.5)
+    h_AK8Tau32 = ROOT.TH1F("h_AK8Tau32"+histogramSuffix,";AK8_{#tau_{32}};Number", 50, 0.0, 1.0)
+    h_AK8Tau21 = ROOT.TH1F("h_AK8Tau21"+histogramSuffix,";AK8_{#tau_{21}};Number", 50, 0.0, 1.0)
     
 	#AK8
-    h_AK4Pt    = ROOT.TH1F("h_AK4Pt",";ak4jet_{pT} (GeV);Number", 100, 0, 1500)
-    h_AK4Eta   = ROOT.TH1F("h_AK4Eta",";ak4jet_{#eta};Number", 100, -2.5, 2.5)
-    h_AK4Phi   = ROOT.TH1F("h_AK4Phi",";ak4jet_{#phi};Number", 100, -3.5, 3.5)
-    h_AK4M     = ROOT.TH1F("h_AK4M",";ak4jet_{mass};Number", 100, 0, 400)
-    h_AK4Bdisc = ROOT.TH1F("h_AK4Bdisc",";ak4jet_{bdisc};Number", 100, 0, 1.0)
-    h_AK4BdiscPreSel = ROOT.TH1F("h_AK4BdiscPreSel",";ak4jet_{bdisc};Number", 100, 0, 1.0)
+    h_AK4Pt    = ROOT.TH1F("h_AK4Pt"+histogramSuffix,";ak4jet_{pT} (GeV);Number", 100, 0, 1500)
+    h_AK4Eta   = ROOT.TH1F("h_AK4Eta"+histogramSuffix,";ak4jet_{#eta};Number", 100, -2.5, 2.5)
+    h_AK4Phi   = ROOT.TH1F("h_AK4Phi"+histogramSuffix,";ak4jet_{#phi};Number", 100, -3.5, 3.5)
+    h_AK4M     = ROOT.TH1F("h_AK4M"+histogramSuffix,";ak4jet_{mass};Number", 100, 0, 400)
+    h_AK4Bdisc = ROOT.TH1F("h_AK4Bdisc"+histogramSuffix,";ak4jet_{bdisc};Number", 100, 0, 1.0)
 
-    h_drAK4AK8    = ROOT.TH1F("h_drAK4AK8",";#DeltaR_{AK4, AK8} ;Number", 100, 0, 5)
-    h_drLepAK4    = ROOT.TH1F("h_drLepAK4",";#DeltaR_{lep, AK4} ;Number", 100, 0, 5)
-    h_dPhiLepAK8 = ROOT.TH1F("h_dPhiLepAK8",";#Delta#phi_{l,AK8};Number", 100, 0.0, 1.0)
+    h_drAK4AK8    = ROOT.TH1F("h_drAK4AK8"+histogramSuffix,";#DeltaR_{AK4, AK8} ;Number", 100, 0, 5)
+#    h_drLepAK8    = ROOT.TH1F("h_drLepAK8",";{#delta r}_{lep, AK8} ;Number", 100, 0, 1500)
+    h_drLepAK4    = ROOT.TH1F("h_drLepAK4"+histogramSuffix,";#DeltaR_{lep, AK4} ;Number", 100, 0, 5)
+    h_dPhiLepAK8 = ROOT.TH1F("h_dPhiLepAK8"+histogramSuffix,";#Delta#phi_{l,AK8};Number", 100, 0.0, 1.0)
+
     
     fin = ROOT.TFile.Open(options.file_in)
 
