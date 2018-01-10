@@ -25,6 +25,7 @@ def plot_mttbar(argv) :
 
     parser.add_option('--lepton', type='string', action='store',
 	                  dest='lepton',
+					  default='mu',
                       help='Choice of lepton (mu or ele)')
 					  
     #parser.add_option('--isData', action='store_true',
@@ -212,7 +213,7 @@ def plot_mttbar(argv) :
 			#   2: "HLT_Ele115_CaloIdVT_GsfTrkIdT"
 			#   3: "HLT_PFHT800"
 
-            if lepton=='mu' :
+            if options.lepton=='mu' :
 
                 if LeptonType[0] != 13 :
                     continue
@@ -221,13 +222,13 @@ def plot_mttbar(argv) :
                 if SemiLeptTrig[0] != 0  :
                     continue
 
-            if lepton=='ele' :
+            if options.lepton=='ele' :
     
                 if LeptonType[0] != 11 :
                     continue
 
                 # Muon triggers only for now (use HLT_Ele50)caloIdVT_GsfTrkIdT_PFJet165 with index 1 and HLT_Ele115_CaloIdVT_GsfTrkIdT with index 2)
-                if SemiLeptTrig[1] != 0 || SemiLeptTrig[2] != 0 :
+                if SemiLeptTrig[1] != 0 or SemiLeptTrig[2] != 0 :
                     continue
 
 
