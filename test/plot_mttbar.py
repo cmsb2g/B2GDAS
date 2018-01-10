@@ -86,8 +86,6 @@ def plot_mttbar(argv) :
     fin = ROOT.TFile.Open(options.file_in)
 
     trees = [ fin.Get("TreeSemiLept") ]
-
-
     
     for itree,t in enumerate(trees) :
 
@@ -284,9 +282,9 @@ def plot_mttbar(argv) :
             mass_sd = FatJetMassSoftDrop[0]
             bdisc = NearestAK4JetBDisc[0]
 
-            passKin = hadTopCandP4.Perp() > 400.
-            passTopTag = tau32 < 0.6 and mass_sd > 110. and mass_sd < 250.
-            pass2DCut = LeptonPtRel[0] > 55. or LeptonDRMin[0] > 0.4
+            passKin = hadTopCandP4.Perp() > 100.
+            passTopTag = tau32 < 0.8 and mass_sd > 110. and mass_sd < 250.
+            pass2DCut = LeptonPtRel[0] > 20. or LeptonDRMin[0] > 0.4
             passBtag = bdisc > 0.7
 
             if not passKin or not pass2DCut or not passBtag or not passTopTag :
