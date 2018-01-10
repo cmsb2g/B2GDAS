@@ -22,7 +22,11 @@ def plot_mttbar(argv) :
     parser.add_option('--file_out', type='string', action='store',
                       dest='file_out',
                       help='Output file')
-    
+
+    parser.add_option('--lepton', type='string', action='store',
+	                  dest='lepton',
+                      help='Choice of lepton (mu or ele)')
+					  
     #parser.add_option('--isData', action='store_true',
     #                  dest='isData',
     #                  default = False,
@@ -43,8 +47,17 @@ def plot_mttbar(argv) :
     h_mttbar = ROOT.TH1F("h_mttbar", ";m_{t#bar{t}} (GeV);Number", 100, 0, 5000)
     h_mtopHad = ROOT.TH1F("h_mtopHad", ";m_{jet} (GeV);Number", 100, 0, 400)
     h_mtopHadGroomed = ROOT.TH1F("h_mtopHadGroomed", ";Groomed m_{jet} (GeV);Number", 100, 0, 400)
-    fin = ROOT.TFile.Open(options.file_in)
 
+    #Kelvin added histograms
+
+	#For ak4jet kinematic variables (b-jet)
+    h_AK4Pt    = ROOT.TH1F("h_AK4Pt",";ak4jet_{pT} (GeV);Number", 100, 0, 1000)
+    h_AK4Eta   = ROOT.TH1F("h_AK4Eta",";ak4jet_{#eta};Number", 100, -5.0, 5.0)
+    h_AK4Phi   = ROOT.TH1F("h_AK4Phi",";ak4jet_{#phi};Number", 100, -3.5, 3.5)
+    h_AK4M     = ROOT.TH1F("h_AK4M",";ak4jet_{mass};Number", 100, 0, 1500)
+    h_AK4Bdisc = ROOT.TH1F("h_AK4Bdisc",";ak4jet_{bdisc};Number", 100, 0, 1.0)
+
+    fin = ROOT.TFile.Open(options.file_in)
 
     trees = [ fin.Get("TreeSemiLept") ]
 
@@ -193,14 +206,29 @@ def plot_mttbar(argv) :
             ientry = t.GetEntry( jentry )
             if ientry < 0:
                 break
+			#Triggers that are available: 
+			#   0: "HLT_Mu50"
+			#   1: "HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet165"
+			#   2: "HLT_Ele115_CaloIdVT_GsfTrkIdT"
+			#   3: "HLT_PFHT800"
 
-            # Muons only for now
-            if LeptonType[0] != 13 :
-                continue
+            if lepton=='mu' :
 
-            # Muon triggers only for now (use HLT_Mu45_eta2p1 with index 1)
-            if SemiLeptTrig[1] != 1  :
-                continue
+                if LeptonType[0] != 13 :
+                    continue
+
+                # Muon triggers only for now (use HLT_Mu50 with index 0)
+                if SemiLeptTrig[0] != 0  :
+                    continue
+
+            if lepton=='ele' :
+    
+                if LeptonType[0] != 11 :
+                    continue
+
+                # Muon triggers only for now (use HLT_Ele50)caloIdVT_GsfTrkIdT_PFJet165 with index 1 and HLT_Ele115_CaloIdVT_GsfTrkIdT with index 2)
+                if SemiLeptTrig[1] != 0 || SemiLeptTrig[2] != 0 :
+                    continue
 
 
             hadTopCandP4 = ROOT.TLorentzVector()
@@ -251,10 +279,16 @@ def plot_mttbar(argv) :
 
             ttbarCand = hadTopCandP4 + lepTopCandP4
             mttbar = ttbarCand.M()
-
+            
             h_mttbar.Fill( mttbar, SemiLeptWeight[0] )
             h_mtopHadGroomed.Fill( mass_sd, SemiLeptWeight[0] )
             h_mtopHad.Fill( hadTopCandP4.M(), SemiLeptWeight[0] )
+			
+            h_AK4Pt.Fill( NearestAK4JetPt[0] )
+            h_AK4Eta.Fill( NearestAK4JetEta[0] )
+            h_AK4Phi.Fill( NearestAK4JetPhi[0] )
+            h_AK4M.Fill( NearestAK4JetMass[0] )
+            h_AK4Bdisc.Fill( NearestAK4JetBDisc[0] )
             
 
     fout.cd()
