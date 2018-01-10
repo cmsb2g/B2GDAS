@@ -11,9 +11,8 @@ import sys
 import array as array
 from optparse import OptionParser
 
-    
-def plot_mttbar(argv) : 
 
+def plot_mttbar(argv) :
     parser = OptionParser()
 
     parser.add_option('--file_in', type='string', action='store',
@@ -43,22 +42,37 @@ def plot_mttbar(argv) :
 
     import ROOT
 
-    from leptonic_nu_z_component import solve_nu_tmass, solve_nu
+    from leptonic_nu_z_component import solve_nu_tmass, solve_nu  #load Z_momentum with these functions
 
     fout= ROOT.TFile(options.file_out, "RECREATE")
-    h_mttbar = ROOT.TH1F("h_mttbar", ";m_{t#bar{t}} (GeV);Number", 100, 0, 5000)
+    h_mttbar = ROOT.TH1F("h_mttbar", ";m_{t#bar{t}} (GeV);Number", 100, 0, 5000)#invariant ttbar mass
     h_mtopHad = ROOT.TH1F("h_mtopHad", ";m_{jet} (GeV);Number", 100, 0, 400)
     h_mtopHadGroomed = ROOT.TH1F("h_mtopHadGroomed", ";Groomed m_{jet} (GeV);Number", 100, 0, 400)
 
-    #Kelvin added histograms
+    #ele plots
+    h_lepPt  = ROOT.TH1F("h_lepPt", "; lep_{pt}(GeV);Number", 100, 0, 1200)
+    h_lepEta = ROOT.TH1F("h_lepEta", ";lep_{#eta};Number", 50, -2.5, 2.5)
+    h_lepPhi = ROOT.TH1F("h_lepPhi", ";lep_{#phi};Number", 50, -3.2, 3.2)
 
-	#For ak4jet kinematic variables (b-jet)
-    h_AK4Pt    = ROOT.TH1F("h_AK4Pt",";ak4jet_{pT} (GeV);Number", 100, 0, 1000)
-    h_AK4Eta   = ROOT.TH1F("h_AK4Eta",";ak4jet_{#eta};Number", 100, -5.0, 5.0)
-    h_AK4Phi   = ROOT.TH1F("h_AK4Phi",";ak4jet_{#phi};Number", 100, -3.5, 3.5)
-    h_AK4M     = ROOT.TH1F("h_AK4M",";ak4jet_{mass};Number", 100, 0, 1500)
+    #AK8
+    h_AK8Pt = ROOT.TH1F("h_AK8Pt"  , ";AK8_{pt} (GeV);Number", 100, 400, 2500)
+    h_AK8Eta = ROOT.TH1F("h_AK8Eta", ";AK8_{#eta} ;Number", 50, -2.5, 2.5)
+    h_AK8Phi = ROOT.TH1F("h_AK8Phi", ";AK8_{#phi} ;Number", 50, -3.2, 3.2)
+    h_AK8Tau32 = ROOT.TH1F("h_AK8Tau32",";AK8_{#tau_{32}};Number", 50, 0.0, 1.0)
+    h_AK8Tau21 = ROOT.TH1F("h_AK8Tau21",";AK8_{#tau_{21}};Number", 50, 0.0, 1.0)
+    
+	#AK8
+    h_AK4Pt    = ROOT.TH1F("h_AK4Pt",";ak4jet_{pT} (GeV);Number", 100, 0, 1500)
+    h_AK4Eta   = ROOT.TH1F("h_AK4Eta",";ak4jet_{#eta};Number", 50, -2.5, 2.5)
+    h_AK4Phi   = ROOT.TH1F("h_AK4Phi",";ak4jet_{#phi};Number", 50, -3.2, 3.2)
+    h_AK4M     = ROOT.TH1F("h_AK4M",";ak4jet_{mass};Number", 100, 0, 400)
     h_AK4Bdisc = ROOT.TH1F("h_AK4Bdisc",";ak4jet_{bdisc};Number", 100, 0, 1.0)
 
+    h_drAK4AK8    = ROOT.TH1F("h_drAK4AK8",";#DeltaR_{AK4, AK8} ;Number", 50, 0, 5)
+#    h_drLepAK8    = ROOT.TH1F("h_drLepAK8",";{#delta r}_{lep, AK8} ;Number", 100, 0, 1500)
+    h_drLepAK4    = ROOT.TH1F("h_drLepAK4",";#DeltaR_{lep, AK4} ;Number", 50, 0, 5)
+    h_dPhiLepAK8 = ROOT.TH1F("h_dPhiLepAK8",";#Delta#phi_{l,AK8};Number", 50, 0.0, 1.0)
+    
     fin = ROOT.TFile.Open(options.file_in)
 
     trees = [ fin.Get("TreeSemiLept") ]
@@ -179,6 +193,7 @@ def plot_mttbar(argv) :
         t.SetBranchStatus ('FatJetMass', 1)
         t.SetBranchStatus ('FatJetMassSoftDrop', 1)
         t.SetBranchStatus ('FatJetTau32', 1)
+        t.SetBranchStatus ('FatJetTau21', 1)
         t.SetBranchStatus ('SemiLeptTrig', 1)
         t.SetBranchStatus ('NearestAK4JetBDisc', 1)
         t.SetBranchStatus ('NearestAK4JetPt'   ,1 )
@@ -235,8 +250,7 @@ def plot_mttbar(argv) :
 
             # Hadronic top
             hadTopCandP4 = ROOT.TLorentzVector()
-            hadTopCandP4.SetPtEtaPhiM( FatJetPt[0], FatJetEta[0], FatJetPhi[0], FatJetMass[0])
-            # Leptonic top, b jet
+            hadTopCandP4.SetPtEtaPhiM( FatJetPt[0], FatJetEta[0], FatJetPhi[0], FatJetMass[0])#set up with lead Ak8 jet in event
             bJetCandP4 = ROOT.TLorentzVector()
             bJetCandP4.SetPtEtaPhiM( NearestAK4JetPt[0], NearestAK4JetEta[0], NearestAK4JetPhi[0], NearestAK4JetMass[0])
             # MET
@@ -296,21 +310,27 @@ def plot_mttbar(argv) :
             h_AK4M.Fill( NearestAK4JetMass[0] )
             h_AK4Bdisc.Fill( NearestAK4JetBDisc[0] )
             
+            #fill lepton histos
+            h_lepPt.Fill(LeptonPt[0])
+            h_lepEta.Fill(LeptonEta[0])
+            h_lepPhi.Fill(LeptonPhi[0])
+
+            #fill Jet histos
+            h_AK8Pt.Fill(FatJetPt[0])
+            h_AK8Eta.Fill(FatJetEta[0])
+            h_AK8Phi.Fill(FatJetPhi[0])
+            h_AK8Tau32.Fill(FatJetTau32[0])
+            h_AK8Tau21.Fill(FatJetTau21[0])
+
+            #dr's
+            h_drAK4AK8.Fill(bJetCandP4.DeltaR(bJetCandP4))
+            h_drLepAK4.Fill(theLepton.DeltaR(hadTopCandP4))
+
+            h_dPhiLepAK8.Fill(FatJetDeltaPhiLep[0])
 
     fout.cd()
     fout.Write()
     fout.Close()
 
 if __name__ == "__main__" :
-    import os
-    files = []
-    path = '/eos/uscms/store/user/cmsdas/2018/long_exercises/B2GTTbar/'
-    temps = os.listdir(path)
-    for file in temps:
-        if file.startswith("single"):
-            files.append('/eos/uscms/store/user/cmsdas/2018/long_exercises/B2GTTbar/'+file)
-    print files
-
-    #plot_mttbar(sys.argv)
-
-
+    plot_mttbar(sys.argv)
