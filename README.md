@@ -26,3 +26,6 @@ To run :
 `voms-proxy-init`
 
 `python b2gdas_fwlite.py --input=inputfiles/rsgluon_ttbar_2TeV.txt --output=rsgluon_ttbar_2TeV.root --maxevents 10000 --trigProc=HLT2`
+
+Google Drive address:
+https://drive.google.com/drive/folders/1zXBOhfoMXGRQ_a5aXFRcIVYeSl52pozx?usp=sharing
