@@ -46,9 +46,9 @@ def plot_mttbar(argv) :
     (options, args) = parser.parse_args(argv)
     argv = []
 
-    print '===== Command line options ====='
-    print options
-    print '================================'
+    #print '===== Command line options ====='
+    #print options
+    #print '================================'
 
     import ROOT
 
@@ -86,7 +86,9 @@ def plot_mttbar(argv) :
     fin = ROOT.TFile.Open(options.file_in)
 
     trees = [ fin.Get("TreeSemiLept") ]
-    
+
+    tot_entries, count = 0, 0
+    cut_counts = []   
     for itree,t in enumerate(trees) :
 
         #if options.isData : 
@@ -230,13 +232,14 @@ def plot_mttbar(argv) :
 
 
         entries = t.GetEntriesFast()
-        print 'Processing tree ' + str(itree)
+        tot_entries +=entries
+
+        #print 'Processing tree ' + str(itree)
 
         eventsToRun = entries
-        print entries
         for jentry in xrange( eventsToRun ):
-            if jentry % 100000 == 0 :
-                print 'processing ' + str(jentry)
+            #if jentry % 100000 == 0 :
+            #    print 'processing ' + str(jentry)
             # get the next tree in the chain and verify
             ientry = t.GetEntry( jentry )
             if ientry < 0:
@@ -253,7 +256,7 @@ def plot_mttbar(argv) :
                     continue
 
                 # Muon triggers only for now (use HLT_Mu50 with index 0)
-                if SemiLeptTrig[0] != 0  :
+                if SemiLeptTrig[0] != 1  :
                     continue
 
             if options.lepton=='ele' :
@@ -262,7 +265,7 @@ def plot_mttbar(argv) :
                     continue
 
                 # Muon triggers only for now (use HLT_Ele50)caloIdVT_GsfTrkIdT_PFJet165 with index 1 and HLT_Ele115_CaloIdVT_GsfTrkIdT with index 2)
-                if SemiLeptTrig[1] != 0 or SemiLeptTrig[2] != 0 :
+                if SemiLeptTrig[1] != 1 or SemiLeptTrig[2] != 1 :
                     continue
 
             # Hadronic top
@@ -331,6 +334,7 @@ def plot_mttbar(argv) :
             #print weight
 
             # Filling plots
+            count +=1
             h_mttbar.Fill( mttbar, weight )
             h_mtopHadGroomed.Fill( mass_sd, weight )
             h_mtopHad.Fill( hadTopCandP4.M(), weight )
@@ -358,6 +362,8 @@ def plot_mttbar(argv) :
             h_drLepAK4.Fill(theLepton.DeltaR(hadTopCandP4), weight )
 
             h_dPhiLepAK8.Fill(FatJetDeltaPhiLep[0], weight )
+
+    print options.file_out, " : ", count, "/", tot_entries, ", Percentage:", round(float(count)/(float(tot_entries+1))*100,3), "%"
 
     fout.cd()
     fout.Write()
