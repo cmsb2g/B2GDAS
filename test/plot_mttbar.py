@@ -262,7 +262,7 @@ def plot_mttbar(argv) :
                     continue
 
                 # Muon triggers only for now (use HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet165 with index 1 and HLT_Ele115_CaloIdVT_GsfTrkIdT with index 2)
-                if SemiLeptTrig[1] == 0 or SemiLeptTrig[2] == 0 :
+                if SemiLeptTrig[1] == 0 and SemiLeptTrig[2] == 0 :
                     continue
 
             # Hadronic top
