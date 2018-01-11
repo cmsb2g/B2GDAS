@@ -70,7 +70,7 @@ def inputs(filenames, outnames, dir_name="root_files"):
 						make_dirs(dir_name)
 						# Raw files
 						if corr == "" and shape=="up": 
-							out_file = "root_files/"+outnames[typ][i]+"_plots_"+leptype+"_"+shape+".root"
+							out_file = "root_files/"+outnames[typ][i]+"_plots_"+leptype+".root"
 							ins.append(["--file_in", in_file, "--file_out", out_file, "--lepton", leptype ]) 
 							continue
 						if corr == "" and shape=="down":
