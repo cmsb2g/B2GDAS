@@ -103,7 +103,9 @@ def plot_mttbar(argv) :
     h_AK8Eta = ROOT.TH1F("h_AK8Eta"+histogramSuffix, ";AK8_{#eta} ;Number", 100, -2.5, 2.5)
     h_AK8Phi = ROOT.TH1F("h_AK8Phi"+histogramSuffix, ";AK8_{#phi} ;Number", 100, -3.5, 3.5)
     h_AK8Tau32 = ROOT.TH1F("h_AK8Tau32"+histogramSuffix,";AK8_{#tau_{32}};Number", 50, 0.0, 1.0)
+    h_AK8Tau32PreSel = ROOT.TH1F("h_AK8Tau32PreSel"+histogramSuffix,";AK8_{#tau_{32}};Number", 50, 0.0, 1.0)
     h_AK8Tau21 = ROOT.TH1F("h_AK8Tau21"+histogramSuffix,";AK8_{#tau_{21}};Number", 50, 0.0, 1.0)
+    h_AK8Tau21PreSel = ROOT.TH1F("h_AK8Tau21PreSel"+histogramSuffix,";AK8_{#tau_{21}};Number", 50, 0.0, 1.0)
     
 	#AK8
     h_AK4Pt    = ROOT.TH1F("h_AK4Pt"+histogramSuffix,";ak4jet_{pT} (GeV);Number", 100, 0, 1500)
@@ -111,6 +113,8 @@ def plot_mttbar(argv) :
     h_AK4Phi   = ROOT.TH1F("h_AK4Phi"+histogramSuffix,";ak4jet_{#phi};Number", 100, -3.5, 3.5)
     h_AK4M     = ROOT.TH1F("h_AK4M"+histogramSuffix,";ak4jet_{mass};Number", 100, 0, 400)
     h_AK4Bdisc = ROOT.TH1F("h_AK4Bdisc"+histogramSuffix,";ak4jet_{bdisc};Number", 100, 0, 1.0)
+    h_AK4BdiscPreSel = ROOT.TH1F("h_AK4BdiscPreSel"+histogramSuffix,";ak4jet_{bdisc};Number", 100, 0, 1.0)
+
 
     h_drAK4AK8    = ROOT.TH1F("h_drAK4AK8"+histogramSuffix,";#DeltaR_{AK4, AK8} ;Number", 100, 0, 5)
 #    h_drLepAK8    = ROOT.TH1F("h_drLepAK8",";{#delta r}_{lep, AK8} ;Number", 100, 0, 1500)
@@ -338,9 +342,9 @@ def plot_mttbar(argv) :
             #print weight
             
             #preselection histos            
-            #h_AK4BdiscPreSel.Fill( NearestAK4JetBDisc[0], weight )
-            #h_AK8Tau32PreSel.Fill(FatJetTau32[0], weight )
-            #h_AK8Tau21PreSel.Fill(FatJetTau21[0], weight )
+            h_AK4BdiscPreSel.Fill( NearestAK4JetBDisc[0], weight )
+            h_AK8Tau32PreSel.Fill(FatJetTau32[0], weight )
+            h_AK8Tau21PreSel.Fill(FatJetTau21[0], weight )
 
             passKin = hadTopCandP4.Perp() > 100.
             passTopTag = tau32 < 0.8 and mass_sd > 110. and mass_sd < 250.
