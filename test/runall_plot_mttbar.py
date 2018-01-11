@@ -12,10 +12,7 @@ import array as array
 from plot_mttbar import plot_mttbar
 import subprocess
 import errno
-
 import os
-
-path = '/eos/uscms/store/user/cmsdas/2018/long_exercises/B2GTTbar/'
 
 # Dictionaries
 filenames = {
@@ -67,11 +64,16 @@ for corr in ["", "--jer", "--jec"]:
 		for leptype in ['mu', 'ele']:
 			for typ in filenames.keys(): 
 				for i, n in enumerate(filenames[typ]):
-					in_file = filenames[typ][i]
-					out_file = "root_files/"+outnames[typ][i]+"_plots_"+leptype+"_"+corr[2:]+"_"+shape+".root"
+					in_file = filenames[typ][i]					
 					make_dirs("root_files")
-					if corr == "" and shape=="up": ins.append(["--file_in", in_file, "--file_out", out_file, "--lepton", leptype ]) 
-					if corr == "" and shape=="down": continue
+					# Raw files
+					if corr == "" and shape=="up": 
+						out_file = "root_files/"+outnames[typ][i]+"_plots_"+leptype+"_"+shape+".root"
+						ins.append(["--file_in", in_file, "--file_out", out_file, "--lepton", leptype ]) 
+					if corr == "" and shape=="down":
+						continue
+					# JER/JEC Files
+					out_file = "root_files/"+outnames[typ][i]+"_plots_"+leptype+"_"+corr[2:]+"_"+shape+".root"
 					ins.append(["--file_in", in_file, "--file_out", out_file, "--lepton", leptype, corr, shape]) 
 
 # Run in parallel
