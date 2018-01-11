@@ -48,7 +48,7 @@ def plot_mttbar(argv) :
     argv = []
 
     #write to temp file
-    fh = open("num.txt", "a")
+    #fh = open("num.txt", "a")
 
     #print '===== Command line options ====='
     #print options
@@ -79,12 +79,12 @@ def plot_mttbar(argv) :
 
     if options.jer == 'down' :
 	    histogramSuffix += '_jer_Down'
-	    
+
+    fpileup = ROOT.TFile.Open('purw.root', 'read')
+    h_pileupWeight = fpileup.Get('pileup') 
+
     fout= ROOT.TFile(options.file_out, "RECREATE")
-
-    #fpileup = ROOT.TFile.Open('purw.root', 'read')
-    #h_pileupWeight = fpileup.Get('pileup') 
-
+    fout.cd()
     h_cuts = ROOT.TH1F("Cut_flow", "", 4,0,4)
 
     h_mttbar = ROOT.TH1F("h_mttbar"+histogramSuffix, ";m_{t#bar{t}} (GeV);Number", 100, 0, 5000)#invariant ttbar mass
@@ -165,7 +165,7 @@ def plot_mttbar(argv) :
         LeptonDRMin         = array.array('f', [-1.])
         SemiLepMETpt        = array.array('f', [-1.])
         SemiLepMETphi       = array.array('f', [-1.])
-        SemiLepNvtx         = array.array('f', [-1.])
+        SemiLepNvtx         = array.array('i', [0])
         FatJetDeltaPhiLep   = array.array('f', [-1.]) 
         NearestAK4JetBDisc  = array.array('f', [-1.])
         NearestAK4JetPt     = array.array('f', [-1.])
@@ -268,8 +268,8 @@ def plot_mttbar(argv) :
         t.SetBranchStatus ('NearestAK4JetJECDnSys' , 1)
         t.SetBranchStatus ('NearestAK4JetJERUpSys' , 1)
         t.SetBranchStatus ('NearestAK4JetJERDnSys' , 1)
-
-
+        t.SetBranchStatus ('SemiLepNvtx' , 1)
+        
         entries = t.GetEntriesFast()
         tot_entries +=entries
 
@@ -324,11 +324,9 @@ def plot_mttbar(argv) :
             tau32 = FatJetTau32[0]
             mass_sd = FatJetMassSoftDrop[0]
             bdisc = NearestAK4JetBDisc[0]
-            
-              
-            #h_pileupWeight.GetBinContent(SemiLepNvtx+1)     
+            pileupWeight=  h_pileupWeight.GetBinContent(SemiLepNvtx[0]+1)
             #Weights
-            weight = 1
+            weight = pileupWeight
             if options.jec =='up':
                 weight = 1*NearestAK4JetJECUpSys[0]*FatJetJECUpSys[0]
             if options.jec =='down':
@@ -441,10 +439,10 @@ def plot_mttbar(argv) :
     print options.file_out, " : ", count, "/", tot_entries, ", Percentage:", round(float(count)/(float(tot_entries+1))*100,3), "%", \
      "Cut_flow: [", cut1, cut2, cut3, cut4, "]"
 
-    fh.write(options.file_in)
-    fh.write("  "+str(count))
-    fh.write('\n')
-    fh.close
+    #fh.write(options.file_in)
+    
+   
+    #fh.close
 
     fout.cd()
     fout.Write()
