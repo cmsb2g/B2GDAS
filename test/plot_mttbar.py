@@ -47,6 +47,9 @@ def plot_mttbar(argv) :
     (options, args) = parser.parse_args(argv)
     argv = []
 
+    #write to temp file
+    fh = open("num.txt", "a")
+
     #print '===== Command line options ====='
     #print options
     #print '================================'
@@ -78,7 +81,15 @@ def plot_mttbar(argv) :
 	    histogramSuffix += '_jer_Down'
 	    
     fout= ROOT.TFile(options.file_out, "RECREATE")
+
+    fpileup = ROOT.TFile.Open('purw.root', 'read')
+    h_pileupWeight = fpileup.Get('pileup') 
+  
+
+ 
+
     h_cuts = ROOT.TH1F("Cut_flow", "", 4,0,4)
+
     h_mttbar = ROOT.TH1F("h_mttbar"+histogramSuffix, ";m_{t#bar{t}} (GeV);Number", 100, 0, 5000)#invariant ttbar mass
     h_mtopHad = ROOT.TH1F("h_mtopHad"+histogramSuffix, ";m_{jet} (GeV);Number", 100, 0, 400)
     h_mtopHadGroomed = ROOT.TH1F("h_mtopHadGroomed"+histogramSuffix, ";Groomed m_{jet} (GeV);Number", 100, 0, 400)
@@ -313,6 +324,8 @@ def plot_mttbar(argv) :
             mass_sd = FatJetMassSoftDrop[0]
             bdisc = NearestAK4JetBDisc[0]
             
+              
+            h_pileupWeight.GetBinContent(SemiLepNvtx+1)     
             #Weights
             weight = 1
             if options.jec =='up':
@@ -426,6 +439,11 @@ def plot_mttbar(argv) :
 
     print options.file_out, " : ", count, "/", tot_entries, ", Percentage:", round(float(count)/(float(tot_entries+1))*100,3), "%", \
      "Cut_flow: [", cut1, cut2, cut3, cut4, "]"
+
+    fh.write(options.file_in)
+    fh.write("  "+str(count))
+    fh.write('\n')
+    fh.close
 
     fout.cd()
     fout.Write()
