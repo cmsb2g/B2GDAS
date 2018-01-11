@@ -88,6 +88,7 @@ def plot_mttbar(argv) :
     h_cuts = ROOT.TH1F("Cut_flow", "", 4,0,4)
 
     h_mttbar = ROOT.TH1F("h_mttbar"+histogramSuffix, ";m_{t#bar{t}} (GeV);Number", 100, 0, 5000)#invariant ttbar mass
+    h_mttbar_control = ROOT.TH1F("h_mttbar_control"+histogramSuffix, ";m_{t#bar{t}} (GeV);Number", 100, 0, 5000)#invariant ttbar mass
     h_mtopHad = ROOT.TH1F("h_mtopHad"+histogramSuffix, ";m_{jet} (GeV);Number", 100, 0, 400)
     h_mtopHadGroomed = ROOT.TH1F("h_mtopHadGroomed"+histogramSuffix, ";Groomed m_{jet} (GeV);Number", 100, 0, 400)
 
@@ -346,6 +347,23 @@ def plot_mttbar(argv) :
             pass2DCut = LeptonPtRel[0] > 20. or LeptonDRMin[0] > 0.4
             passBtag = bdisc > 0.7
 
+            # Invariant mass calculation
+            def calculate_m():
+                lepTopCandP4 = None
+                # Get the z-component of the lepton from the W mass constraint
+                solution, nuz1, nuz2 = solve_nu( vlep=theLepton, vnu=nuCandP4 )
+                # If there is at least one real solution, pick it up
+                if solution :
+                    nuCandP4.SetPz( nuz1 )
+                else :
+                    nuCandP4.SetPz( nuz1.real )
+
+                lepTopCandP4 = nuCandP4 + theLepton + bJetCandP4
+
+                ttbarCand = hadTopCandP4 + lepTopCandP4
+                mttbar = ttbarCand.M()
+                return mttbar
+
             # Applying and counting cuts
             if not passKin: 
                 continue
@@ -356,6 +374,12 @@ def plot_mttbar(argv) :
             else:
                 cut2 +=1
             if not passBtag: 
+                # Fill control region
+                if not passTopTag: 
+                    continue 
+                else:
+                    mttbar = calculate_m()
+                    h_mttbar_control.Fill( mttbar, weight )
                 continue                
             else:
                 cut3 +=1
@@ -376,22 +400,7 @@ def plot_mttbar(argv) :
             # number of top and bottom tags
             mttbar = -1.0
 
-
-            lepTopCandP4 = None
-            # Get the z-component of the lepton from the W mass constraint
-            solution, nuz1, nuz2 = solve_nu( vlep=theLepton, vnu=nuCandP4 )
-            # If there is at least one real solution, pick it up
-            if solution :
-                nuCandP4.SetPz( nuz1 )
-            else :
-                nuCandP4.SetPz( nuz1.real )
-
-            lepTopCandP4 = nuCandP4 + theLepton + bJetCandP4
-
-            ttbarCand = hadTopCandP4 + lepTopCandP4
-            mttbar = ttbarCand.M()
-			
-
+            mttbar = calculate_m()
             # Filling plots
             count +=1
             h_mttbar.Fill( mttbar, weight )
