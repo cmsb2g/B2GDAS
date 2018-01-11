@@ -11,6 +11,7 @@ import sys
 import array as array
 from plot_mttbar import plot_mttbar
 import subprocess
+import errno
 
 import os
 
@@ -37,6 +38,16 @@ outnames = {
 	'singletop' : []
 }
 
+def make_dirs(dirname):
+    """
+    Ensure that a named directory exists; if it does not, attempt to create it.
+    """
+    try:
+        os.makedirs(dirname)
+    except OSError, e:
+        if e.errno != errno.EEXIST:
+            raise
+
 
 # Extract file names
 for name in filenames.keys():
@@ -51,16 +62,19 @@ for name in filenames.keys():
 
 # Compile function inputs
 ins = []
-for leptype in ['mu', 'ele']:
-	for typ in filenames.keys(): 
-		for i, n in enumerate(filenames[typ]):
-			in_file = filenames[typ][i]
-			out_file = outnames[typ][i]+"_plots_"+leptype+".root"
-			ins.append(["--file_in", in_file, "--file_out", out_file, "--lepton", leptype])  # can include --jer up/down or --jec up/down
-
-#plot_mttbar(ins[0])
+for corr in ["", "--jer", "--jec"]:
+	for shape in ["up", "down"]:
+		for leptype in ['mu', 'ele']:
+			for typ in filenames.keys(): 
+				for i, n in enumerate(filenames[typ]):
+					in_file = filenames[typ][i]
+					out_file = "root_files/"+outnames[typ][i]+"_plots_"+leptype+"_"+corr[2:]+"_"+shape+".root"
+					make_dirs("root_files")
+					if corr == "" and shape=="up": ins.append(["--file_in", in_file, "--file_out", out_file, "--lepton", leptype ]) 
+					if corr == "" and shape=="down": continue
+					ins.append(["--file_in", in_file, "--file_out", out_file, "--lepton", leptype, corr, shape]) 
 
 # Run in parallel
 from multiprocessing import Pool
-p = Pool(10)
+p = Pool(15)
 p.map(plot_mttbar, ins)

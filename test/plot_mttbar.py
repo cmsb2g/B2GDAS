@@ -62,9 +62,9 @@ def plot_mttbar(argv) :
     if options.lepton == 'mu':
         histogramSuffix = '__mu'
 
-    if options.jec is not None and options.jet is not None:
+    if options.jec is not None and options.jer is not None:
         print 'You are trying to do two systematics at once! Please fix your input options'
-    
+
     if options.jec == 'up' :
         histogramSuffix += '_jec_Up'
 
@@ -76,8 +76,6 @@ def plot_mttbar(argv) :
 
     if options.jer == 'down' :
 	    histogramSuffix += '_jer_Down'
-
-    histogramSuffix = ''
 	    
     fout= ROOT.TFile(options.file_out, "RECREATE")
     h_cuts = ROOT.TH1F("Cut_flow", "", 4,0,4)
