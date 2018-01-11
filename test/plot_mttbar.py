@@ -48,7 +48,7 @@ def plot_mttbar(argv) :
     argv = []
 
     #write to temp file
-    fh = open("num.txt", "a")
+    #fh = open("num.txt", "a")
 
     #print '===== Command line options ====='
     #print options
@@ -79,12 +79,12 @@ def plot_mttbar(argv) :
 
     if options.jer == 'down' :
 	    histogramSuffix += '_jer_Down'
-	    
+
+    fpileup = ROOT.TFile.Open('purw.root', 'read')
+    h_pileupWeight = fpileup.Get('pileup') 
+
     fout= ROOT.TFile(options.file_out, "RECREATE")
-
-    #fpileup = ROOT.TFile.Open('purw.root', 'read')
-    #h_pileupWeight = fpileup.Get('pileup') 
-
+    fout.cd()
     h_cuts = ROOT.TH1F("Cut_flow", "", 4,0,4)
 
     h_mttbar = ROOT.TH1F("h_mttbar"+histogramSuffix, ";m_{t#bar{t}} (GeV);Number", 100, 0, 5000)#invariant ttbar mass
@@ -435,10 +435,10 @@ def plot_mttbar(argv) :
     print options.file_out, " : ", count, "/", tot_entries, ", Percentage:", round(float(count)/(float(tot_entries+1))*100,3), "%", \
      "Cut_flow: [", cut1, cut2, cut3, cut4, "]"
 
-    fh.write(options.file_in)
-    fh.write("  "+str(count))
-    fh.write('\n')
-    fh.close
+    #fh.write(options.file_in)
+    
+   
+    #fh.close
 
     fout.cd()
     fout.Write()
