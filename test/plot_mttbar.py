@@ -61,9 +61,9 @@ def plot_mttbar(argv) :
     histogramSuffix = ''
     #Adding name change to histograms based on --jec options and --jer options
     if options.lepton == 'ele':
-        histogramSuffix = '__el'
+        histogramSuffix = '_el'
     if options.lepton == 'mu':
-        histogramSuffix = '__mu'
+        histogramSuffix = '_mu'
 
     if options.jec is not None and options.jer is not None:
         print 'You are trying to do two systematics at once! Please fix your input options'
@@ -82,11 +82,8 @@ def plot_mttbar(argv) :
 	    
     fout= ROOT.TFile(options.file_out, "RECREATE")
 
-    fpileup = ROOT.TFile.Open('purw.root', 'read')
-    h_pileupWeight = fpileup.Get('pileup') 
-  
-
- 
+    #fpileup = ROOT.TFile.Open('purw.root', 'read')
+    #h_pileupWeight = fpileup.Get('pileup') 
 
     h_cuts = ROOT.TH1F("Cut_flow", "", 4,0,4)
 
@@ -325,7 +322,7 @@ def plot_mttbar(argv) :
             bdisc = NearestAK4JetBDisc[0]
             
               
-            h_pileupWeight.GetBinContent(SemiLepNvtx+1)     
+            #h_pileupWeight.GetBinContent(SemiLepNvtx+1)     
             #Weights
             weight = 1
             if options.jec =='up':
