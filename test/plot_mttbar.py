@@ -153,7 +153,7 @@ def plot_mttbar(argv) :
         LeptonDRMin         = array.array('f', [-1.])
         SemiLepMETpt        = array.array('f', [-1.])
         SemiLepMETphi       = array.array('f', [-1.])
-        SemiLepNvtx         = array.array('f', [-1.])
+        SemiLepNvtx         = array.array('i', [0])
         FatJetDeltaPhiLep   = array.array('f', [-1.]) 
         NearestAK4JetBDisc  = array.array('f', [-1.])
         NearestAK4JetPt     = array.array('f', [-1.])
@@ -256,8 +256,8 @@ def plot_mttbar(argv) :
         t.SetBranchStatus ('NearestAK4JetJECDnSys' , 1)
         t.SetBranchStatus ('NearestAK4JetJERUpSys' , 1)
         t.SetBranchStatus ('NearestAK4JetJERDnSys' , 1)
-
-
+        t.SetBranchStatus ('SemiLepNvtx' , 1)
+        
         entries = t.GetEntriesFast()
         tot_entries +=entries
 
@@ -312,11 +312,9 @@ def plot_mttbar(argv) :
             tau32 = FatJetTau32[0]
             mass_sd = FatJetMassSoftDrop[0]
             bdisc = NearestAK4JetBDisc[0]
-            
-              
-            h_pileupWeight.GetBinContent(SemiLepNvtx+1)     
+            pileupWeight=  h_pileupWeight.GetBinContent(SemiLepNvtx[0]+1)     
             #Weights
-            weight = 1
+            weight = pileupWeight
             if options.jec =='up':
                 weight = 1*NearestAK4JetJECUpSys[0]*FatJetJECUpSys[0]
             if options.jec =='down':
