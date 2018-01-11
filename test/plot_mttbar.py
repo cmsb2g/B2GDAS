@@ -114,7 +114,7 @@ def plot_mttbar(argv) :
     h_drAK4AK8    = ROOT.TH1F("h_drAK4AK8"+histogramSuffix,";#DeltaR_{AK4, AK8} ;Number", 100, 0, 5)
 #    h_drLepAK8    = ROOT.TH1F("h_drLepAK8",";{#delta r}_{lep, AK8} ;Number", 100, 0, 1500)
     h_drLepAK4    = ROOT.TH1F("h_drLepAK4"+histogramSuffix,";#DeltaR_{lep, AK4} ;Number", 100, 0, 5)
-    h_dPhiLepAK8 = ROOT.TH1F("h_dPhiLepAK8"+histogramSuffix,";#Delta#phi_{l,AK8};Number", 100, 0.0, 1.0)
+#    h_dPhiLepAK8 = ROOT.TH1F("h_dPhiLepAK8"+histogramSuffix,";#Delta#phi_{l,AK8};Number", 100, 0.0, 1.0) #Not actually filled in any of the ntuples
 
     
     fin = ROOT.TFile.Open(options.file_in)
@@ -415,13 +415,13 @@ def plot_mttbar(argv) :
             h_AK4Bdisc.Fill( NearestAK4JetBDisc[0], weight )
       
             #dr's
-            h_drAK4AK8.Fill(bJetCandP4.DeltaR(bJetCandP4), weight)
-            h_drLepAK4.Fill(theLepton.DeltaR(hadTopCandP4), weight)
+            h_drAK4AK8.Fill(bJetCandP4.DeltaR(hadTopCandP4), weight)
+            h_drLepAK4.Fill(theLepton.DeltaR(bJetCandP4), weight)
             h_AK8Tau32.Fill(FatJetTau32[0], weight )
             h_AK8Tau21.Fill(FatJetTau21[0], weight )
 
 
-            h_dPhiLepAK8.Fill(FatJetDeltaPhiLep[0], weight )
+            #h_dPhiLepAK8.Fill(FatJetDeltaPhiLep[0], weight )
 
     # Fill cut-flow
     h_cuts.SetBinContent(1, cut1)
