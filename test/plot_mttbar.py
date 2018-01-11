@@ -116,6 +116,25 @@ def plot_mttbar(argv) :
     h_drLepAK4    = ROOT.TH1F("h_drLepAK4"+histogramSuffix,";#DeltaR_{lep, AK4} ;Number", 100, 0, 5)
 #    h_dPhiLepAK8 = ROOT.TH1F("h_dPhiLepAK8"+histogramSuffix,";#Delta#phi_{l,AK8};Number", 100, 0.0, 1.0) #Not actually filled in any of the ntuples
 
+    #Following lines is to make sure that the statistical errors are kept and stored
+    h_mttbar.Sumw2()
+    h_mtopHad.Sumw2()
+    h_mtopHadGroomed.Sumw2()
+    h_lepPt.Sumw2()
+    h_lepEta.Sumw2()
+    h_lepPhi.Sumw2()
+    h_AK8Pt.Sumw2()
+    h_AK8Eta.Sumw2()
+    h_AK8Phi.Sumw2()
+    h_AK8Tau32.Sumw2()
+    h_AK8Tau21.Sumw2()
+    h_AK4Pt.Sumw2()
+    h_AK4Eta.Sumw2()
+    h_AK4Phi.Sumw2()
+    h_AK4M.Sumw2()
+    h_AK4Bdisc.Sumw2()
+    h_drAK4AK8.Sumw2()
+    h_drLepAK4.Sumw2()
     
     fin = ROOT.TFile.Open(options.file_in)
 
@@ -420,7 +439,6 @@ def plot_mttbar(argv) :
             h_AK8Tau32.Fill(FatJetTau32[0], weight )
             h_AK8Tau21.Fill(FatJetTau21[0], weight )
 
-
             #h_dPhiLepAK8.Fill(FatJetDeltaPhiLep[0], weight )
 
     # Fill cut-flow
@@ -432,7 +450,6 @@ def plot_mttbar(argv) :
     h_cuts.GetXaxis().SetBinLabel(2, "pass2DCut" )
     h_cuts.GetXaxis().SetBinLabel(3, "passBtag")
     h_cuts.GetXaxis().SetBinLabel(4, "passTopTag")
-
 
     print options.file_out, " : ", count, "/", tot_entries, ", Percentage:", round(float(count)/(float(tot_entries+1))*100,3), "%", \
      "Cut_flow: [", cut1, cut2, cut3, cut4, "]"
