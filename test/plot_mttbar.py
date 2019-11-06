@@ -1,18 +1,33 @@
 #! /usr/bin/env python
 
 
-## _________                _____.__                            __  .__               
-## \_   ___ \  ____   _____/ ____\__| ____  __ ______________ _/  |_|__| ____   ____  
-## /    \  \/ /  _ \ /    \   __\|  |/ ___\|  |  \_  __ \__  \\   __\  |/  _ \ /    \ 
+## _________                _____.__                            __  .__
+## \_   ___ \  ____   _____/ ____\__| ____  __ ______________ _/  |_|__| ____   ____
+## /    \  \/ /  _ \ /    \   __\|  |/ ___\|  |  \_  __ \__  \\   __\  |/  _ \ /    \
 ## \     \___(  <_> )   |  \  |  |  / /_/  >  |  /|  | \// __ \|  | |  (  <_> )   |  \
 ##  \______  /\____/|___|  /__|  |__\___  /|____/ |__|  (____  /__| |__|\____/|___|  /
-##         \/            \/        /_____/                   \/                    \/ 
+##         \/            \/        /_____/                   \/                    \/
 import sys
 import array as array
 from optparse import OptionParser
 
 
-def plot_mttbar(argv) : 
+def trigweight(LeptonType,LeptonPt) :
+    MUbins = [45,50,60,1000000]
+    ELbins = [45,50,60,70,80,90,100,120,1000000]
+    ELweight = [0.078, 0.737,0.8567,0.867,0.86388, 0.86497,0.888894,0.968965]
+    MUweight = [0.0526, 0.8785, 0.9387]
+    if LeptonType == "11":
+        for i in range(0,len(ELbins)):
+            if LeptonPt > ELbins[i] and LeptonPt < ELbins[i+1]: return ELweight[i]
+
+    else:
+        for i in range(0, len(MUbins)):
+            if LeptonPt > MUbins[i] and LeptonPt < MUbins[i+1]: return MUweight[i]
+
+
+
+def plot_mttbar(argv) :
     parser = OptionParser()
 
     parser.add_option('--file_in', type='string', action='store',
@@ -22,12 +37,28 @@ def plot_mttbar(argv) :
     parser.add_option('--file_out', type='string', action='store',
                       dest='file_out',
                       help='Output file')
-    
-    #parser.add_option('--isData', action='store_true',
-    #                  dest='isData',
-    #                  default = False,
-    #                  help='Is this Data?')
-        
+
+    parser.add_option('--is_electron', action='store_true',
+                      dest='is_electron',default = False,
+                      help='flag sets code to use electron rather than muon')
+
+    parser.add_option('--is_bkg', action='store_true',
+                      dest='is_bkg', default = False,
+                      help='is this a background data rather than signal')
+
+    parser.add_option('--enable_top_tagging', action='store_true',
+                     dest='enable_top_tagging', default=False,
+                     help='Whether a cut is made based on top tagging')
+
+    parser.add_option('--enable_b_tagging', action='store_true',
+                     dest='enable_b_tagging', default=False,
+                     help='Whether a cut is made based on b tagging')
+
+    parser.add_option('--isData', action='store_true',
+                      dest='isData',
+                      default = False,
+                      help='Is this Data?')
+
     (options, args) = parser.parse_args(argv)
     argv = []
 
@@ -37,22 +68,146 @@ def plot_mttbar(argv) :
 
     import ROOT
 
+    if options.is_electron:
+        leptonname = "E"
+
+    if not options.is_electron:
+        leptonname = "M"
+
+    if options.file_in.lower().find("rsgluon750.root".lower())  != -1:
+        sortofdata = "RSG0_75"
+    elif options.file_in.lower().find("rsgluon1250.root".lower()) != -1:
+        sortofdata = "RSG1_25"
+    elif options.file_in.lower().find("rsgluon1500.root".lower()) != -1:
+        sortofdata = "RSG1_5"
+    elif options.file_in.lower().find("rsgluon2000.root".lower()) != -1:
+        sortofdata = "RSG2"
+    elif options.file_in.lower().find("rsgluon2500.root".lower()) != -1:
+        sortofdata = "RSG2_5"
+    elif options.file_in.lower().find("rsgluon3000.root".lower()) != -1:
+        sortofdata = "RSG3"
+    elif options.file_in.lower().find("rsgluon3500.root".lower()) != -1:
+        sortofdata = "RSG3_5"
+    elif options.file_in.lower().find("rsgluon4000.root".lower()) != -1:
+        sortofdata = "RSG4"
+    elif options.file_in.lower().find("output_singleelectron.root".lower()) != -1:
+        sortofdata = "single"
+    elif options.file_in.lower().find("output_singlemuon.root".lower()) != -1:
+        sortofdata = "single"
+    elif options.file_in.lower().find("st_s-channel_4f_leptonDecays.root".lower()) != -1:
+        sortofdata = "stpS"
+    elif options.file_in.lower().find("st_t-channel_antitop_4f_leptonDecays.root".lower()) != -1:
+        sortofdata = "sttbar"
+    elif options.file_in.lower().find("st_t-channel_top_4f_leptonDecays.root".lower()) != -1:
+        sortofdata = "stt"
+    elif options.file_in.lower().find("st_tW_antitop_5f_inclusiveDecays.root".lower()) != -1:
+        sortofdata = "twtbar"
+    elif options.file_in.lower().find("st_tW_top_5f_inclusiveDecays.root".lower()) != -1:
+        sortofdata = "twt"
+    elif options.file_in.lower().find("ttbar.root".lower()) != -1:
+        sortofdata = "ttbar"
+    elif options.file_in.lower().find("WJetsToLNu_Pt-100To250.root".lower()) != -1:
+        sortofdata = "Wjet100to250"
+    elif options.file_in.lower().find("WJetsToLNu_Pt-250To400.root".lower()) != -1:
+        sortofdata = "Wjet250to400"
+    elif options.file_in.lower().find("WJetsToLNu_Pt-400To600.root".lower()) != -1:
+        sortofdata = "Wjet400to600"
+    elif options.file_in.lower().find("WJetsToLNu_Pt-600ToInf.root".lower()) != -1:
+        sortofdata = "wjet600toinf"
+    else:
+        sortofdata = ""
+
     from leptonic_nu_z_component import solve_nu_tmass, solve_nu
 
     fout= ROOT.TFile(options.file_out, "RECREATE")
-    h_mttbar = ROOT.TH1F("h_mttbar", ";m_{t#bar{t}} (GeV);Number", 100, 0, 5000)
-    h_mtopHad = ROOT.TH1F("h_mtopHad", ";m_{jet} (GeV);Number", 100, 0, 400)
-    h_mtopHadGroomed = ROOT.TH1F("h_mtopHadGroomed", ";Groomed m_{jet} (GeV);Number", 100, 0, 400)
+
+    #mass histograms
+
+    h_mttbar = ROOT.TH1F("mttbar"+"_"+leptonname+"_"+sortofdata, ";m_{t#bar{t}} (GeV);Number", 100, 0, 5000)
+    h_mttbar.Sumw2()
+    h_mtopHad = ROOT.TH1F("mtopHad"+"_"+leptonname+"_"+sortofdata, ";m_{jet} (GeV);Number", 100, 0, 400)
+    h_mtopHad.Sumw2()
+    h_mtopHadGroomed = ROOT.TH1F("mtopHadGroomed"+"_"+leptonname+"_"+sortofdata, ";Groomed m_{jet} (GeV);Number", 100, 0, 400)
+    h_mtopHadGroomed.Sumw2()
+    h_mfatjet = ROOT.TH1F("fatjetmass"+"_"+leptonname+"_"+sortofdata, ";m_{fatjet} (GeV);Number", 100, 0, 400)
+    h_mfatjet.Sumw2()
+    h_mlep = ROOT.TH1F("lepmass"+"_"+leptonname+"_"+sortofdata, ";m_{lep} (GeV);Number", 100, 0, 5000)
+    h_mlep.Sumw2()
+    h_mAK4Jet = ROOT.TH1F("AK4Jetmass"+"_"+leptonname+"_"+sortofdata, ";m_{AK4 jet} (GeV);Number", 100, 0, 5000)
+    h_mAK4Jet.Sumw2()
+    h_mlepTop = ROOT.TH1F("lepTopmass"+"_"+leptonname+"_"+sortofdata, ";m (GeV);Number", 100, 0, 5000)
+    h_mlepTop.Sumw2()
+
+    #pt histograms
+    h_fatjetpt = ROOT.TH1F("fatjetpt"+"_"+leptonname+"_"+sortofdata, ";p_{T} (GeV);Number", 500, 0, 5000)
+    h_fatjetpt.Sumw2()
+    h_leppt = ROOT.TH1F("leppt"+"_"+leptonname+"_"+sortofdata, ";p_{T} (GeV);Number", 100, 0, 5000)
+    h_leppt.Sumw2()
+    h_AK4Jetpt = ROOT.TH1F("AK4Jetpt"+"_"+leptonname+"_"+sortofdata, ";p_{T} (GeV);Number", 100, 0, 5000)
+    h_AK4Jetpt.Sumw2()
+    h_lepToppt = ROOT.TH1F("lepToppt"+"_"+leptonname+"_"+sortofdata, ";p_{T} (GeV);Number", 100, 0, 5000)
+    h_lepToppt.Sumw2()
+    h_ttbarpt = ROOT.TH1F("ttbarPt"+"_"+leptonname+"_"+sortofdata, ";p_{T} (GeV);Number", 100, 0, 5000)
+    h_ttbarpt.Sumw2()
+
+    #eta histograms
+    h_fatjeteta = ROOT.TH1F("fatjeteta"+"_"+leptonname+"_"+sortofdata, ";#eta;Number", 500, -3, 3)
+    h_fatjeteta.Sumw2()
+    h_lepeta = ROOT.TH1F("lepeta"+"_"+leptonname+"_"+sortofdata, ";#eta;Number", 500, -3, 3)
+    h_lepeta.Sumw2()
+    h_AK4Jeteta = ROOT.TH1F("AK4Jeteta"+"_"+leptonname+"_"+sortofdata, ";#eta;Number", 500, -3, 3)
+    h_AK4Jeteta.Sumw2()
+    h_lepTopeta = ROOT.TH1F("lepTopeta"+"_"+leptonname+"_"+sortofdata, ";#eta;Number", 500, -3, 3)
+    h_lepTopeta.Sumw2()
+    h_ttbareta =  ROOT.TH1F("ttbarEta"+"_"+leptonname+"_"+sortofdata, ";#eta;Number", 500, -3, 3)
+    h_ttbareta.Sumw2()
+
+
+    #phi histograms
+    h_fatjetphi = ROOT.TH1F("fatjetphi"+"_"+leptonname+"_"+sortofdata, ";#phi (rad);Number", 500, -4, 4)
+    h_fatjetphi.Sumw2()
+    h_lepphi = ROOT.TH1F("lepphi"+"_"+leptonname+"_"+sortofdata, ";#phi (rad);Number", 500, -4, 4)
+    h_lepphi.Sumw2()
+    h_AK4Jetphi = ROOT.TH1F("AK4Jetphi"+"_"+leptonname+"_"+sortofdata, ";#phi (rad);Number", 500, -4, 4)
+    h_AK4Jetphi.Sumw2()
+    h_lepTopphi = ROOT.TH1F("lepTopphi"+"_"+leptonname+"_"+sortofdata, ";#phi (rad);Number", 500, -4, 4)
+    h_lepTopphi.Sumw2()
+    h_ttbarphi = ROOT.TH1F("ttbarphi"+"_"+leptonname+"_"+sortofdata, ";#phi (rad);Number", 500, -4, 4)
+    h_ttbarphi.Sumw2()
+
+
+    #MET histograms
+    h_MET = ROOT.TH1F("MET"+"_"+leptonname+"_"+sortofdata, ";MET (GeV);Number", 100, 0, 5000)
+    h_MET.Sumw2()
+    h_METphi = ROOT.TH1F("METphi"+"_"+leptonname+"_"+sortofdata, ";#phi (rad);Number", 500, -4, 4)
+    h_METphi.Sumw2()
+
+
+    #other histograms
+    h_fatjettau32 = ROOT.TH1F("fatjettau32"+"_"+leptonname+"_"+sortofdata, ":#tau_{3}/#tau_{2} ;Number", 100, 0,10 )
+    h_fatjettau32.Sumw2()
+    h_fatjettau21 = ROOT.TH1F("fatjettau21"+"_"+leptonname+"_"+sortofdata, ";#tau_{2}/#tau_{1} ;Number", 100, 0, 10)
+    h_fatjettau21.Sumw2()
+    h_deltaRfatjetvslepTop = ROOT.TH1F("deltaRfatjetvslepTop"+"_"+leptonname+"_"+sortofdata, ";#Delta R;Number", 100, 0,5 )
+    h_deltaRfatjetvslepTop.Sumw2()
+    h_btag = ROOT.TH1F("btag"+"_"+leptonname+"_"+sortofdata, ";disc;Number", 100, 0, 1)
+    h_btag.Sumw2()
+
+    #cutflow histogram
+
+    h_cutflow = ROOT.TH1F("cutflow"+"_"+leptonname+"_"+sortofdata, "cuts impemented", 5,0,5)
+    h_cutflow.Sumw2()
+
     fin = ROOT.TFile.Open(options.file_in)
 
 
     trees = [ fin.Get("TreeSemiLept") ]
 
 
-    
+
     for itree,t in enumerate(trees) :
 
-        #if options.isData : 
+        #if options.isData :
         SemiLeptTrig        =  ROOT.vector('int')()
         SemiLeptWeight      = array.array('f', [0.] )
         PUWeight            = array.array('f', [0.] )
@@ -66,7 +221,7 @@ def plot_mttbar(argv) :
         FatJetMass          = array.array('f', [-1.])
         FatJetMassSoftDrop  = array.array('f', [-1.])
         FatJetTau32         = array.array('f', [-1.])
-        FatJetTau21         = array.array('f', [-1.]) 
+        FatJetTau21         = array.array('f', [-1.])
         FatJetSDBDiscW      = array.array('f', [-1.])
         FatJetSDBDiscB      = array.array('f', [-1.])
         FatJetSDsubjetWpt   = array.array('f', [-1.])
@@ -88,8 +243,8 @@ def plot_mttbar(argv) :
         SemiLepMETpt        = array.array('f', [-1.])
         SemiLepMETphi       = array.array('f', [-1.])
         SemiLepNvtx         = array.array('f', [-1.])
-        FatJetDeltaPhiLep      = array.array('f', [-1.]) 
-        NearestAK4JetBDisc            = array.array('f', [-1.])
+        FatJetDeltaPhiLep   = array.array('f', [-1.])
+        NearestAK4JetBDisc  = array.array('f', [-1.])
         NearestAK4JetPt     = array.array('f', [-1.])
         NearestAK4JetEta    = array.array('f', [-1.])
         NearestAK4JetPhi    = array.array('f', [-1.])
@@ -98,12 +253,12 @@ def plot_mttbar(argv) :
         NearestAK4JetJECDnSys = array.array('f', [-1.])
         NearestAK4JetJERUpSys = array.array('f', [-1.])
         NearestAK4JetJERDnSys = array.array('f', [-1.])
-        SemiLeptRunNum        = array.array('f', [-1.])   
-        SemiLeptLumiNum     = array.array('f', [-1.])   
-        SemiLeptEventNum      = array.array('f', [-1.])   
+        SemiLeptRunNum        = array.array('f', [-1.])
+        SemiLeptLumiNum     = array.array('f', [-1.])
+        SemiLeptEventNum    = array.array('f', [-1.])
 
 
-        #if options.isData : 
+        #if options.isData :
         t.SetBranchAddress('SemiLeptTrig'        , SemiLeptTrig )
         t.SetBranchAddress('SemiLeptWeight'      , SemiLeptWeight      ) #Combined weight of all scale factors (lepton, PU, generator) relevant for the smeileptonic event selection
         t.SetBranchAddress('PUWeight'            , PUWeight            )
@@ -186,6 +341,7 @@ def plot_mttbar(argv) :
         print 'Processing tree ' + str(itree)
 
         eventsToRun = entries
+
         for jentry in xrange( eventsToRun ):
             if jentry % 100000 == 0 :
                 print 'processing ' + str(jentry)
@@ -194,25 +350,29 @@ def plot_mttbar(argv) :
             if ientry < 0:
                 break
 
-            # Muons only for now
-            if LeptonType[0] != 13 :
+
+            if options.is_electron and LeptonType[0] != 11:
+                continue
+            elif not options.is_electron and LeptonType[0] !=13:
                 continue
 
-            # Muon triggers only for now (use HLT_Mu45_eta2p1 with index 1)
-            if SemiLeptTrig[1] != 1  :
-                continue
-
+            if not options.is_bkg and options.is_electron:
+                if SemiLeptTrig[1] != 1 and SemiLeptTrig[2] != 1 :
+                    continue
+            elif not options.is_bkg and not options.is_electron:
+                if SemiLeptTrig[0] != 1  :
+                    continue
 
             hadTopCandP4 = ROOT.TLorentzVector()
-            hadTopCandP4.SetPtEtaPhiM( FatJetPt[0], FatJetEta[0], FatJetPhi[0], FatJetMass[0])
+            hadTopCandP4.SetPtEtaPhiM( FatJetPt[0], FatJetEta[0], FatJetPhi[0], FatJetMassSoftDrop[0])
             bJetCandP4 = ROOT.TLorentzVector()
             bJetCandP4.SetPtEtaPhiM( NearestAK4JetPt[0], NearestAK4JetEta[0], NearestAK4JetPhi[0], NearestAK4JetMass[0])
             nuCandP4 = ROOT.TLorentzVector( )
-            nuCandP4.SetPtEtaPhiM( SemiLepMETpt[0], 0, SemiLepMETphi[0], SemiLepMETpt[0] )
+            nuCandP4.SetPtEtaPhiM( SemiLepMETpt[0], 0, SemiLepMETphi[0], 0 )
             theLepton = ROOT.TLorentzVector()
             theLepton.SetPtEtaPhiE( LeptonPt[0], LeptonEta[0], LeptonPhi[0], LeptonEnergy[0] ) # Assume massless
-            
-            
+
+
             tau32 = FatJetTau32[0]
             mass_sd = FatJetMassSoftDrop[0]
             bdisc = NearestAK4JetBDisc[0]
@@ -221,17 +381,45 @@ def plot_mttbar(argv) :
             passTopTag = tau32 < 0.6 and mass_sd > 110. and mass_sd < 250.
             pass2DCut = LeptonPtRel[0] > 55. or LeptonDRMin[0] > 0.4
             passBtag = bdisc > 0.7
+            
 
-            if not passKin or not pass2DCut or not passBtag or not passTopTag :
+            if not options.isData:
+                trigWeight = trigweight(LeptonType[0],LeptonPt[0])
+                SemiLeptWeight[0]*= trigWeight
+
+            h_cutflow.Fill(1,SemiLeptWeight[0])
+            if not passKin:
                 continue
+            h_cutflow.Fill(2,SemiLeptWeight[0])
+            if not pass2DCut:
+                continue
+            h_cutflow.Fill(3,SemiLeptWeight[0])
 
 
-            ##  ____  __.__                              __  .__         __________                     
-            ## |    |/ _|__| ____   ____   _____ _____ _/  |_|__| ____   \______   \ ____   ____  ____  
-            ## |      < |  |/    \_/ __ \ /     \\__  \\   __\  |/ ___\   |       _// __ \_/ ___\/  _ \ 
+            if options.enable_b_tagging:
+                if not passBtag:
+                    continue
+                h_cutflow.Fill(4,SemiLeptWeight[0])
+            if not options.enable_b_tagging:
+                if passBtag:
+                    continue
+                h_cutflow.Fill(4,SemiLeptWeight[0])
+
+            if options.enable_top_tagging:
+                if not passTopTag :
+                    continue
+                h_cutflow.Fill(5,SemiLeptWeight[0])
+            if not options.enable_top_tagging:
+                if passTopTag:
+                    continue
+                h_cutflow.Fill(5,SemiLeptWeight[0])
+
+            ##  ____  __.__                              __  .__         __________
+            ## |    |/ _|__| ____   ____   _____ _____ _/  |_|__| ____   \______   \ ____   ____  ____
+            ## |      < |  |/    \_/ __ \ /     \\__  \\   __\  |/ ___\   |       _// __ \_/ ___\/  _ \
             ## |    |  \|  |   |  \  ___/|  Y Y  \/ __ \|  | |  \  \___   |    |   \  ___/\  \__(  <_> )
-            ## |____|__ \__|___|  /\___  >__|_|  (____  /__| |__|\___  >  |____|_  /\___  >\___  >____/ 
-            ##         \/       \/     \/      \/     \/             \/          \/     \/     \/       
+            ## |____|__ \__|___|  /\___  >__|_|  (____  /__| |__|\___  >  |____|_  /\___  >\___  >____/
+            ##         \/       \/     \/      \/     \/             \/          \/     \/     \/
 
             # Now we do our kinematic calculation based on the categories of the
             # number of top and bottom tags
@@ -251,11 +439,51 @@ def plot_mttbar(argv) :
 
             ttbarCand = hadTopCandP4 + lepTopCandP4
             mttbar = ttbarCand.M()
+            # Fill Histograms
 
+            #Mass histograms
             h_mttbar.Fill( mttbar, SemiLeptWeight[0] )
             h_mtopHadGroomed.Fill( mass_sd, SemiLeptWeight[0] )
             h_mtopHad.Fill( hadTopCandP4.M(), SemiLeptWeight[0] )
-            
+            h_mfatjet.Fill(FatJetMass[0], SemiLeptWeight[0])
+            h_mlep.Fill(theLepton.M(),SemiLeptWeight[0])
+            h_mAK4Jet.Fill(NearestAK4JetMass[0],SemiLeptWeight[0])
+            h_mlepTop.Fill(ttbarCand.M())
+
+            #pt histograms
+            h_fatjetpt.Fill(FatJetPt[0], SemiLeptWeight[0])
+            h_leppt.Fill(LeptonPt[0], SemiLeptWeight[0])
+            h_AK4Jetpt.Fill(NearestAK4JetPt[0],SemiLeptWeight[0])
+
+            h_lepToppt.Fill(lepTopCandP4.Pt(),SemiLeptWeight[0])
+            h_ttbarpt.Fill(ttbarCand.Pt(),SemiLeptWeight[0])
+
+            #eta histograms
+            h_fatjeteta.Fill(FatJetEta[0],SemiLeptWeight[0])
+            h_lepeta.Fill(LeptonEta[0],SemiLeptWeight[0])
+            h_AK4Jeteta.Fill(NearestAK4JetEta[0],SemiLeptWeight[0])
+
+            h_lepTopeta.Fill(lepTopCandP4.Eta(),SemiLeptWeight[0])
+            h_ttbareta.Fill(ttbarCand.Eta(),SemiLeptWeight[0])
+
+            #phi histograms
+            h_fatjetphi.Fill(FatJetPhi[0], SemiLeptWeight[0])
+            h_lepphi.Fill(LeptonPhi[0],SemiLeptWeight[0])
+            h_AK4Jetphi.Fill(NearestAK4JetPhi[0],SemiLeptWeight[0])
+
+            h_lepTopphi.Fill(lepTopCandP4.Phi(),SemiLeptWeight[0])
+            h_ttbarphi.Fill(ttbarCand.Phi(),SemiLeptWeight[0])
+
+            #MET histograms
+            h_MET.Fill(SemiLepMETpt[0],SemiLeptWeight[0])
+            h_METphi.Fill(SemiLepMETphi[0],SemiLeptWeight[0])
+
+            #other histograms
+            h_fatjettau32.Fill(FatJetTau32[0],SemiLeptWeight[0])
+            h_fatjettau21.Fill(FatJetTau21[0],SemiLeptWeight[0])
+
+            h_deltaRfatjetvslepTop.Fill(LeptonDRMin[0],SemiLeptWeight[0])
+            h_btag.Fill(bdisc,SemiLeptWeight[0])
 
     fout.cd()
     fout.Write()
@@ -263,5 +491,3 @@ def plot_mttbar(argv) :
 
 if __name__ == "__main__" :
     plot_mttbar(sys.argv)
-
-
